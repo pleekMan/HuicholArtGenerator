@@ -12,7 +12,7 @@ public class Node {
 	
 	boolean isBlocker;
 	boolean isEmpty;
-
+	int ID;
 	//static float size = 20;
 
 	PVector position;
@@ -29,6 +29,7 @@ public class Node {
 		
 		nodeColor = p5.color(255,255,0);
 		
+		ID = 0;
 		
 	}
 	
@@ -58,7 +59,14 @@ public class Node {
 		drawLayer.fill(nodeColor);
 		drawLayer.ellipse(position.x, position.y, CanvasManager.pointSize, CanvasManager.pointSize);
 		
+		drawLayer.fill(200);
+		drawLayer.text(ID, position.x - 8, position.y + 3);
+		
 		//drawLayer.endDraw();
+	}
+	
+	public void setID(int _id){
+		ID = _id;
 	}
 	
 	public void setColor(int _color){
@@ -75,7 +83,7 @@ public class Node {
 	public boolean isInside(float _x, float _y){
 		//p5.println("|| " + p5.dist(_x, _y, position.x, position.y));
 		if(p5.dist(_x, _y, position.x, position.y) < (CanvasManager.pointSize * 0.5f)){
-			p5.println("FOUND A POINT!!");
+			//p5.println("FOUND A POINT!!");
 			return true;
 		} else { 
 			return false;

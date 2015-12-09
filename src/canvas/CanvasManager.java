@@ -16,7 +16,9 @@ public class CanvasManager {
 	PGraphics drawLayer;
 
 	ArrayList<Node> points;
+	ArrayList<Node> tempPoints;
 	static float pointSize;
+	int gridWidth;
 
 	ArrayList<ColorPalette> colorPalettes;
 
@@ -29,13 +31,14 @@ public class CanvasManager {
 		// grid.setSnapAtCenter(true);
 
 		points = new ArrayList<Node>();
+		tempPoints = new ArrayList<Node>();
 
-		pointSize = 30;
+		pointSize = 45;
 
 		colorPalettes = new ArrayList<ColorPalette>();
 
-		createGrid();
 		createDefaultPalette();
+		createGrid();
 	}
 
 	private void createGrid() {
@@ -46,48 +49,207 @@ public class CanvasManager {
 		float separation = pointSize * 1.2f;
 		boolean offset = false;
 
-		// START CREATING THE POINTS/NODES
+		int gridCounter = 0;
+		int gridWidthCounter = 0;
+		boolean gridWidthCounterDone = false;
+
+		// CREATING GRID POINTS FOR MAIN AND TEMP GRID
 		while (posY < drawLayer.height) {
 
 			Node newPoint = new Node(new PVector(posX, posY), false);
+			Node newTempPoint = new Node(new PVector(posX, posY), false);
+
 			newPoint.setDrawLayer(drawLayer);
-			newPoint.setColor(p5.color(50));
+			newPoint.setColorPalette(getColorPaletteByName("DEFAULT"));
+			newPoint.setID(gridCounter);
+			newTempPoint.setDrawLayer(drawLayer);
+			newTempPoint.setColorPalette(getColorPaletteByName("DEFAULT"));
+
 			points.add(newPoint);
+			tempPoints.add(newTempPoint);
 
 			posX += separation;
+
+			gridCounter++;
+
+			if (!gridWidthCounterDone)
+				gridWidthCounter++;
 
 			if (posX > drawLayer.width) {
 				offset = !offset;
 				posX = offset ? startX + (separation * 0.5f) : startX;
 				posY += separation;
+
+				gridWidthCounterDone = true;
 			}
 		}
 
-	}
-
-	public void createDefaultPalette() {
-		ColorPalette defaultPalette = new ColorPalette("DEFAULT");
-		defaultPalette.eraseAllColors();
-		colorPalettes.add(defaultPalette);
-
-		for (Node point : points) {
-			point.setColorPalette(defaultPalette);
-		}
+		gridWidth = gridWidthCounter;
+		p5.println("Grid Width: " + gridWidthCounter);
 
 	}
 
 	public void update() {
 
-		for (int i=0; i < points.size(); i++) {
-			Node actualPoint = points.get(i);
-			
-			if(!actualPoint.isEmpty){
-				expandPoint(i);
+		/*
+		 * for (int i = 0; i < tempPoints.size(); i++) {
+		 * 
+		 * // WHICH POINTS SURROUND POINT i int[] neighboursIndex =
+		 * getNeighboursIndex(i);
+		 * 
+		 * }
+		 */
+
+	}
+
+	private int[] getNeighboursIndex(int index) {
+
+		int[] neighbours;
+
+		// CHECK: 1)CORNER POINTS -> 2)BORDERS -> 3)INSIDE OF GRID
+		// SORTED CLOCKWISE
+
+		if (index == 0) {
+			// FIRST POINT
+			neighbours = new int[2];
+			neighbours[0] = index + 1;
+			neighbours[1] = index + gridWidth;
+			return neighbours;
+
+		} else if (index == (gridWidth - 1)) {
+			// TOP RIGHT POINT
+			neighbours = new int[3];
+			neighbours[0] = index + gridWidth;
+			neighbours[1] = index + gridWidth - 1;
+			neighbours[2] = index - 1;
+			return neighbours;
+
+		} else if (index == points.size() - 1) {
+			// BOTTOM RIGHT (LAST) POINT
+			if (isEvenRow(index - (gridWidth - 1))) {
+				neighbours = new int[3];
+				neighbours[0] = index - 1;
+				neighbours[1] = index - gridWidth - 1;
+				neighbours[2] = index - gridWidth;
+
+				return neighbours;
+			} else {
+				neighbours = new int[2];
+				neighbours[0] = index - 1;
+				neighbours[1] = index - gridWidth;
+				return neighbours;
 			}
 
-			actualPoint.step();
+		} else if (index == (points.size() - gridWidth)) {
+			// BOTTOM LEFT POINT
+			if (isEvenRow(index)) {
+				neighbours = new int[2];
+				neighbours[0] = index - gridWidth;
+				neighbours[1] = index + 1;
+				return neighbours;
+			} else {
+				neighbours = new int[3];
+				neighbours[0] = index - gridWidth;
+				neighbours[1] = index - gridWidth + 1;
+				neighbours[2] = index + 1;
+				return neighbours;
+			}
+
+		} else if (index < gridWidth) {
+			// TOP BORDER
+
+			neighbours = new int[4];
+			neighbours[0] = index + 1;
+			neighbours[1] = index + gridWidth;
+			neighbours[2] = index + gridWidth - 1;
+			neighbours[3] = index - 1;
+			return neighbours;
+		} else if ((index - (gridWidth - 1)) % gridWidth == 0) {
+			// RIGHT BORDER
+
+			if (isEvenRow(index - (gridWidth - 1))) {
+				neighbours = new int[5];
+				neighbours[0] = index + gridWidth;
+				neighbours[1] = index + gridWidth - 1;
+				neighbours[2] = index - 1;
+				neighbours[3] = index - gridWidth - 1;
+				neighbours[4] = index - gridWidth;
+				return neighbours;
+			} else {
+				neighbours = new int[3];
+				neighbours[0] = index + gridWidth;
+				neighbours[1] = index - 1;
+				neighbours[2] = index - gridWidth;
+				return neighbours;
+			}
+
+		} else if (index > (points.size() - gridWidth)) {
+			// BOTTOM BORDER
+			if (isEvenRow(index)) {
+				neighbours = new int[4];
+				neighbours[0] = index - 1;
+				neighbours[1] = index - gridWidth  -1;
+				neighbours[2] = index - gridWidth;
+				neighbours[3] = index + 1;
+				return neighbours;
+			} else {
+				neighbours = new int[4];
+				neighbours[0] = index - 1;
+				neighbours[1] = index - gridWidth;
+				neighbours[2] = index - gridWidth + 1;
+				neighbours[3] = index + 1;
+				return neighbours;
+			}
+		} else if (index % gridWidth == 0) {
+			// LEFT BORDER
+
+			if (isEvenRow(index)) {
+				neighbours = new int[3];
+				neighbours[0] = index - gridWidth;
+				neighbours[1] = index + 1;
+				neighbours[2] = index + gridWidth;
+				return neighbours;
+			} else {
+				neighbours = new int[5];
+				neighbours[0] = index - gridWidth;
+				neighbours[1] = index - gridWidth + 1;
+				neighbours[2] = index + 1;
+				neighbours[3] = index + gridWidth + 1;
+				neighbours[4] = index + gridWidth;
+				return neighbours;
+			}
+		} else {
+			// THE POINT IS INSIDE THE GRID
+
+			if (isEvenRow(index - (index % gridWidth))) {
+				neighbours = new int[6];
+				neighbours[0] = index + 1;
+				neighbours[1] = index + gridWidth;
+				neighbours[2] = index + gridWidth - 1;
+				neighbours[3] = index - 1;
+				neighbours[4] = index - gridWidth - 1;
+				neighbours[5] = index - gridWidth;
+				return neighbours;
+			} else {
+				neighbours = new int[6];
+				neighbours[0] = index + 1;
+				neighbours[1] = index + gridWidth + 1;
+				neighbours[2] = index + gridWidth;
+				neighbours[3] = index - 1;
+				neighbours[4] = index - gridWidth;
+				neighbours[5] = index - gridWidth + 1;
+				return neighbours;
+			}
+
 		}
 
+		// return null;
+	}
+
+	private boolean isEvenRow(int i) {
+		// CALCULATES IF ROW IS EVEN/ODD BASED ON INDEX OF FIRST POINT IN ROW
+		// (CALCULATED PREVIOUSLY AS THE PARAMETER)
+		return (i / gridWidth) % 2 == 0 ? true : false;
 	}
 
 	public void step() {
@@ -95,11 +257,11 @@ public class CanvasManager {
 	}
 
 	private void expandPoint(int pointIndex) {
-		
+
 		ColorPalette pointPalette = points.get(pointIndex).getPalette();
 		// LEFT
 		points.get(pointIndex - 1).init(0, pointPalette);
-		
+
 	}
 
 	public void render() {
@@ -122,6 +284,12 @@ public class CanvasManager {
 
 		// p5.ellipse(grid.snapX(p5.mouseX), grid.snapY(p5.mouseY), 10, 10);
 
+	}
+
+	public void createDefaultPalette() {
+		ColorPalette defaultPalette = new ColorPalette("DEFAULT");
+		defaultPalette.eraseAllColors();
+		colorPalettes.add(defaultPalette);
 	}
 
 	public ColorPalette getColorPaletteByName(String _name) {
@@ -149,18 +317,29 @@ public class CanvasManager {
 
 	public void mousePressed() {
 
-		ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
-		colorPalettes.add(newPalette);
+		for (int i = 0; i < points.size(); i++) {
+			if (points.get(i).isInside(p5.mouseX, p5.mouseY)) {
 
-		// ASSIGN TO POINT
-		for (Node point : points) {
-			if (point.isInside(p5.mouseX, p5.mouseY)) {
-				point.init(0,getColorPaletteByName("PALETA " + (colorPalettes.size() - 1)));
-				//point.setColorStep(0);
-				//point.setColorPalette(getColorPaletteByName("PALETA " + (colorPalettes.size() - 1)));
-				break;
+				int[] neighboursIndex = getNeighboursIndex(i);
+
+				p5.fill(0, 255, 0);
+				for (int j = 0; j < neighboursIndex.length; j++) {
+					p5.ellipse(points.get(neighboursIndex[j]).position.x, points.get(neighboursIndex[j]).position.y, 15, 15);
+				}
 			}
 		}
+
+		/*
+		 * ColorPalette newPalette = new ColorPalette("PALETA " +
+		 * colorPalettes.size()); colorPalettes.add(newPalette);
+		 * 
+		 * // ASSIGN TO POINT for (Node point : points) { if
+		 * (point.isInside(p5.mouseX, p5.mouseY)) { point.init(0,
+		 * getColorPaletteByName("PALETA " + (colorPalettes.size() - 1))); //
+		 * point.setColorStep(0); //
+		 * point.setColorPalette(getColorPaletteByName("PALETA " + //
+		 * (colorPalettes.size() - 1))); break; } }
+		 */
 
 	}
 
