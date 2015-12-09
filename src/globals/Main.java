@@ -1,4 +1,5 @@
 package globals;
+
 import canvas.CanvasManager;
 
 import processing.core.*;
@@ -7,23 +8,23 @@ import controlP5.*;
 public class Main extends PApplet {
 
 	CanvasManager canvas;
-	
+
 	public void setup() {
-		size(1280,720,P2D);
-		
+		size(1280, 720, P2D);
 		setPAppletSingleton();
-		
+
 		canvas = new CanvasManager();
 	}
 
 	public void draw() {
 		background(0);
-		//drawBackLines();
-		
-		canvas.update();
+		// drawBackLines();
+
+		//canvas.update();
 		canvas.render();
 		
-		
+		drawMouseCoordinates();
+
 	}
 
 	private void drawBackLines() {
@@ -33,11 +34,13 @@ public class Main extends PApplet {
 			line(i + offset, 0, i + offset, height);
 		}
 
+	}
+
+	private void drawMouseCoordinates() {
 		// MOUSE POSITION
 		fill(255, 0, 0);
 		text("FR: " + frameRate, 20, 20);
 		text("X: " + mouseX + " / Y: " + mouseY, mouseX, mouseY);
-
 	}
 
 	public void keyPressed() {
@@ -61,12 +64,8 @@ public class Main extends PApplet {
 	}
 
 	public void mouseMoved() {
-		
+
 	}
-
-
-
-	
 
 	public static void main(String args[]) {
 		/*
@@ -74,7 +73,8 @@ public class Main extends PApplet {
 		 */
 
 		PApplet.main(new String[] { Main.class.getName() });
-		//PApplet.main(new String[] { "--present","--hide-stop",Main.class.getName() }); //
+		// PApplet.main(new String[] {
+		// "--present","--hide-stop",Main.class.getName() }); //
 		// PRESENT MODE
 	}
 

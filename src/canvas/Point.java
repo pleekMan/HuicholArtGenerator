@@ -26,11 +26,16 @@ public class Point {
 		position.add(direction);
 		//p5.println(direction);
 		
+		atStage++;
 	}
 	
 	public void render(){
 		
+		p5.fill(255);
 		p5.ellipse(position.x, position.y, CanvasManager.pointSize,CanvasManager.pointSize);
+		
+		p5.fill(127);
+		p5.text(atStage, position.x - 3, position.y + 3);
 		
 	}
 	
@@ -40,6 +45,14 @@ public class Point {
 	
 	public void setDirection(PVector _dir){
 		direction.set(_dir);
+	}
+	
+	public boolean isAtStage(int stage){
+		return stage == atStage;
+	}
+	
+	public int atStage(){
+		return atStage;
 	}
 	
 	protected Main getP5() {
