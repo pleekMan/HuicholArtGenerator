@@ -32,8 +32,9 @@ public class CanvasManager {
 
 		points = new ArrayList<Node>();
 		tempPoints = new ArrayList<Node>();
+		// tempPoints = (ArrayList<Node>)points.clone();
 
-		pointSize = 45;
+		pointSize = 10;
 
 		colorPalettes = new ArrayList<ColorPalette>();
 
@@ -91,14 +92,37 @@ public class CanvasManager {
 
 	public void update() {
 
-		/*
-		 * for (int i = 0; i < tempPoints.size(); i++) {
-		 * 
-		 * // WHICH POINTS SURROUND POINT i int[] neighboursIndex =
-		 * getNeighboursIndex(i);
-		 * 
-		 * }
-		 */
+		// EVALUATING ALL POINTS -- NEIGHBOURS + COPYING
+		for (int i = 0; i < points.size(); i++) {
+
+			String pointPaletteName = points.get(i).getPalette().getName();
+			String pointTempPaletteName = tempPoints.get(i).getPalette().getName();
+
+			// WHICH POINTS SURROUND POINT i
+			int[] neighboursIndex = getNeighboursIndex(i);
+
+			// CHECK NEIGHBOURS STATUS
+			for (int j = 0; j < neighboursIndex.length; j++) {
+				int actualNeighbour = neighboursIndex[j];
+
+				String neighBourPaletteName = points.get(actualNeighbour).getPalette().getName();
+				// ONLY COPY ATTRIBUTES IF THIS NEIGHBOUR'S PALETTE IS NOT THE
+				// SAME AS THE INDEX POINT PALETTE (ignoring points already
+				// passed to)
+				if (!(neighBourPaletteName.equals(pointPaletteName)) && !neighBourPaletteName.equals(pointTempPaletteName)) {
+					tempPoints.get(actualNeighbour).init(0, points.get(i).getPalette());
+				}
+			}
+		}
+
+		
+		// DONE EVALUATING
+		for (int i = 0; i < points.size(); i++) {
+			tempPoints.get(i).step();
+			points.get(i).init(tempPoints.get(i).atPaletteStep, tempPoints.get(i).getPalette());
+		}
+		
+		
 
 	}
 
@@ -107,7 +131,6 @@ public class CanvasManager {
 		int[] neighbours;
 
 		// CHECK: 1)CORNER POINTS -> 2)BORDERS -> 3)INSIDE OF GRID
-		// SORTED CLOCKWISE
 
 		if (index == 0) {
 			// FIRST POINT
@@ -188,7 +211,7 @@ public class CanvasManager {
 			if (isEvenRow(index)) {
 				neighbours = new int[4];
 				neighbours[0] = index - 1;
-				neighbours[1] = index - gridWidth  -1;
+				neighbours[1] = index - gridWidth - 1;
 				neighbours[2] = index - gridWidth;
 				neighbours[3] = index + 1;
 				return neighbours;
@@ -317,6 +340,7 @@ public class CanvasManager {
 
 	public void mousePressed() {
 
+		// MAKE VISIBLE NEIGHBOUR POINTS
 		for (int i = 0; i < points.size(); i++) {
 			if (points.get(i).isInside(p5.mouseX, p5.mouseY)) {
 
@@ -329,17 +353,23 @@ public class CanvasManager {
 			}
 		}
 
-		/*
-		 * ColorPalette newPalette = new ColorPalette("PALETA " +
-		 * colorPalettes.size()); colorPalettes.add(newPalette);
-		 * 
-		 * // ASSIGN TO POINT for (Node point : points) { if
-		 * (point.isInside(p5.mouseX, p5.mouseY)) { point.init(0,
-		 * getColorPaletteByName("PALETA " + (colorPalettes.size() - 1))); //
-		 * point.setColorStep(0); //
-		 * point.setColorPalette(getColorPaletteByName("PALETA " + //
-		 * (colorPalettes.size() - 1))); break; } }
-		 */
+		// INSERT A NEW SPAWN COLOR PALETTE
+		ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
+		colorPalettes.add(newPalette);
+
+		// ASSIGN TO POINT
+		for (int i = 0; i < points.size(); i++) {
+			Node point = points.get(i);
+			if (point.isInside(p5.mouseX, p5.mouseY)) {
+				point.init(0, getColorPaletteByName("PALETA " + (colorPalettes.size() - 1))); //
+				point.setColorStep(0); //
+				point.setColorPalette(getColorPaletteByName("PALETA " +	(colorPalettes.size() - 1)));
+				
+				tempPoints.get(i).init(point.atPaletteStep, point.getPalette());
+				
+				break;
+			}
+		}
 
 	}
 

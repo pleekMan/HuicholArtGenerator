@@ -59,8 +59,8 @@ public class Node {
 		drawLayer.fill(nodeColor);
 		drawLayer.ellipse(position.x, position.y, CanvasManager.pointSize, CanvasManager.pointSize);
 		
-		drawLayer.fill(200);
-		drawLayer.text(ID, position.x - 8, position.y + 3);
+		//drawLayer.fill(200);
+		//drawLayer.text(ID, position.x - 8, position.y + 3);
 		
 		//drawLayer.endDraw();
 	}
