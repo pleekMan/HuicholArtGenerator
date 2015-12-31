@@ -47,7 +47,6 @@ public class Spawner {
 
 	}
 
-	// TODO update() IS ONLY USED WHEN UPDATING PER FRAME
 	public void update() {
 		for (Point actualPoint : points) {
 			actualPoint.update();
@@ -55,7 +54,6 @@ public class Spawner {
 		spawn();
 	}
 
-	// TODO step() IS ONLY USED WHEN UPDATING PER TIME WINDOW
 	public void step() {
 		update();
 	}

@@ -16,12 +16,11 @@ public class ColorPalette {
 		
 		name = _name;
 		
-		colors = new int[5];
+		colors = new int[4];
 		colors[0] = p5.color(255,255,0);
 		colors[1] = p5.color(255,127,0);
-		colors[2] = p5.color(255,127,0);
-		colors[3] = p5.color(255,0,0);
-		colors[4] = p5.color(0);
+		colors[2] = p5.color(255,0,0);
+		colors[3] = p5.color(150,0,0);
 		
 	}
 	
@@ -33,7 +32,7 @@ public class ColorPalette {
 		return name;
 	}
 
-	public int getTotalColors() {
+	public int getColorCount() {
 		return colors.length;
 	}
 	

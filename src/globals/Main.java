@@ -45,7 +45,7 @@ public class Main extends PApplet {
 
 	public void keyPressed() {
 
-		canvas.keyPressed();
+		canvas.keyPressed(key);
 
 	}
 

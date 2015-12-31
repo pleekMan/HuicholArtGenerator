@@ -1,6 +1,9 @@
 package canvas;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 
 import editor.ColorPalette;
 import processing.core.PGraphics;
@@ -34,7 +37,7 @@ public class CanvasManager {
 		tempPoints = new ArrayList<Node>();
 		// tempPoints = (ArrayList<Node>)points.clone();
 
-		pointSize = 10;
+		pointSize = 20;
 
 		colorPalettes = new ArrayList<ColorPalette>();
 
@@ -61,10 +64,10 @@ public class CanvasManager {
 			Node newTempPoint = new Node(new PVector(posX, posY), false);
 
 			newPoint.setDrawLayer(drawLayer);
-			newPoint.setColorPalette(getColorPaletteByName("DEFAULT"));
+			newPoint.setColorPalette(getColorPaletteByName("EMPTY"));
 			newPoint.setID(gridCounter);
 			newTempPoint.setDrawLayer(drawLayer);
-			newTempPoint.setColorPalette(getColorPaletteByName("DEFAULT"));
+			newTempPoint.setColorPalette(getColorPaletteByName("EMPTY"));
 
 			points.add(newPoint);
 			tempPoints.add(newTempPoint);
@@ -90,7 +93,7 @@ public class CanvasManager {
 
 	}
 
-	public void update() {
+	public void updateOld() {
 
 		// EVALUATING ALL POINTS -- NEIGHBOURS + COPYING
 		for (int i = 0; i < points.size(); i++) {
@@ -106,23 +109,139 @@ public class CanvasManager {
 				int actualNeighbour = neighboursIndex[j];
 
 				String neighBourPaletteName = points.get(actualNeighbour).getPalette().getName();
-				// ONLY COPY ATTRIBUTES IF THIS NEIGHBOUR'S PALETTE IS NOT THE
-				// SAME AS THE INDEX POINT PALETTE (ignoring points already
-				// passed to)
-				if (!(neighBourPaletteName.equals(pointPaletteName)) && !neighBourPaletteName.equals(pointTempPaletteName)) {
-					tempPoints.get(actualNeighbour).init(0, points.get(i).getPalette());
+				String neighbourTempPaletteName = tempPoints.get(actualNeighbour).getPalette().getName();
+
+				if (points.get(i).atPaletteStep > 2) {
+					if (pointPaletteName.equals(neighBourPaletteName)) {
+
+					} else {
+						tempPoints.get(i).init(0, points.get(actualNeighbour).getPalette());
+					}
 				}
+
+				/*
+				 * if (!(neighBourPaletteName.equals(pointPaletteName)) &&
+				 * points.get(i).atPaletteStep < 2) { tempPoints.get(i).init(0,
+				 * points.get(actualNeighbour).getPalette()); }
+				 */
 			}
 		}
 
-		
 		// DONE EVALUATING
 		for (int i = 0; i < points.size(); i++) {
 			tempPoints.get(i).step();
 			points.get(i).init(tempPoints.get(i).atPaletteStep, tempPoints.get(i).getPalette());
 		}
-		
-		
+
+	}
+
+	public void update() {
+
+		// EVALUATING ALL POINTS -- NEIGHBOURS + COPYING
+		for (int i = 0; i < points.size(); i++) {
+
+			// String pointPaletteName = points.get(i).getPalette().getName();
+			// String pointTempPaletteName =
+			// tempPoints.get(i).getPalette().getName();
+
+			if (points.get(i).isEmpty) {
+
+				// WHICH POINTS SURROUND POINT i
+				int[] neighboursIndex = getNeighboursIndex(i);
+				String[] neighboursPaletteName = new String[neighboursIndex.length];
+
+				// GET NEIGHBOURS PALETTE
+				for (int j = 0; j < neighboursIndex.length; j++) {
+					Node actualNeighbour = points.get(neighboursIndex[j]);
+
+						neighboursPaletteName[j] = actualNeighbour.getPalette().getName();
+					
+				}
+
+				String predominantPalette = getPredominantPalette(neighboursPaletteName);
+				// if (!predominantPalette.equals("EMPTY")) {
+				tempPoints.get(i).init(0, getColorPaletteByName(predominantPalette));
+
+				// }
+
+			}
+		}
+
+		// DONE EVALUATING --> UPDATE
+		for (int i = 0; i < points.size(); i++) {
+
+			// STEP DISPLAY LAYER
+			points.get(i).step();
+
+			// TODO OJO AL PIOJO..!!! THIS WORKS BUT IT MIGHT END UP BEING A
+			// WORK-AROUND
+			// ONLY UPDATE DISPLAY LAYER IF TEMP LAYER IS DIFFERENT
+			if (!(points.get(i).getPalette().getName().equals(tempPoints.get(i).getPalette().getName()))) {
+				points.get(i).init(tempPoints.get(i).atPaletteStep, tempPoints.get(i).getPalette());
+			}
+
+			// tempPoints.get(i).setColorPalette(getColorPaletteByName("EMPTY"));
+
+		}
+
+	}
+
+	private String getPredominantPalette(String[] palettes) {
+
+		// MAKE A LIST OF ONLY DIFFERENT PALETTES
+		ArrayList<String> paletteList = new ArrayList(Arrays.asList(palettes));
+		ArrayList<String> differentPalettes = new ArrayList<String>();
+
+		differentPalettes.add(palettes[0]);
+
+		for (int i = 0; i < palettes.length; i++) {
+			for (int j = 0; j < differentPalettes.size(); j++) {
+				if (!palettes[i].equals(differentPalettes.get(j))) {
+					differentPalettes.add(palettes[i]);
+				}
+			}
+		}
+
+		// IF THERE IS A PALETTE OTHER THAN EMPTY, REMOVE "EMPTY" SO THAT WE
+		// LOOK ONLY ON THE NON-EMPTY PALETTES
+		boolean enableLookForPalettes = false;
+		for (int i = 0; i < differentPalettes.size(); i++) {
+			if (!differentPalettes.get(i).equals("EMPTY")) {
+				enableLookForPalettes = true;
+				break;
+			}
+		}
+
+		if (enableLookForPalettes) {
+
+			// REMOVE "EMPTY" PALETTES
+			Iterator paletteIterator = differentPalettes.iterator();
+			while (paletteIterator.hasNext()) {
+				String name = (String) paletteIterator.next();
+				if (name.equals("EMPTY")) {
+					paletteIterator.remove();
+				}
+			}
+
+			// MAKE A LIST OF OCURRENCES FOR EACH DIFFERENT PALETTE NAME
+			int[] ocurrences = new int[differentPalettes.size()];
+
+			for (int i = 0; i < ocurrences.length; i++) {
+				ocurrences[i] = Collections.frequency(paletteList, differentPalettes.get(i));
+			}
+
+			int predominantPalette = -1;
+			int predominantPaletteIndex = 0;
+			for (int i = 0; i < ocurrences.length; i++) {
+				if (ocurrences[i] > predominantPalette) {
+					predominantPalette = ocurrences[i];
+					predominantPaletteIndex = i;
+				}
+			}
+			return differentPalettes.get(predominantPaletteIndex);
+		} else {
+			return "EMPTY";
+		}
 
 	}
 
@@ -279,13 +398,14 @@ public class CanvasManager {
 		update();
 	}
 
-	private void expandPoint(int pointIndex) {
-
-		ColorPalette pointPalette = points.get(pointIndex).getPalette();
-		// LEFT
-		points.get(pointIndex - 1).init(0, pointPalette);
-
-	}
+	/*
+	 * private void expandPoint(int pointIndex) {
+	 * 
+	 * ColorPalette pointPalette = points.get(pointIndex).getPalette(); // LEFT
+	 * points.get(pointIndex - 1).init(0, pointPalette);
+	 * 
+	 * }
+	 */
 
 	public void render() {
 
@@ -299,6 +419,10 @@ public class CanvasManager {
 			actualPoint.render();
 		}
 
+		/*
+		 * for (Node actualPoint : tempPoints) { actualPoint.render2(10); }
+		 */
+
 		drawLayer.endDraw();
 
 		p5.image(drawLayer, 0, 0);
@@ -310,7 +434,7 @@ public class CanvasManager {
 	}
 
 	public void createDefaultPalette() {
-		ColorPalette defaultPalette = new ColorPalette("DEFAULT");
+		ColorPalette defaultPalette = new ColorPalette("EMPTY");
 		defaultPalette.eraseAllColors();
 		colorPalettes.add(defaultPalette);
 	}
@@ -327,15 +451,17 @@ public class CanvasManager {
 
 		if (selectedPalette == null) {
 			selectedPalette = colorPalettes.get(0);
-			p5.println("||-- NO PALETTE FOUND NAMED: " + _name + ". DEFAULTING TO THE 1st ONE");
+			p5.println("||-- NO PALETTE FOUND NAMED: " + _name + ". DEFAULTING TO EMPTY PALETTE");
 		}
 
 		return selectedPalette;
 
 	}
 
-	public void keyPressed() {
-		step();
+	public void keyPressed(char key) {
+		if (key == ' ') {
+			step();
+		}
 	}
 
 	public void mousePressed() {
@@ -359,14 +485,15 @@ public class CanvasManager {
 
 		// ASSIGN TO POINT
 		for (int i = 0; i < points.size(); i++) {
-			Node point = points.get(i);
-			if (point.isInside(p5.mouseX, p5.mouseY)) {
-				point.init(0, getColorPaletteByName("PALETA " + (colorPalettes.size() - 1))); //
-				point.setColorStep(0); //
-				point.setColorPalette(getColorPaletteByName("PALETA " +	(colorPalettes.size() - 1)));
-				
-				tempPoints.get(i).init(point.atPaletteStep, point.getPalette());
-				
+			Node newPoint = points.get(i);
+			if (newPoint.isInside(p5.mouseX, p5.mouseY)) {
+				newPoint.init(0, getColorPaletteByName("PALETA " + (colorPalettes.size() - 1))); //
+				// point.setColorStep(0); //
+				// point.setColorPalette(getColorPaletteByName("PALETA " +
+				// (colorPalettes.size() - 1)));
+
+				tempPoints.get(i).init(newPoint.atPaletteStep, newPoint.getPalette());
+
 				break;
 			}
 		}
