@@ -16,33 +16,52 @@ public class CanvasManager {
 	Main p5;
 	// Gridder grid;
 
-	PGraphics drawLayer;
+	PGraphics pointsLayer;
+	PGraphics figuresLayer;
 
-	ArrayList<Node> points;
-	ArrayList<Node> tempPoints;
 	static float pointSize;
 	int gridWidth;
 
+	ArrayList<Point> points;
+	ArrayList<Figure> figures;
 	ArrayList<ColorPalette> colorPalettes;
+
+	PVector[] directionVectors;
 
 	public CanvasManager() {
 
 		p5 = getP5();
-		drawLayer = p5.createGraphics(p5.width, p5.height, processing.core.PGraphics.P2D);
-
-		// grid = new Gridder(40);
-		// grid.setSnapAtCenter(true);
-
-		points = new ArrayList<Node>();
-		tempPoints = new ArrayList<Node>();
-		// tempPoints = (ArrayList<Node>)points.clone();
+		pointsLayer = p5.createGraphics(p5.width, p5.height, processing.core.PGraphics.P2D);
+		figuresLayer = p5.createGraphics(p5.width, p5.height, processing.core.PGraphics.P2D);
 
 		pointSize = 20;
 
+		points = new ArrayList<Point>();
 		colorPalettes = new ArrayList<ColorPalette>();
+		figures = new ArrayList<Figure>();
 
 		createDefaultPalette();
 		createGrid();
+		createDirectionVectors();
+		step();
+	}
+
+	private void createDirectionVectors() {
+		//  GET DISTANCE VECTORS TO NEIGHBOUR POINTS BY CALCULATING DISTANCE OVER THE GRID (taking the first point as reference to calculate)
+
+		directionVectors = new PVector[6];
+
+		Point pointZero = points.get(0);
+
+		directionVectors[0] = new PVector(points.get(1).position.x - pointZero.position.x, 0);
+		directionVectors[1] = new PVector(points.get(gridWidth).position.x - pointZero.position.x, points.get(gridWidth).position.y - pointZero.position.y);
+		directionVectors[2] = new PVector(directionVectors[1].x * -1, directionVectors[1].y);
+		directionVectors[3] = PVector.mult(directionVectors[0], -1);
+		directionVectors[4] = PVector.mult(directionVectors[1], -1);
+		directionVectors[5] = PVector.mult(directionVectors[2], -1);
+
+		p5.println("||- DIRECTION VECTORS:");
+		p5.println(directionVectors);
 	}
 
 	private void createGrid() {
@@ -58,19 +77,11 @@ public class CanvasManager {
 		boolean gridWidthCounterDone = false;
 
 		// CREATING GRID POINTS FOR MAIN AND TEMP GRID
-		while (posY < drawLayer.height) {
+		while (posY < pointsLayer.height) {
 
-			Node newPoint = new Node(new PVector(posX, posY), false);
-			Node newTempPoint = new Node(new PVector(posX, posY), false);
-
-			newPoint.setDrawLayer(drawLayer);
-			newPoint.setColorPalette(getColorPaletteByName("EMPTY"));
-			newPoint.setID(gridCounter);
-			newTempPoint.setDrawLayer(drawLayer);
-			newTempPoint.setColorPalette(getColorPaletteByName("EMPTY"));
+			Point newPoint = new Point(new PVector(posX, posY), p5.color(50), pointsLayer);
 
 			points.add(newPoint);
-			tempPoints.add(newTempPoint);
 
 			posX += separation;
 
@@ -79,7 +90,7 @@ public class CanvasManager {
 			if (!gridWidthCounterDone)
 				gridWidthCounter++;
 
-			if (posX > drawLayer.width) {
+			if (posX > pointsLayer.width) {
 				offset = !offset;
 				posX = offset ? startX + (separation * 0.5f) : startX;
 				posY += separation;
@@ -89,103 +100,57 @@ public class CanvasManager {
 		}
 
 		gridWidth = gridWidthCounter;
-		p5.println("Grid Width: " + gridWidthCounter);
-
-	}
-
-	public void updateOld() {
-
-		// EVALUATING ALL POINTS -- NEIGHBOURS + COPYING
-		for (int i = 0; i < points.size(); i++) {
-
-			String pointPaletteName = points.get(i).getPalette().getName();
-			String pointTempPaletteName = tempPoints.get(i).getPalette().getName();
-
-			// WHICH POINTS SURROUND POINT i
-			int[] neighboursIndex = getNeighboursIndex(i);
-
-			// CHECK NEIGHBOURS STATUS
-			for (int j = 0; j < neighboursIndex.length; j++) {
-				int actualNeighbour = neighboursIndex[j];
-
-				String neighBourPaletteName = points.get(actualNeighbour).getPalette().getName();
-				String neighbourTempPaletteName = tempPoints.get(actualNeighbour).getPalette().getName();
-
-				if (points.get(i).atPaletteStep > 2) {
-					if (pointPaletteName.equals(neighBourPaletteName)) {
-
-					} else {
-						tempPoints.get(i).init(0, points.get(actualNeighbour).getPalette());
-					}
-				}
-
-				/*
-				 * if (!(neighBourPaletteName.equals(pointPaletteName)) &&
-				 * points.get(i).atPaletteStep < 2) { tempPoints.get(i).init(0,
-				 * points.get(actualNeighbour).getPalette()); }
-				 */
-			}
-		}
-
-		// DONE EVALUATING
-		for (int i = 0; i < points.size(); i++) {
-			tempPoints.get(i).step();
-			points.get(i).init(tempPoints.get(i).atPaletteStep, tempPoints.get(i).getPalette());
-		}
+		p5.println("||- Grid Width: " + gridWidthCounter);
 
 	}
 
 	public void update() {
 
-		// EVALUATING ALL POINTS -- NEIGHBOURS + COPYING
-		for (int i = 0; i < points.size(); i++) {
+		//------  DRAW SHAPES LAYER - BEGIN
+		figuresLayer.beginDraw();
+		figuresLayer.background(0);
+		figuresLayer.noStroke();
 
-			// String pointPaletteName = points.get(i).getPalette().getName();
-			// String pointTempPaletteName =
-			// tempPoints.get(i).getPalette().getName();
+		for (Figure actualFigure : figures) {
+			actualFigure.update();
+			actualFigure.render();
+		}
+		
+		//figuresLayer.fill(255,255,0);
+		//figuresLayer.ellipse(p5.mouseX, p5.mouseY, 20,20);
 
-			if (points.get(i).isEmpty) {
+		figuresLayer.endDraw();
 
-				// WHICH POINTS SURROUND POINT i
-				int[] neighboursIndex = getNeighboursIndex(i);
-				String[] neighboursPaletteName = new String[neighboursIndex.length];
+		//------- DRAW POINTS SHAPES - END
 
-				// GET NEIGHBOURS PALETTE
-				for (int j = 0; j < neighboursIndex.length; j++) {
-					Node actualNeighbour = points.get(neighboursIndex[j]);
+		//------  DRAW POINTS LAYER - BEGIN
+		pointsLayer.beginDraw();
+		pointsLayer.background(0);
+		pointsLayer.noStroke();
 
-						neighboursPaletteName[j] = actualNeighbour.getPalette().getName();
-					
-				}
-
-				String predominantPalette = getPredominantPalette(neighboursPaletteName);
-				// if (!predominantPalette.equals("EMPTY")) {
-				tempPoints.get(i).init(0, getColorPaletteByName(predominantPalette));
-
-				// }
-
-			}
+		for (Point actualPoint : points) {
+			//actualPoint.update();
+			actualPoint.render();
 		}
 
-		// DONE EVALUATING --> UPDATE
-		for (int i = 0; i < points.size(); i++) {
+		pointsLayer.endDraw();
 
-			// STEP DISPLAY LAYER
-			points.get(i).step();
-
-			// TODO OJO AL PIOJO..!!! THIS WORKS BUT IT MIGHT END UP BEING A
-			// WORK-AROUND
-			// ONLY UPDATE DISPLAY LAYER IF TEMP LAYER IS DIFFERENT
-			if (!(points.get(i).getPalette().getName().equals(tempPoints.get(i).getPalette().getName()))) {
-				points.get(i).init(tempPoints.get(i).atPaletteStep, tempPoints.get(i).getPalette());
-			}
-
-			// tempPoints.get(i).setColorPalette(getColorPaletteByName("EMPTY"));
-
-		}
+		//------- DRAW POINTS LAYER - END
 
 	}
 
+	public void step() {
+		update();
+	}
+
+	public void render() {
+		
+		p5.image(figuresLayer, 0, 0);
+		//p5.image(pointsLayer, 0, 0);
+
+	}
+
+	@Deprecated
 	private String getPredominantPalette(String[] palettes) {
 
 		// MAKE A LIST OF ONLY DIFFERENT PALETTES
@@ -394,10 +359,6 @@ public class CanvasManager {
 		return (i / gridWidth) % 2 == 0 ? true : false;
 	}
 
-	public void step() {
-		update();
-	}
-
 	/*
 	 * private void expandPoint(int pointIndex) {
 	 * 
@@ -406,32 +367,6 @@ public class CanvasManager {
 	 * 
 	 * }
 	 */
-
-	public void render() {
-
-		// p5.fill(230);
-		// p5.noStroke();
-		drawLayer.beginDraw();
-		drawLayer.background(0);
-		drawLayer.noStroke();
-
-		for (Node actualPoint : points) {
-			actualPoint.render();
-		}
-
-		/*
-		 * for (Node actualPoint : tempPoints) { actualPoint.render2(10); }
-		 */
-
-		drawLayer.endDraw();
-
-		p5.image(drawLayer, 0, 0);
-
-		// grid.drawGrid();
-
-		// p5.ellipse(grid.snapX(p5.mouseX), grid.snapY(p5.mouseY), 10, 10);
-
-	}
 
 	public void createDefaultPalette() {
 		ColorPalette defaultPalette = new ColorPalette("EMPTY");
@@ -479,24 +414,35 @@ public class CanvasManager {
 			}
 		}
 
-		// INSERT A NEW SPAWN COLOR PALETTE
+		// INSERT A NEW FIGURE, BASED ON A COLOR PALETTE
 		ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
 		colorPalettes.add(newPalette);
 
-		// ASSIGN TO POINT
 		for (int i = 0; i < points.size(); i++) {
-			Node newPoint = points.get(i);
-			if (newPoint.isInside(p5.mouseX, p5.mouseY)) {
-				newPoint.init(0, getColorPaletteByName("PALETA " + (colorPalettes.size() - 1))); //
-				// point.setColorStep(0); //
-				// point.setColorPalette(getColorPaletteByName("PALETA " +
-				// (colorPalettes.size() - 1)));
-
-				tempPoints.get(i).init(newPoint.atPaletteStep, newPoint.getPalette());
-
+			if (points.get(i).isInside(p5.mouseX, p5.mouseY)) {
+				
+				Figure newFigure = new Figure(figuresLayer);
+				newFigure.initialize(points.get(i).position, directionVectors, colorPalettes.get(colorPalettes.size() - 1));
+				
+				figures.add(newFigure);
 				break;
 			}
 		}
+		
+		
+		/*
+		 * // ASSIGN TO POINT for (int i = 0; i < points.size(); i++) { Node
+		 * newPoint = points.get(i); if (newPoint.isInside(p5.mouseX,
+		 * p5.mouseY)) { newPoint.init(0, getColorPaletteByName("PALETA " +
+		 * (colorPalettes.size() - 1))); // // point.setColorStep(0); // //
+		 * point.setColorPalette(getColorPaletteByName("PALETA " + //
+		 * (colorPalettes.size() - 1)));
+		 * 
+		 * tempPoints.get(i).init(newPoint.atPaletteStep,
+		 * newPoint.getPalette());
+		 * 
+		 * break; } }
+		 */
 
 	}
 

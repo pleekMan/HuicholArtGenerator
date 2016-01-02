@@ -1,62 +1,50 @@
 package canvas;
 
-import processing.core.PVector;
 import globals.Main;
 import globals.PAppletSingleton;
+import processing.core.PGraphics;
+import processing.core.PVector;
 
 public class Point {
+
 	Main p5;
 	
+	PGraphics drawLayer;
+
 	PVector position;
-	PVector direction;
-	
-	int atStage;
-	
-	public Point(){
+	int color;
+
+	public Point(PVector _pos, int _color, PGraphics _drawLayer) {
 		p5 = getP5();
+
+		drawLayer = _drawLayer;
 		
-		position = new PVector();
-		direction = new PVector();
+		position = _pos;
+		color = _color;
+	}
+
+	public void update() {
+
+	}
+
+	public void render() {
 		
-		atStage = 0;
-		
+		drawLayer.fill(color);
+		drawLayer.ellipse(position.x, position.y, CanvasManager.pointSize, CanvasManager.pointSize);
 	}
-	
-	public void update(){
-		position.add(direction);
-		//p5.println(direction);
-		
-		atStage++;
+
+	public boolean isInside(float _x, float _y) {
+		// p5.println("|| " + p5.dist(_x, _y, position.x, position.y));
+		if (p5.dist(_x, _y, position.x, position.y) < (CanvasManager.pointSize * 0.5f)) {
+			// p5.println("FOUND A POINT!!");
+			return true;
+		} else {
+			return false;
+		}
+
 	}
-	
-	public void render(){
-		
-		p5.fill(255);
-		p5.ellipse(position.x, position.y, CanvasManager.pointSize,CanvasManager.pointSize);
-		
-		p5.fill(127);
-		p5.text(atStage, position.x - 3, position.y + 3);
-		
-	}
-	
-	public void setPosition(PVector _pos){
-		position.set(_pos);
-	}
-	
-	public void setDirection(PVector _dir){
-		direction.set(_dir);
-	}
-	
-	public boolean isAtStage(int stage){
-		return stage == atStage;
-	}
-	
-	public int atStage(){
-		return atStage;
-	}
-	
+
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}
-
 }
