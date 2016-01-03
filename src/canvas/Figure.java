@@ -20,6 +20,8 @@ public class Figure {
 	int atColorStage;
 	int maxColorStages;
 
+	PVector startPosition;
+
 	public Figure(PGraphics _drawLayer) {
 		p5 = getP5();
 
@@ -29,11 +31,13 @@ public class Figure {
 		atColorStage = 0;
 		maxColorStages = -1;
 
+		startPosition = new PVector();
+
 	}
 
 	public void initialize(PVector startingPosition, PVector[] verticesDirection, ColorPalette palette) {
 
-		// this initi
+		startPosition = startingPosition;
 
 		ArrayList<PVector> startingVerticesVelocity = new ArrayList(Arrays.asList(verticesDirection));
 		colorPalette = palette;
@@ -44,9 +48,9 @@ public class Figure {
 
 			Shape newShape = new Shape(drawLayer, startingVerticesVelocity);
 			//newShape.setOrder(i);
-			newShape.setPosition(startingPosition); // CENTER OF SOME GRID POINT
+			newShape.setPosition(startPosition); // CENTER OF SOME GRID POINT
 			newShape.setColor(palette.getColor(i));
-			
+
 			shapes.add(newShape);
 			//newShape.setVelocity(_velocity);
 
@@ -61,12 +65,18 @@ public class Figure {
 			// REMEMBER: THIS CONDITION IS TO TRIGGER THE SHAPES INCREMENTALLY (START AT -shapes.size() and check whether the shape is at negative stage. Then we cycle back to 0)
 			if (atColorStage + (maxColorStages - i) >= 0) {
 				shapes.get(i).update();
-			//shapes.get(i).updateWithScale((i + 1) * 0.5f);
+				//shapes.get(i).updateWithScale((i + 1) * 0.5f);
 			}
 
 		}
+		
+		for (int i = 0; i < shapes.size(); i++) {
+			if (shapes.get(i).isFinished(maxColorStages)) {
+				shapes.remove(i);
+			}
+		}
 
-		if(atColorStage < maxColorStages){
+		if (atColorStage < maxColorStages) {
 			atColorStage++;
 		} else {
 			atColorStage = 0;
@@ -79,16 +89,16 @@ public class Figure {
 		for (int i = 0; i < shapes.size(); i++) {
 
 			//if (atColorStage + (maxColorStages - i) >= 0) {
-				shapes.get(i).render();
-				
-				drawLayer.fill(255,255,0);
-				drawLayer.text(i, shapes.get(i).verticesPos.get(0).x, shapes.get(i).verticesPos.get(0).y);
+			shapes.get(i).render();
+
+			drawLayer.fill(255, 255, 0);
+			drawLayer.text(i, shapes.get(i).verticesPos.get(0).x, shapes.get(i).verticesPos.get(0).y);
 
 			//}
 
 		}
 		//drawLayer.fill(colorPalette.getColor(atColorStage));
-		drawLayer.ellipse(p5.mouseX, p5.mouseY, 20,20);
+		//drawLayer.ellipse(p5.mouseX, p5.mouseY, 20, 20);
 	}
 
 	public void setColorPalette(ColorPalette palette) {
@@ -97,5 +107,9 @@ public class Figure {
 
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
+	}
+
+	public boolean isFinished() {
+		return shapes.size() <= 0;
 	}
 }

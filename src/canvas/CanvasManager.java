@@ -34,7 +34,7 @@ public class CanvasManager {
 		pointsLayer = p5.createGraphics(p5.width, p5.height, processing.core.PGraphics.P2D);
 		figuresLayer = p5.createGraphics(p5.width, p5.height, processing.core.PGraphics.P2D);
 
-		pointSize = 20;
+		pointSize = 50;
 
 		points = new ArrayList<Point>();
 		colorPalettes = new ArrayList<ColorPalette>();
@@ -115,7 +115,7 @@ public class CanvasManager {
 			actualFigure.update();
 			actualFigure.render();
 		}
-		
+
 		//figuresLayer.fill(255,255,0);
 		//figuresLayer.ellipse(p5.mouseX, p5.mouseY, 20,20);
 
@@ -125,17 +125,34 @@ public class CanvasManager {
 
 		//------  DRAW POINTS LAYER - BEGIN
 		pointsLayer.beginDraw();
-		pointsLayer.background(0);
+		//pointsLayer.background(0);
 		pointsLayer.noStroke();
 
+		figuresLayer.loadPixels();
 		for (Point actualPoint : points) {
 			//actualPoint.update();
+
+			int pointX = (int) actualPoint.position.x;
+			int pointY = (int) actualPoint.position.y;
+
+			//int colorAtPoint = p5.color(0);
+			//colorAtPoint = figuresLayer.get(pointX, pointY);
+			actualPoint.setColor(getColorAtPoint(figuresLayer.pixels, pointX, pointY));
+
 			actualPoint.render();
 		}
 
 		pointsLayer.endDraw();
 
 		//------- DRAW POINTS LAYER - END
+
+		// REMOVE FIGURES WHEN DONE ANIMATING
+		for (int i = 0; i < figures.size(); i++) {
+			if (figures.get(i).isFinished()) {
+				figures.remove(i);
+			}
+		}
+		p5.println("Figure Count: " + figures.size());
 
 	}
 
@@ -144,10 +161,15 @@ public class CanvasManager {
 	}
 
 	public void render() {
-		
-		p5.image(figuresLayer, 0, 0);
-		//p5.image(pointsLayer, 0, 0);
 
+		p5.image(figuresLayer, 0, 0);
+		p5.image(pointsLayer, 0, 0);
+
+	}
+	
+	private int getColorAtPoint(int pix[], int x, int y){
+		// ACCESING PIXEL ARRAY TO SAMPLE (PGraphics.get() WAS FUCKING SLOW !!!) 
+		return pix[(y * figuresLayer.width) + x];
 	}
 
 	@Deprecated
@@ -420,16 +442,15 @@ public class CanvasManager {
 
 		for (int i = 0; i < points.size(); i++) {
 			if (points.get(i).isInside(p5.mouseX, p5.mouseY)) {
-				
+
 				Figure newFigure = new Figure(figuresLayer);
 				newFigure.initialize(points.get(i).position, directionVectors, colorPalettes.get(colorPalettes.size() - 1));
-				
+
 				figures.add(newFigure);
 				break;
 			}
 		}
-		
-		
+
 		/*
 		 * // ASSIGN TO POINT for (int i = 0; i < points.size(); i++) { Node
 		 * newPoint = points.get(i); if (newPoint.isInside(p5.mouseX,

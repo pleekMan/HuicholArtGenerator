@@ -16,18 +16,18 @@ public class Shape {
 	ArrayList<PVector> verticesVel;
 	ArrayList<PVector> verticesPos;
 	int color;
-	//int order;
+	int atStage;;
 
 	public Shape(PGraphics _drawLayer, ArrayList<PVector> _vertices) {
 		p5 = getP5();
 
 		drawLayer = _drawLayer;
 
-		verticesVel = _vertices; // COPYING, NOT REFERENCING (OTHERWISE ALL SHAPES IN FIGURE WILL HAVE THE SAME VERTEX VELOCITY VECTOR)
-		verticesPos = new ArrayList<PVector>();
+		verticesVel = _vertices; 
+		verticesPos = new ArrayList<PVector>(); // COPYING, NOT REFERENCING (OTHERWISE ALL SHAPES IN FIGURE WILL HAVE THE SAME VERTEX POSITION VECTOR)
 		
-		int color = p5.color(0,127,255);
-		//order = -1;
+		color = p5.color(0,127,255);
+		atStage = 0;
 
 	}
 
@@ -35,6 +35,7 @@ public class Shape {
 		for (int i = 0; i < verticesVel.size(); i++) {
 			verticesPos.get(i).add(verticesVel.get(i));
 		}
+		atStage++;
 	}
 	
 	public void updateWithScale(float scale) {
@@ -68,9 +69,25 @@ public class Shape {
 		}
 	}
 	
+	public void resetShape(PVector startPos){
+		for (int i = 0; i < verticesPos.size(); i++) {
+			verticesPos.get(i).set(startPos);
+		}
+	}
+	
 	public void setColor(int _color){
 		color = _color;
 	}
+	
+	public boolean isFinished(int _atStage) {
+		return atStage == (_atStage + 1);
+	}
+	
+	public void resetAtStage() {
+		atStage = 0;
+		
+	}
+
 
 	/*
 	public void setVelocity(PVector _velocity) {
@@ -91,8 +108,7 @@ public class Shape {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}
 
-	public void setAtStage(int atStage) {
-		// TODO Auto-generated method stub
-		
-	}
+
+
+
 }

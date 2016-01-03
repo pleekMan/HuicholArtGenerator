@@ -32,6 +32,10 @@ public class Point {
 		drawLayer.fill(color);
 		drawLayer.ellipse(position.x, position.y, CanvasManager.pointSize, CanvasManager.pointSize);
 	}
+	
+	public void setColor(int _color){
+		color = _color;
+	}
 
 	public boolean isInside(float _x, float _y) {
 		// p5.println("|| " + p5.dist(_x, _y, position.x, position.y));
