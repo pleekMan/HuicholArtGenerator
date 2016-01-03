@@ -1,6 +1,7 @@
 package canvas;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import editor.ColorPalette;
 import processing.core.PGraphics;
@@ -13,18 +14,25 @@ public class Shape {
 
 	PGraphics drawLayer;
 
-	ArrayList<PVector> verticesVel;
-	ArrayList<PVector> verticesPos;
+	PVector[] verticesVel;
+	PVector[] verticesPos;
+	PVector[] startingVerticesPos;
 	int color;
 	int atStage;;
 
-	public Shape(PGraphics _drawLayer, ArrayList<PVector> _vertices) {
+	public Shape(PGraphics _drawLayer, PVector[] _verticesPos, PVector[] _verticesVel) {
 		p5 = getP5();
 
 		drawLayer = _drawLayer;
-
-		verticesVel = _vertices; 
-		verticesPos = new ArrayList<PVector>(); // COPYING, NOT REFERENCING (OTHERWISE ALL SHAPES IN FIGURE WILL HAVE THE SAME VERTEX POSITION VECTOR)
+		
+		// COPYING THE VERTICES POSITION (VERTICES VELOCITY IS THE SAME FOR ALL SHAPES)
+		verticesPos = new PVector[_verticesPos.length];
+		startingVerticesPos = new PVector[_verticesPos.length];
+		for (int i = 0; i < _verticesVel.length; i++) {
+			verticesPos[i] = new PVector(_verticesPos[i].x, _verticesPos[i].y);
+			startingVerticesPos[i] = new PVector(_verticesPos[i].x, _verticesPos[i].y);
+		}		
+		verticesVel = _verticesVel;
 		
 		color = p5.color(0,127,255);
 		atStage = 0;
@@ -32,60 +40,63 @@ public class Shape {
 	}
 
 	public void update() {
-		for (int i = 0; i < verticesVel.size(); i++) {
-			verticesPos.get(i).add(verticesVel.get(i));
+		for (int i = 0; i < verticesVel.length; i++) {
+			verticesPos[i].add(verticesVel[i]);
 		}
 		atStage++;
 	}
 	
 	public void updateWithScale(float scale) {
-		for (int i = 0; i < verticesVel.size(); i++) {
-			verticesPos.get(i).add(PVector.mult(verticesVel.get(i),scale));
+		for (int i = 0; i < verticesVel.length; i++) {
+			verticesPos[i].add(PVector.mult(verticesVel[i],scale));
 		}
 	}
 
 	public void render() {
 		
-		drawLayer.fill(color);
-		//drawLayer.stroke(color);
+		//drawLayer.fill(color);
+		drawLayer.noFill();
+		drawLayer.stroke(color);
 		
 		drawLayer.beginShape();
 		
-		for (int i = 0; i < verticesPos.size(); i++) {
-			drawLayer.vertex(verticesPos.get(i).x, verticesPos.get(i).y);
+		for (int i = 0; i < verticesPos.length; i++) {
+			drawLayer.vertex(verticesPos[i].x, verticesPos[i].y);
 
 		}
-		
 		drawLayer.endShape(p5.CLOSE);
 	}
 
-	public void setPosition(PVector _position) {
+	public void setPositions(PVector[] _positions) {
 		// CENTER OF SOME GRID POINT
-		for (int i = 0; i < verticesVel.size(); i++) {
-			//PVector newPos = new PVector();
-			PVector newPos = _position.get();
-			newPos.set(_position);
-			verticesPos.add(newPos);
+		for (int i = 0; i < verticesPos.length; i++) {
+			verticesPos[i] = _positions[i];
 		}
 	}
 	
+	/*
 	public void resetShape(PVector startPos){
-		for (int i = 0; i < verticesPos.size(); i++) {
-			verticesPos.get(i).set(startPos);
+		//RE-CODE
+		for (int i = 0; i < verticesPos.length; i++) {
+			verticesPos[i].set(startPos);
 		}
 	}
+	*/
 	
 	public void setColor(int _color){
 		color = _color;
 	}
 	
 	public boolean isFinished(int _atStage) {
-		return atStage == (_atStage + 1);
+		return atStage == (_atStage);
 	}
 	
-	public void resetAtStage() {
+	public void restart(){
+		for (int i = 0; i < verticesPos.length; i++) {
+			verticesPos[i].set(startingVerticesPos[i]);
+		}
 		atStage = 0;
-		
+
 	}
 
 
@@ -100,7 +111,7 @@ public class Shape {
 	}
 	*/
 
-	public ArrayList<PVector> getVerticesPos() {
+	public PVector[] getVerticesPos() {
 		return verticesPos;
 	}
 

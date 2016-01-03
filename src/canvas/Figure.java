@@ -20,7 +20,10 @@ public class Figure {
 	int atColorStage;
 	int maxColorStages;
 
-	PVector startPosition;
+	int cycle;
+	int maxCycles;
+
+	//PVector startPosition;
 
 	public Figure(PGraphics _drawLayer) {
 		p5 = getP5();
@@ -31,24 +34,23 @@ public class Figure {
 		atColorStage = 0;
 		maxColorStages = -1;
 
-		startPosition = new PVector();
-
 	}
 
-	public void initialize(PVector startingPosition, PVector[] verticesDirection, ColorPalette palette) {
+	public void initialize(PVector[] startingPosition, PVector[] verticesDirection, ColorPalette palette, int _maxCycles) {
 
-		startPosition = startingPosition;
-
-		ArrayList<PVector> startingVerticesVelocity = new ArrayList(Arrays.asList(verticesDirection));
+		//ArrayList<PVector> startingVerticesVelocity = new ArrayList(Arrays.asList(verticesDirection));
 		colorPalette = palette;
 		maxColorStages = colorPalette.getColorCount();
 		atColorStage = -maxColorStages; // START AT NEGATIVE SHAPE COUNT, TO SHOOT THE SHAPES INCREMENTALLY
 
+		cycle = 2; // STARTS AT 2 CUZ IT NEEDS TO FINISH ALONG WITH atStage, WHICH STARTS AT NEGATIVE maxColorStage (FOR SHAPE SHOOTING REASONS)
+		maxCycles = _maxCycles;
+
 		for (int i = 0; i < maxColorStages; i++) {
 
-			Shape newShape = new Shape(drawLayer, startingVerticesVelocity);
+			Shape newShape = new Shape(drawLayer, startingPosition, verticesDirection);
 			//newShape.setOrder(i);
-			newShape.setPosition(startPosition); // CENTER OF SOME GRID POINT
+			//newShape.setPosition(startPosition); // CENTER OF SOME GRID POINT
 			newShape.setColor(palette.getColor(i));
 
 			shapes.add(newShape);
@@ -60,6 +62,7 @@ public class Figure {
 
 	public void update() {
 
+		// UPDATE
 		for (int i = 0; i < shapes.size(); i++) {
 
 			// REMEMBER: THIS CONDITION IS TO TRIGGER THE SHAPES INCREMENTALLY (START AT -shapes.size() and check whether the shape is at negative stage. Then we cycle back to 0)
@@ -69,30 +72,43 @@ public class Figure {
 			}
 
 		}
-		
-		for (int i = 0; i < shapes.size(); i++) {
-			if (shapes.get(i).isFinished(maxColorStages)) {
-				shapes.remove(i);
+
+		// REMOVE THE FIRST SHAPE (ALWAYS THE OUTER ONE) IF maxCycles REACHED AND THE SHAPE IS FINISHED
+		if (shapes.size() > 0) {
+			if (cycle >= maxCycles && shapes.get(0).isFinished(maxColorStages)) {
+				shapes.remove(0);
 			}
 		}
 
+		// UPDATE FIGURE COLOR STAGE AND CYCLES
 		if (atColorStage < maxColorStages) {
 			atColorStage++;
 		} else {
 			atColorStage = 0;
+			cycle++;
 		}
+
+		// MAKE THE SHAPE LOOP IT IT'S FINISHED
+		for (int i = 0; i < shapes.size(); i++) {
+			if (shapes.get(i).isFinished(maxColorStages)) {
+				shapes.get(i).restart();
+			}
+		}
+
+		p5.println("||- Cycle: " + cycle + " | At Stage: " + atColorStage);
 
 	}
 
 	public void render() {
 
+		drawLayer.strokeWeight(2);
 		for (int i = 0; i < shapes.size(); i++) {
 
 			//if (atColorStage + (maxColorStages - i) >= 0) {
 			shapes.get(i).render();
 
 			drawLayer.fill(255, 255, 0);
-			drawLayer.text(i, shapes.get(i).verticesPos.get(0).x, shapes.get(i).verticesPos.get(0).y);
+			drawLayer.text(i, shapes.get(i).verticesPos[0].x, shapes.get(i).verticesPos[0].y);
 
 			//}
 
