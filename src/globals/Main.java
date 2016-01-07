@@ -7,21 +7,23 @@ import controlP5.*;
 
 public class Main extends PApplet {
 
-	CanvasManager canvas;
+	//CanvasManager canvas;
+	AppManager appManager;
 
 	public void setup() {
 		size(1280, 720, P2D);
 		setPAppletSingleton();
 
-		canvas = new CanvasManager();
+		//canvas = new CanvasManager();
+		appManager = new AppManager();
 	}
 
 	public void draw() {
 		background(0);
 		//drawBackLines();
 
-		//canvas.update();
-		canvas.render();
+		//appManager.update();
+		appManager.render();
 		
 		drawMouseCoordinates();
 
@@ -45,16 +47,16 @@ public class Main extends PApplet {
 
 	public void keyPressed() {
 
-		canvas.keyPressed(key);
+		appManager.keyPressed(key);
 
 	}
 
 	public void mousePressed() {
-		canvas.mousePressed();
+		appManager.mousePressed();
 	}
 
 	public void mouseReleased() {
-		canvas.mouseReleased();
+		appManager.mouseReleased();
 	}
 
 	public void mouseClicked() {

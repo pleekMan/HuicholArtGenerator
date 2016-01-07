@@ -19,7 +19,7 @@ public class CanvasManager {
 	PGraphics pointsLayer;
 	PGraphics figuresLayer;
 
-	static float pointSize;
+	static float pointSize; // VARIABLE CLAVE..!!! De aqui se calculan muchas cosas..!!!
 	int gridWidth;
 
 	ArrayList<Point> points;
@@ -34,7 +34,7 @@ public class CanvasManager {
 		pointsLayer = p5.createGraphics(p5.width, p5.height, processing.core.PGraphics.P2D);
 		figuresLayer = p5.createGraphics(p5.width, p5.height, processing.core.PGraphics.P2D);
 
-		pointSize = 40;
+		pointSize = 20;
 
 		points = new ArrayList<Point>();
 		colorPalettes = new ArrayList<ColorPalette>();
