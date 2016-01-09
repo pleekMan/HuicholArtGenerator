@@ -1,5 +1,6 @@
 package globals;
 
+import processing.core.PVector;
 import canvas.CanvasManager;
 import editor.EditorManager;
 
@@ -9,11 +10,26 @@ public class AppManager {
 	CanvasManager canvas;
 	EditorManager editor;
 
+	PVector canvasSize;
+	//PVector viewSize; // NOT USED ??
+
+	PVector canvasTranslation;
+	public static float canvasScale;
+	
+	PVector transformedCoords;
+
 	public AppManager() {
 		p5 = getP5();
-		
-		canvas = new CanvasManager();
+
+		canvasSize = new PVector(2048, 2048);
+		//viewSize = new PVector(1024, 1024);
+		canvasTranslation = new PVector(0,0);
+		canvasScale = 0.5f;
+
+		canvas = new CanvasManager((int)canvasSize.x, (int)canvasSize.y);
 		editor = new EditorManager();
+		
+		transformedCoords = new PVector();
 
 	}
 
@@ -23,11 +39,32 @@ public class AppManager {
 	}
 
 	public void render() {
+		
+		// CALCULATING TRANSFORMED COORDINATES FROM VIEW TO CANVAS
+		PVector mouseCoords = new PVector(p5.mouseX, p5.mouseY);
+		transformedCoords = getTransformedCoords(mouseCoords);
+		
+		// TRANSFORMING CANVAS RENDER
+		p5.pushMatrix();
+		p5.translate(canvasTranslation.x, canvasTranslation.y);
+		p5.scale(canvasScale);
 
 		canvas.render();
+		
+		p5.popMatrix();
+		
+		
 		editor.render();
 	}
-	
+
+	private PVector getTransformedCoords(PVector coords) {
+		PVector invertedTranslation = PVector.mult(canvasTranslation, -1);
+		PVector newCoords = PVector.add(coords, invertedTranslation);
+		newCoords.mult(1.0f / canvasScale);
+
+		return newCoords;
+	}
+
 	public void keyPressed(char key) {
 
 		canvas.keyPressed(key);
@@ -35,7 +72,7 @@ public class AppManager {
 	}
 
 	public void mousePressed() {
-		canvas.mousePressed();
+		canvas.mousePressed(transformedCoords);
 	}
 
 	public void mouseReleased() {

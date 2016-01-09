@@ -11,8 +11,10 @@ public class Main extends PApplet {
 	AppManager appManager;
 
 	public void setup() {
-		size(1280, 720, P2D);
+		size(1024, 1024, P2D);
 		setPAppletSingleton();
+		
+		imageMode(CORNER);
 
 		//canvas = new CanvasManager();
 		appManager = new AppManager();

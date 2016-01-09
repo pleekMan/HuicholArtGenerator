@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import editor.ColorPalette;
 import processing.core.PGraphics;
+import processing.core.PImage;
 import processing.core.PVector;
 import globals.Main;
 import globals.PAppletSingleton;
@@ -27,18 +28,26 @@ public class CanvasManager {
 	ArrayList<ColorPalette> colorPalettes;
 
 	PVector[] directionVectors;
+	
+	//PImage backGrid;
 
-	public CanvasManager() {
+	public CanvasManager(int canvasWidth, int canvasHeight) {
 
 		p5 = getP5();
-		pointsLayer = p5.createGraphics(p5.width, p5.height, processing.core.PGraphics.P2D);
-		figuresLayer = p5.createGraphics(p5.width, p5.height, processing.core.PGraphics.P2D);
+		
+		//pointsLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
+		//figuresLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
+		figuresLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
+		pointsLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 
-		pointSize = 20;
+
+		pointSize = 40;
 
 		points = new ArrayList<Point>();
 		colorPalettes = new ArrayList<ColorPalette>();
 		figures = new ArrayList<Figure>();
+		
+		//backGrid = p5.loadImage("grid.jpg");
 
 		createDefaultPalette();
 		createGrid();
@@ -76,11 +85,12 @@ public class CanvasManager {
 		int gridWidthCounter = 0;
 		boolean gridWidthCounterDone = false;
 
-		// CREATING GRID POINTS FOR MAIN AND TEMP GRID
+		// CREATING GRID POINTS 
 		while (posY < pointsLayer.height) {
 
 			Point newPoint = new Point(new PVector(posX, posY), p5.color(50), pointsLayer);
-
+			newPoint.setId(gridCounter);
+			
 			points.add(newPoint);
 
 			posX += separation;
@@ -106,10 +116,14 @@ public class CanvasManager {
 
 	public void update() {
 
+		
 		//------  DRAW SHAPES LAYER - BEGIN
+		
 		figuresLayer.beginDraw();
-		figuresLayer.background(0);
+		figuresLayer.background(50);
 		figuresLayer.noStroke();
+		
+		//figuresLayer.image(backGrid, 0, 0);
 
 		for (Figure actualFigure : figures) {
 			actualFigure.update();
@@ -120,16 +134,26 @@ public class CanvasManager {
 		//figuresLayer.ellipse(p5.mouseX, p5.mouseY, 20,20);
 
 		figuresLayer.endDraw();
-
-		//------- DRAW POINTS SHAPES - END
+		
+		//------- DRAW SHAPES SHAPES - END
 
 		//------  DRAW POINTS LAYER - BEGIN
+		// FIRST LOAD figuresLayer PIXELS, BEFORE BEING INSIDE pointsLayer. OTHERWISE, IT FUCKS pointsLayer INNER TRANSFORMS
+		figuresLayer.loadPixels();
+
 		pointsLayer.beginDraw();
+		pointsLayer.pushMatrix();
+		
 		pointsLayer.background(0);
 		pointsLayer.noStroke();
-
+		
+	
+		//pointsLayer.image(backGrid, 0,0);
+		pointsLayer.fill(255,255,0);
+		pointsLayer.rect(0, 0, 40, 40);
+		
 		// -- SAMPLING FIGURES LAYER TO COLOR POINTS LAYER
-		figuresLayer.loadPixels();
+		//figuresLayer.loadPixels();
 		for (Point actualPoint : points) {
 			//actualPoint.update();
 
@@ -140,10 +164,14 @@ public class CanvasManager {
 
 			actualPoint.render();
 		}
-
+		
+		//figuresLayer.updatePixels();
+		
+		pointsLayer.popMatrix();
 		pointsLayer.endDraw();
 
 		//------- DRAW POINTS LAYER - END
+		
 
 		// REMOVE FIGURES WHEN DONE ANIMATING
 		for (int i = 0; i < figures.size(); i++) {
@@ -161,8 +189,8 @@ public class CanvasManager {
 
 	public void render() {
 
-		//p5.image(figuresLayer, 0, 0);
-		p5.image(pointsLayer, 0, 0);
+		p5.image(figuresLayer, 0, 0);
+		p5.image(pointsLayer, 0,0);
 
 	}
 
@@ -420,9 +448,10 @@ public class CanvasManager {
 		}
 	}
 
-	public void mousePressed() {
+	public void mousePressed(PVector transformedCoords) {
 
 		// MAKE VISIBLE NEIGHBOUR POINTS
+		/*
 		for (int i = 0; i < points.size(); i++) {
 			if (points.get(i).isInside(p5.mouseX, p5.mouseY)) {
 
@@ -434,6 +463,7 @@ public class CanvasManager {
 				}
 			}
 		}
+		*/
 
 		// ---  INSERT A NEW FIGURE, BASED ON A COLOR PALETTE
 		ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
@@ -442,7 +472,7 @@ public class CanvasManager {
 		// DETECT POINT CLICKED
 		int pointClicked = -1;
 		for (int i = 0; i < points.size(); i++) {
-			if (points.get(i).isInside(p5.mouseX, p5.mouseY)) {
+			if (points.get(i).isInside(transformedCoords.x, transformedCoords.y)) {
 				pointClicked = i;
 				break;
 			}

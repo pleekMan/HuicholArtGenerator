@@ -13,6 +13,7 @@ public class Point {
 
 	PVector position;
 	int color;
+	int id;
 
 	public Point(PVector _pos, int _color, PGraphics _drawLayer) {
 		p5 = getP5();
@@ -29,12 +30,24 @@ public class Point {
 
 	public void render() {
 		
+		//drawLayer.noFill();
 		drawLayer.fill(color);
 		drawLayer.ellipse(position.x, position.y, CanvasManager.pointSize, CanvasManager.pointSize);
+		drawLayer.fill(225,255,0);
+		drawLayer.text(id, position.x, position.y);
+		
+		if (isInside(p5.mouseX, p5.mouseY)) {
+			drawLayer.fill(225,255,0);
+			drawLayer.text(position.x + ":" + position.y, position.x - 25, position.y - (CanvasManager.pointSize * 0.5f));
+		}
 	}
 	
 	public void setColor(int _color){
 		color = _color;
+	}
+	
+	public void setId(int _id) {
+		id = _id;
 	}
 
 	public boolean isInside(float _x, float _y) {
@@ -51,4 +64,6 @@ public class Point {
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}
+
+
 }

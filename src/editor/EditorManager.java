@@ -1,9 +1,12 @@
 package editor;
 
+import globals.AppManager;
 import globals.Main;
 import globals.PAppletSingleton;
+
 import java.awt.Frame;
 import java.awt.BorderLayout;
+
 import controlP5.*;
 
 /*
@@ -15,7 +18,7 @@ public class EditorManager {
 	Main p5;
 
 	//ControlP5 controlGui;
-	ControlFrame controlFrame;
+	ControlWindow controlFrame;
 
 	public int testColorControl;
 	boolean newFigureMode;
@@ -30,21 +33,21 @@ public class EditorManager {
 	}
 
 	public void update() {
-
+		
 	}
 
 	public void render() {
-		p5.fill(testColorControl);
-		p5.rect(100, 100, 400, 400);
+		//p5.fill(testColorControl);
+		//p5.rect(100, 100, 400, 400);
 
-		if (p5.frameCount % 20 == 0)
-			p5.println(newFigureMode);
+		//if (p5.frameCount % 20 == 0)
+			//p5.println(newFigureMode);
 		//controlFrame.cp5.getController("gui_newFigure").setValue(0f);
 	}
 
-	public ControlFrame addControlFrame(String theName, int theWidth, int theHeight) {
+	public ControlWindow addControlFrame(String theName, int theWidth, int theHeight) {
 		Frame f = new Frame(theName);
-		ControlFrame p = new ControlFrame(this, theWidth, theHeight);
+		ControlWindow p = new ControlWindow(this, theWidth, theHeight);
 		f.add(p);
 		p.init();
 		f.setTitle(theName);
@@ -58,4 +61,5 @@ public class EditorManager {
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}
+
 }
