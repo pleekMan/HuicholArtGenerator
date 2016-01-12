@@ -17,60 +17,42 @@ public class CanvasManager {
 	Main p5;
 	// Gridder grid;
 
-	PGraphics pointsLayer;
-	PGraphics figuresLayer;
+	public PGraphics pointsLayer;
+	public PGraphics figuresLayer;
 
-	static float pointSize; // VARIABLE CLAVE..!!! De aqui se calculan muchas cosas..!!!
-	int gridWidth;
+	public static float pointSize; // VARIABLE CLAVE..!!! De aqui se calculan muchas cosas..!!!
+	public int gridWidth;
 
-	ArrayList<Point> points;
+	public ArrayList<Point> points;
 	ArrayList<Figure> figures;
-	ArrayList<ColorPalette> colorPalettes;
 
-	PVector[] directionVectors;
-	
+	//ArrayList<ColorPalette> colorPalettes;
+
+	//PVector[] directionVectors;
+
 	//PImage backGrid;
 
 	public CanvasManager(int canvasWidth, int canvasHeight) {
 
 		p5 = getP5();
-		
+
 		//pointsLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 		//figuresLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 		figuresLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 		pointsLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 
-
 		pointSize = 40;
 
 		points = new ArrayList<Point>();
-		colorPalettes = new ArrayList<ColorPalette>();
+		//colorPalettes = new ArrayList<ColorPalette>();
 		figures = new ArrayList<Figure>();
-		
+
 		//backGrid = p5.loadImage("grid.jpg");
 
-		createDefaultPalette();
+		//createDefaultPalette();
 		createGrid();
-		createDirectionVectors();
+		//createDirectionVectors();
 		step();
-	}
-
-	private void createDirectionVectors() {
-		//  GET DISTANCE VECTORS TO NEIGHBOUR POINTS BY CALCULATING DISTANCE OVER THE GRID (taking the first point as reference to calculate)
-
-		directionVectors = new PVector[6];
-
-		Point pointZero = points.get(0);
-
-		directionVectors[0] = new PVector(points.get(1).position.x - pointZero.position.x, 0);
-		directionVectors[1] = new PVector(points.get(gridWidth).position.x - pointZero.position.x, points.get(gridWidth).position.y - pointZero.position.y);
-		directionVectors[2] = new PVector(directionVectors[1].x * -1, directionVectors[1].y);
-		directionVectors[3] = PVector.mult(directionVectors[0], -1);
-		directionVectors[4] = PVector.mult(directionVectors[1], -1);
-		directionVectors[5] = PVector.mult(directionVectors[2], -1);
-
-		p5.println("||- DIRECTION VECTORS:");
-		p5.println(directionVectors);
 	}
 
 	private void createGrid() {
@@ -90,7 +72,7 @@ public class CanvasManager {
 
 			Point newPoint = new Point(new PVector(posX, posY), p5.color(50), pointsLayer);
 			newPoint.setId(gridCounter);
-			
+
 			points.add(newPoint);
 
 			posX += separation;
@@ -116,13 +98,12 @@ public class CanvasManager {
 
 	public void update() {
 
-		
 		//------  DRAW SHAPES LAYER - BEGIN
-		
+
 		figuresLayer.beginDraw();
 		figuresLayer.background(50);
 		figuresLayer.noStroke();
-		
+
 		//figuresLayer.image(backGrid, 0, 0);
 
 		for (Figure actualFigure : figures) {
@@ -134,7 +115,7 @@ public class CanvasManager {
 		//figuresLayer.ellipse(p5.mouseX, p5.mouseY, 20,20);
 
 		figuresLayer.endDraw();
-		
+
 		//------- DRAW SHAPES SHAPES - END
 
 		//------  DRAW POINTS LAYER - BEGIN
@@ -143,15 +124,14 @@ public class CanvasManager {
 
 		pointsLayer.beginDraw();
 		pointsLayer.pushMatrix();
-		
+
 		pointsLayer.background(0);
 		pointsLayer.noStroke();
-		
-	
+
 		//pointsLayer.image(backGrid, 0,0);
-		pointsLayer.fill(255,255,0);
+		pointsLayer.fill(255, 255, 0);
 		pointsLayer.rect(0, 0, 40, 40);
-		
+
 		// -- SAMPLING FIGURES LAYER TO COLOR POINTS LAYER
 		//figuresLayer.loadPixels();
 		for (Point actualPoint : points) {
@@ -164,14 +144,13 @@ public class CanvasManager {
 
 			actualPoint.render();
 		}
-		
+
 		//figuresLayer.updatePixels();
-		
+
 		pointsLayer.popMatrix();
 		pointsLayer.endDraw();
 
 		//------- DRAW POINTS LAYER - END
-		
 
 		// REMOVE FIGURES WHEN DONE ANIMATING
 		for (int i = 0; i < figures.size(); i++) {
@@ -190,13 +169,31 @@ public class CanvasManager {
 	public void render() {
 
 		p5.image(figuresLayer, 0, 0);
-		p5.image(pointsLayer, 0,0);
+		p5.image(pointsLayer, 0, 0);
 
 	}
 
 	private int getColorAtPoint(int pix[], int x, int y) {
 		// ACCESING PIXEL ARRAY TO SAMPLE (PGraphics.get() WAS FUCKING SLOW !!!) 
 		return pix[(y * figuresLayer.width) + x];
+	}
+
+	public void drawFigureSkeleton(ArrayList<PVector> newFigureVertices, ArrayList<PVector> directions) {
+		pointsLayer.beginDraw();
+
+		pointsLayer.noFill();
+		pointsLayer.stroke(255, 255, 0);
+
+		pointsLayer.beginShape();
+		for (int i = 0; i < newFigureVertices.size(); i++) {
+			pointsLayer.vertex(newFigureVertices.get(i).x, newFigureVertices.get(i).y);
+			//if (directions.size() != 0) {
+			//	pointsLayer.line(newFigureVertices.get(i).x, newFigureVertices.get(i).y, newFigureVertices.get(i).x + directions.get(i).x, newFigureVertices.get(i).y + directions.get(i).y);
+			//}
+		}
+		pointsLayer.endShape();
+
+		pointsLayer.endDraw();
 	}
 
 	@Deprecated
@@ -417,31 +414,6 @@ public class CanvasManager {
 	 * }
 	 */
 
-	public void createDefaultPalette() {
-		ColorPalette defaultPalette = new ColorPalette("EMPTY");
-		defaultPalette.eraseAllColors();
-		colorPalettes.add(defaultPalette);
-	}
-
-	public ColorPalette getColorPaletteByName(String _name) {
-		ColorPalette selectedPalette = null;
-
-		for (int i = 0; i < colorPalettes.size(); i++) {
-			if (colorPalettes.get(i).getName().equalsIgnoreCase(_name)) {
-				selectedPalette = colorPalettes.get(i);
-				break;
-			}
-		}
-
-		if (selectedPalette == null) {
-			selectedPalette = colorPalettes.get(0);
-			p5.println("||-- NO PALETTE FOUND NAMED: " + _name + ". DEFAULTING TO EMPTY PALETTE");
-		}
-
-		return selectedPalette;
-
-	}
-
 	public void keyPressed(char key) {
 		if (key == ' ') {
 			step();
@@ -452,45 +424,45 @@ public class CanvasManager {
 
 		// MAKE VISIBLE NEIGHBOUR POINTS
 		/*
-		for (int i = 0; i < points.size(); i++) {
-			if (points.get(i).isInside(p5.mouseX, p5.mouseY)) {
-
-				int[] neighboursIndex = getNeighboursIndex(i);
-
-				p5.fill(0, 255, 0);
-				for (int j = 0; j < neighboursIndex.length; j++) {
-					p5.ellipse(points.get(neighboursIndex[j]).position.x, points.get(neighboursIndex[j]).position.y, 15, 15);
-				}
-			}
-		}
-		*/
+		 * for (int i = 0; i < points.size(); i++) { if
+		 * (points.get(i).isInside(p5.mouseX, p5.mouseY)) {
+		 * 
+		 * int[] neighboursIndex = getNeighboursIndex(i);
+		 * 
+		 * p5.fill(0, 255, 0); for (int j = 0; j < neighboursIndex.length; j++)
+		 * { p5.ellipse(points.get(neighboursIndex[j]).position.x,
+		 * points.get(neighboursIndex[j]).position.y, 15, 15); } } }
+		 */
 
 		// ---  INSERT A NEW FIGURE, BASED ON A COLOR PALETTE
-		ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
-		colorPalettes.add(newPalette);
-
-		// DETECT POINT CLICKED
-		int pointClicked = -1;
-		for (int i = 0; i < points.size(); i++) {
-			if (points.get(i).isInside(transformedCoords.x, transformedCoords.y)) {
-				pointClicked = i;
-				break;
-			}
-
-		}
-
-		// CREATE POSITION AND DIRECTION VECTORS (JUST AN HEXAGON FOR NOW)
-		if (pointClicked != -1) {
-			PVector[] directions = Arrays.copyOf(directionVectors, directionVectors.length);
-			PVector[] positions = new PVector[6];
-			for (int i = 0; i < positions.length; i++) {
-				positions[i] = new PVector(points.get(pointClicked).position.x, points.get(pointClicked).position.y);
-			}
-			int figureCycles = 3;
-			Figure newFigure = new Figure(figuresLayer);
-			newFigure.initialize(positions, directions, colorPalettes.get(colorPalettes.size() - 1), figureCycles);
-			figures.add(newFigure);
-		}
+		/*
+		 * ColorPalette newPalette = new ColorPalette("PALETA " +
+		 * colorPalettes.size()); colorPalettes.add(newPalette);
+		 * 
+		 * // DETECT POINT CLICKED int pointClicked = -1; for (int i = 0; i <
+		 * points.size(); i++) { if (points.get(i).isInside(transformedCoords.x,
+		 * transformedCoords.y)) { pointClicked = i;
+		 * 
+		 * // MOMENTARILY DRAW A CIRCLE OVER CLICKED POINT. p5.fill(255,255,0);
+		 * p5.ellipse(points.get(pointClicked).position.x,
+		 * points.get(pointClicked).position.y, pointSize, pointSize);
+		 * 
+		 * break; }
+		 * 
+		 * }
+		 * 
+		 * 
+		 * // CREATE POSITION AND DIRECTION VECTORS (JUST AN HEXAGON FOR NOW) if
+		 * (pointClicked != -1) { PVector[] directions =
+		 * Arrays.copyOf(directionVectors, directionVectors.length); PVector[]
+		 * positions = new PVector[6]; for (int i = 0; i < positions.length;
+		 * i++) { positions[i] = new
+		 * PVector(points.get(pointClicked).position.x,
+		 * points.get(pointClicked).position.y); } int figureCycles = 3; Figure
+		 * newFigure = new Figure(figuresLayer); newFigure.initialize(positions,
+		 * directions, colorPalettes.get(colorPalettes.size() - 1),
+		 * figureCycles); figures.add(newFigure); }
+		 */
 
 	}
 

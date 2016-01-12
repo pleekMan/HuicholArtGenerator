@@ -11,7 +11,7 @@ public class Point {
 	
 	PGraphics drawLayer;
 
-	PVector position;
+	public PVector position;
 	int color;
 	int id;
 
@@ -59,6 +59,10 @@ public class Point {
 			return false;
 		}
 
+	}
+	
+	public int getId(){
+		return id;
 	}
 
 	protected Main getP5() {

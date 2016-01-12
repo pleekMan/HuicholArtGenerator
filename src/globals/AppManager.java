@@ -27,7 +27,9 @@ public class AppManager {
 		canvasScale = 0.5f;
 
 		canvas = new CanvasManager((int)canvasSize.x, (int)canvasSize.y);
-		editor = new EditorManager();
+		editor = new EditorManager(canvas);
+		
+		
 		
 		transformedCoords = new PVector();
 
@@ -73,6 +75,7 @@ public class AppManager {
 
 	public void mousePressed() {
 		canvas.mousePressed(transformedCoords);
+		editor.mousePressed(0, transformedCoords);
 	}
 
 	public void mouseReleased() {
