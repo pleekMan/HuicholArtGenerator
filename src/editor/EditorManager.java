@@ -112,6 +112,7 @@ public class EditorManager {
 			
 			// KEEP DRAWING THE DIRECTION LINES
 			// TODO NOT QUITE WORKING
+			/*
 			p5.stroke(0,255,255);
 			for (int i = 0; i < newFigureDirectionVectors.size(); i++) {
 				p5.pushMatrix();
@@ -122,6 +123,7 @@ public class EditorManager {
 				p5.popMatrix();
 				//p5.line(newFigureVertices.get(i).x, newFigureVertices.get(i).y, newFigureVertices.get(i).x + newFigureDirectionVectors.get(i).x, newFigureVertices.get(i).y + newFigureDirectionVectors.get(i).y);
 			}
+			*/
 			
 		}
 
@@ -148,7 +150,7 @@ public class EditorManager {
 	
 
 
-	public void createDefaultPalette() {
+	private void createDefaultPalette() {
 		ColorPalette defaultPalette = new ColorPalette("EMPTY");
 		defaultPalette.eraseAllColors();
 		colorPalettes.add(defaultPalette);

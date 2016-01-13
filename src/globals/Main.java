@@ -54,7 +54,7 @@ public class Main extends PApplet {
 	}
 
 	public void mousePressed() {
-		appManager.mousePressed();
+		appManager.mousePressed(mouseButton);
 	}
 
 	public void mouseReleased() {
@@ -65,6 +65,8 @@ public class Main extends PApplet {
 	}
 
 	public void mouseDragged() {
+		appManager.mouseDragged(mouseButton);
+
 	}
 
 	public void mouseMoved() {
