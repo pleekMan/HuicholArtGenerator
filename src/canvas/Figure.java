@@ -16,7 +16,9 @@ public class Figure {
 
 	ArrayList<Shape> shapes;
 	ColorPalette colorPalette;
-
+	int[] initialPoints;
+	// TODO WORK WITH THE initialPoints
+	
 	int atColorStage;
 	int maxColorStages;
 

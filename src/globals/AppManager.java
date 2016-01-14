@@ -13,7 +13,7 @@ public class AppManager {
 	PVector canvasSize;
 	//PVector viewSize; // NOT USED ??
 
-	PVector canvasTranslation;
+	public static PVector canvasTranslation;
 	public static float canvasScale;
 	PVector translationMouseOrigin;
 	PVector translationMouseOffset;
@@ -47,7 +47,7 @@ public class AppManager {
 
 		// CALCULATING TRANSFORMED COORDINATES FROM VIEW TO CANVAS
 		PVector mouseCoords = new PVector(p5.mouseX, p5.mouseY);
-		transformedCoords = getTransformedCoords(mouseCoords);
+		transformedCoords = viewToCanvasTransform(mouseCoords, canvasTranslation, canvasScale);
 
 		// TRANSFORMING CANVAS RENDER
 		p5.pushMatrix();
@@ -61,18 +61,29 @@ public class AppManager {
 		editor.render();
 	}
 
-	private PVector getTransformedCoords(PVector coords) {
+	public static PVector viewToCanvasTransform(PVector viewCoords, PVector canvasTranslation, float canvasScale) {
 		PVector invertedTranslation = PVector.mult(canvasTranslation, -1);
-		PVector newCoords = PVector.add(coords, invertedTranslation);
+		PVector newCoords = PVector.add(viewCoords, invertedTranslation);
 		newCoords.mult(1.0f / canvasScale);
-
 		return newCoords;
+	}
+	public static PVector canvasToViewTransform(PVector canvasCoords, PVector canvasTranslation, float canvasScale) {
+		PVector scaledCoord = PVector.mult(canvasCoords, canvasScale);
+		return PVector.add(scaledCoord, canvasTranslation);
 	}
 
 	public void keyPressed(char key) {
 
 		canvas.keyPressed(key);
 
+		if (key == '1') {
+			PVector canvasCoords = canvas.points.get(0).position;
+			PVector canvasToView = canvasToViewTransform(canvasCoords, canvasTranslation, canvasScale);
+			
+			p5.println("CanvasCoord: " + canvasCoords + " || CanvasToView: " + canvasToView);
+			
+		}
+		
 	}
 
 	public void mousePressed(int button) {

@@ -37,8 +37,9 @@ public class EditorManager {
 
 	ArrayList<PVector> newFigureVertices;
 	ArrayList<PVector> newFigureDirectionVectors;
-	PVector[] gridDirectionVectors;
-	
+	ArrayList<Point> newFigurePointsLink;
+	PVector[] gridDirectionVectors; // THE SIX POSIBLE DIRECTION VECTORS THAT A POINT CAN HAVE
+
 	PVector lastMousePosition;
 
 	int initialVertex;
@@ -56,22 +57,22 @@ public class EditorManager {
 		drawDirectionsTurn = false;
 
 		colorPalettes = new ArrayList<ColorPalette>();
-		
+
 		newFigureVertices = new ArrayList<PVector>();
 		newFigureDirectionVectors = new ArrayList<PVector>();
+		newFigurePointsLink = new ArrayList<Point>();
 
 		initialVertex = -1;
 		lastVertexGridIdDirection = 0;
 
 		newFigure = null;
-		
+
 		lastMousePosition = new PVector();
 
 		createDefaultPalette();
 		createGridDirectionVectors();
 
 	}
-
 
 	public void update() {
 
@@ -81,11 +82,24 @@ public class EditorManager {
 
 		if (createFigureMode) {
 			if (newFigureVertices.size() > 0) {
-				// DRAWING OVER THE CANVAS LAYER SO THAT THE PREVIZ ALSO TRANSFORMS
-				canvas.drawFigureSkeleton(newFigureVertices, newFigureDirectionVectors);
+
+				// DRAW OVER SELECTED POINTS by BACKTRANSFORMING THE LINKED POINTS
+				p5.fill(0, 255, 255);
+				p5.stroke(0, 255, 255);
+				for (int i = 0; i < newFigurePointsLink.size(); i++) {
+					PVector canvasCoords = AppManager.canvasToViewTransform(newFigurePointsLink.get(i).position, AppManager.canvasTranslation, AppManager.canvasScale);
+
+					if (i > 0) {
+						PVector prevCanvasCoords = AppManager.canvasToViewTransform(newFigurePointsLink.get(i -1).position, AppManager.canvasTranslation, AppManager.canvasScale);
+						p5.line(prevCanvasCoords.x, prevCanvasCoords.y, canvasCoords.x, canvasCoords.y);
+					}
+					p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.25f, CanvasManager.pointSize * AppManager.canvasScale * 0.25f);
+
+				}
+
 			}
-			
-			
+
+			/*
 			p5.stroke(0,255,255);
 			if (drawDirectionsTurn) {
 				PVector lastVertex = newFigureVertices.get(newFigureVertices.size() - 1);
@@ -109,7 +123,8 @@ public class EditorManager {
 				p5.popMatrix();
 				p5.text(angle + " : " + lastVertexGridIdDirection, p5.mouseX, p5.mouseY - 20);
 			}
-			
+			*/
+
 			// KEEP DRAWING THE DIRECTION LINES
 			// TODO NOT QUITE WORKING
 			/*
@@ -124,7 +139,7 @@ public class EditorManager {
 				//p5.line(newFigureVertices.get(i).x, newFigureVertices.get(i).y, newFigureVertices.get(i).x + newFigureDirectionVectors.get(i).x, newFigureVertices.get(i).y + newFigureDirectionVectors.get(i).y);
 			}
 			*/
-			
+
 		}
 
 	}
@@ -147,8 +162,6 @@ public class EditorManager {
 		p5.println("||- GRID DIRECTION VECTORS:");
 		p5.println(gridDirectionVectors);
 	}
-	
-
 
 	private void createDefaultPalette() {
 		ColorPalette defaultPalette = new ColorPalette("EMPTY");
@@ -195,13 +208,13 @@ public class EditorManager {
 	public void mousePressed(int button, PVector transformedCoords) {
 
 		if (createFigureMode) {
-			
+
 			// SWITCH BETWEEN DRAWING THE LINES AND DRAWING THE DIRECTIONS VERCTORS
 			if (drawDirectionsTurn) {
-				
+
 				newFigureDirectionVectors.add(gridDirectionVectors[lastVertexGridIdDirection]);
 				canvas.step();
-				
+
 				drawDirectionsTurn = false;
 			} else {
 				// DETECT POINT CLICKED
@@ -212,6 +225,7 @@ public class EditorManager {
 						pointClicked = i;
 
 						PVector pointSelected = actualPoint.position.get();
+						newFigurePointsLink.add(actualPoint);
 
 						// CHECKING FOR INITIAL, MIDDLE AND CLOSING VERTICES
 						if (newFigureVertices.size() != 0) {
@@ -227,9 +241,9 @@ public class EditorManager {
 							newFigureVertices.add(pointSelected);
 							newFigureDirectionVectors.add(gridDirectionVectors[0]); // DEFAULT TO DIRECTION 0
 						}
-						
+
 						lastMousePosition.set(p5.mouseX, p5.mouseY);
-						drawDirectionsTurn = true;
+						//drawDirectionsTurn = true;
 
 						// MOMENTARILY DRAW A CIRCLE OVER CLICKED POINT.
 						p5.fill(255, 255, 0);
