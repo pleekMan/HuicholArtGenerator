@@ -173,7 +173,7 @@ public class CanvasManager {
 		//p5.image(figuresLayer, 0, 0);
 		p5.image(pointsLayer, 0, 0);
 		
-		//showDirections();
+		showDirections();
 
 	}
 	
@@ -204,7 +204,7 @@ public class CanvasManager {
 		pointsLayer.endDraw();
 	}
 	
-	@Deprecated
+	//@Deprecated
 	public void showDirections(){
 		// render() IS ALREADY TRANSFORMED TO AppManager.canvasTranslation
 		p5.stroke(0,255,255);

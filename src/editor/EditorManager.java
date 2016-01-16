@@ -48,6 +48,8 @@ public class EditorManager {
 
 	int initialVertex;
 
+	String logFooterText;
+
 	public EditorManager(CanvasManager _canvas) {
 		p5 = getP5();
 
@@ -71,6 +73,8 @@ public class EditorManager {
 		selectedFigure = null;
 
 		lastMousePosition = new PVector();
+
+		logFooterText = "";
 
 		createDefaultPalette();
 		createGridDirectionVectors();
@@ -130,6 +134,8 @@ public class EditorManager {
 
 		}
 
+		drawLogFooter();
+
 	}
 
 	public void keyPressed(int key) {
@@ -137,8 +143,8 @@ public class EditorManager {
 	}
 
 	public void mousePressed(int button) {
-
-		if (createFigureMode) {
+		p5.println("--| Mouse button: " + button + " pressed");
+		if (createFigureMode && button == p5.LEFT) {
 			createNewFigureProcedure();
 		} else {
 
@@ -172,9 +178,11 @@ public class EditorManager {
 
 			if (actualFigure.hasPoint(selectedPoint)) {
 				selectedFigure = actualFigure;
+				logFooterText = "FIGURE SELECTED --> " + i;
 				break;
 			} else {
 				selectedFigure = null;
+				logFooterText = "NO FIGURE SELECTED";
 			}
 
 		}
@@ -199,7 +207,7 @@ public class EditorManager {
 				if (j > 0) {
 					PVector prevCanvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j - 1).position, AppManager.canvasTranslation, AppManager.canvasScale);
 					p5.line(prevCanvasCoords.x, prevCanvasCoords.y, canvasCoords.x, canvasCoords.y);
-					
+
 					// DRAW CLOSING LINE
 					if (j == actualFigure.points.size() - 1) {
 						PVector pointZero = AppManager.canvasToViewTransform(actualFigure.points.get(0).position, AppManager.canvasTranslation, AppManager.canvasScale);
@@ -241,11 +249,29 @@ public class EditorManager {
 			}
 
 		}
+
+		if (createFigureMode && figureVertices.size() > 0) {
+			p5.noFill();
+			p5.line(lastMousePosition.x, lastMousePosition.y, p5.mouseX, p5.mouseY);
+		}
+	}
+
+	public void drawLogFooter() {
+
+		p5.fill(255, 255, 0, 175);
+		p5.stroke(0);
+		p5.rect(-1, p5.height - 22, p5.width + 1, 22);
+
+		p5.fill(0);
+		p5.text("--| " + logFooterText, 10, p5.height - 7);
+
 	}
 
 	public void prepareNewFigure() {
 		createFigureMode = true;
 		resetNewFigureData();
+
+		logFooterText = "NEW FIGURE -> Start Picking points";
 	}
 
 	public void resetNewFigureData() {
@@ -329,18 +355,21 @@ public class EditorManager {
 				// MOMENTARILY DRAW A CIRCLE OVER CLICKED POINT.
 				p5.fill(0, 255, 255);
 				p5.ellipse(p5.mouseX, p5.mouseY, CanvasManager.pointSize * AppManager.canvasScale, CanvasManager.pointSize * AppManager.canvasScale);
-				p5.println("-| Point " + i + " Clicked");
+				//p5.println("-| Point " + i + " Clicked");
 
 				// CHECKING FOR INITIAL, MIDDLE AND CLOSING VERTICES
 				if (figureVertices.size() != 0) {
 					if (detectClosingVertex(pointClicked)) {
-						p5.println("-|| CLOSING FIGURE: " + figureVertices.size() + " vertices in Figure");
+						//p5.println("-|| CLOSING FIGURE: " + figureVertices.size() + " vertices in Figure");
 						spawnNewFigure();
 						resetNewFigureData();
+						logFooterText = "FIGURE CLOSED";
 					} else {
 						figureVertices.add(pointSelected);
 						figurePointsLink.add(actualPoint);
-						p5.println("---> Added to New Figure");
+						//p5.println("---> Added to New Figure");
+						logFooterText = "POINTS IN FIGURE = " + (figureVertices.size());
+
 						//newFigureDirectionVectors.add(gridDirectionVectors[0]); // DEFAULT TO DIRECTION 0
 					}
 				} else {
@@ -352,7 +381,7 @@ public class EditorManager {
 
 				lastMousePosition.set(p5.mouseX, p5.mouseY);
 
-				p5.println("-| newVertices.size() = " + figureVertices.size());
+				//p5.println("-| newVertices.size() = " + figureVertices.size());
 
 				break;
 			}
