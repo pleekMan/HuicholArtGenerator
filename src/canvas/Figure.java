@@ -3,6 +3,8 @@ package canvas;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import com.jogamp.common.util.IntIntHashMap;
+
 import processing.core.PGraphics;
 import processing.core.PVector;
 import editor.ColorPalette;
@@ -16,9 +18,10 @@ public class Figure {
 
 	ArrayList<Shape> shapes;
 	ColorPalette colorPalette;
-	int[] initialPoints;
+	public ArrayList<Point> points;
+	public ArrayList<PVector> directions;
 	// TODO WORK WITH THE initialPoints
-	
+
 	int atColorStage;
 	int maxColorStages;
 
@@ -38,9 +41,9 @@ public class Figure {
 
 	}
 
-	public void initialize(PVector[] startingPosition, PVector[] verticesDirection, ColorPalette palette, int _maxCycles) {
+	public void initialize(ArrayList<Point> _pointsLink, PVector[] verticesDirection, ColorPalette palette, int _maxCycles) {
 
-		//ArrayList<PVector> startingVerticesVelocity = new ArrayList(Arrays.asList(verticesDirection));
+		directions = new ArrayList(Arrays.asList(verticesDirection));
 		colorPalette = palette;
 		maxColorStages = colorPalette.getColorCount();
 		atColorStage = -maxColorStages; // START AT NEGATIVE SHAPE COUNT, TO SHOOT THE SHAPES INCREMENTALLY
@@ -48,9 +51,12 @@ public class Figure {
 		cycle = 2; // STARTS AT 2 CUZ IT NEEDS TO FINISH ALONG WITH atStage, WHICH STARTS AT NEGATIVE maxColorStage (FOR SHAPE SHOOTING REASONS)
 		maxCycles = _maxCycles;
 
+		points = new ArrayList<Point>(_pointsLink); // COPY THE ARRAYLIST (NOT THE REFERENCES/POINTERS)
+		PVector[] startingPositions = getPointsPosition();
+
 		for (int i = 0; i < maxColorStages; i++) {
 
-			Shape newShape = new Shape(drawLayer, startingPosition, verticesDirection);
+			Shape newShape = new Shape(drawLayer, startingPositions, verticesDirection);
 			//newShape.setOrder(i);
 			//newShape.setPosition(startPosition); // CENTER OF SOME GRID POINT
 			newShape.setColor(palette.getColor(i));
@@ -60,6 +66,14 @@ public class Figure {
 
 		}
 
+	}
+
+	private PVector[] getPointsPosition() {
+		PVector[] pointsPos = new PVector[points.size()];
+		for (int i = 0; i < pointsPos.length; i++) {
+			pointsPos[i] = points.get(i).position;
+		}
+		return pointsPos;
 	}
 
 	public void update() {
@@ -118,9 +132,25 @@ public class Figure {
 		//drawLayer.fill(colorPalette.getColor(atColorStage));
 		//drawLayer.ellipse(p5.mouseX, p5.mouseY, 20, 20);
 	}
+	
+
 
 	public void setColorPalette(ColorPalette palette) {
 		colorPalette = palette;
+	}
+	
+	public boolean hasPoint(Point _point){
+		boolean hasPoint = false;
+		for (int i = 0; i < points.size(); i++) {
+			// CHECK OBJECT POINTER EQUALITY
+			if (_point == points.get(i)) {
+				hasPoint = true;
+				break;
+			} else {
+				hasPoint = false;
+			}
+		}
+		return hasPoint;
 	}
 
 	protected Main getP5() {

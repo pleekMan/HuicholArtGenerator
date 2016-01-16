@@ -36,10 +36,12 @@ public class Point {
 		drawLayer.fill(225,255,0);
 		drawLayer.text(id, position.x, position.y);
 		
+		/*
 		if (isInside(p5.mouseX, p5.mouseY)) {
 			drawLayer.fill(225,255,0);
 			drawLayer.text(position.x + ":" + position.y, position.x - 25, position.y - (CanvasManager.pointSize * 0.5f));
 		}
+		*/
 	}
 	
 	public void setColor(int _color){

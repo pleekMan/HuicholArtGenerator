@@ -22,7 +22,7 @@ public class Main extends PApplet {
 
 	public void draw() {
 		background(0);
-		//drawBackLines();
+		drawBackLines();
 
 		//appManager.update();
 		appManager.render();

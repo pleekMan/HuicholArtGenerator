@@ -88,7 +88,7 @@ public class AppManager {
 
 	public void mousePressed(int button) {
 		canvas.mousePressed(transformedCoords);
-		editor.mousePressed(0, transformedCoords);
+		editor.mousePressed(button);
 		
 		// SET CANVAS DRAGGING FIRST COORD
 		if (button == p5.RIGHT) {

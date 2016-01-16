@@ -30,21 +30,23 @@ public class EditorManager {
 
 	public int testColorControl;
 	boolean createFigureMode;
+	boolean showFigureGizmos;
+
 	boolean drawDirectionsTurn;
 	int lastVertexGridIdDirection;
 
 	ArrayList<ColorPalette> colorPalettes;
 
-	ArrayList<PVector> newFigureVertices;
-	ArrayList<PVector> newFigureDirectionVectors;
-	ArrayList<Point> newFigurePointsLink;
+	ArrayList<PVector> figureVertices;
+	ArrayList<PVector> figureDirectionVectors;
+	ArrayList<Point> figurePointsLink;
 	PVector[] gridDirectionVectors; // THE SIX POSIBLE DIRECTION VECTORS THAT A POINT CAN HAVE
+
+	Figure selectedFigure;
 
 	PVector lastMousePosition;
 
 	int initialVertex;
-
-	Figure newFigure;
 
 	public EditorManager(CanvasManager _canvas) {
 		p5 = getP5();
@@ -54,18 +56,19 @@ public class EditorManager {
 		controlFrame = addControlFrame("Editor Options", 300, 500);
 
 		createFigureMode = false;
+		showFigureGizmos = false;
 		drawDirectionsTurn = false;
 
 		colorPalettes = new ArrayList<ColorPalette>();
 
-		newFigureVertices = new ArrayList<PVector>();
-		newFigureDirectionVectors = new ArrayList<PVector>();
-		newFigurePointsLink = new ArrayList<Point>();
+		figureVertices = new ArrayList<PVector>();
+		figureDirectionVectors = new ArrayList<PVector>();
+		figurePointsLink = new ArrayList<Point>();
 
 		initialVertex = -1;
 		lastVertexGridIdDirection = 0;
 
-		newFigure = null;
+		selectedFigure = null;
 
 		lastMousePosition = new PVector();
 
@@ -80,24 +83,9 @@ public class EditorManager {
 
 	public void render() {
 
-		if (createFigureMode) {
-			if (newFigureVertices.size() > 0) {
+		if (showFigureGizmos) {
 
-				// DRAW OVER SELECTED POINTS by BACKTRANSFORMING THE LINKED POINTS
-				p5.fill(0, 255, 255);
-				p5.stroke(0, 255, 255);
-				for (int i = 0; i < newFigurePointsLink.size(); i++) {
-					PVector canvasCoords = AppManager.canvasToViewTransform(newFigurePointsLink.get(i).position, AppManager.canvasTranslation, AppManager.canvasScale);
-
-					if (i > 0) {
-						PVector prevCanvasCoords = AppManager.canvasToViewTransform(newFigurePointsLink.get(i -1).position, AppManager.canvasTranslation, AppManager.canvasScale);
-						p5.line(prevCanvasCoords.x, prevCanvasCoords.y, canvasCoords.x, canvasCoords.y);
-					}
-					p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.25f, CanvasManager.pointSize * AppManager.canvasScale * 0.25f);
-
-				}
-
-			}
+			showFigureGizmos();
 
 			/*
 			p5.stroke(0,255,255);
@@ -142,6 +130,128 @@ public class EditorManager {
 
 		}
 
+	}
+
+	public void keyPressed(int key) {
+
+	}
+
+	public void mousePressed(int button) {
+
+		if (createFigureMode) {
+			createNewFigureProcedure();
+		} else {
+
+			selectFigure();
+
+		}
+
+	}
+
+	public void selectFigure() {
+
+		// SELECT FIGURE BY CHECKING WHICH POINTS IS CLICKED, AND THEN THE FIRST FIGURE THAT CONTAINS THAT POINT
+
+		// WHICH POINT IS BEING CLICKED ON
+		Point selectedPoint = null;
+		for (int i = 0; i < canvas.points.size(); i++) {
+			Point actualPoint = canvas.points.get(i);
+
+			PVector canvasCoords = new PVector();
+			canvasCoords.set(AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY), AppManager.canvasTranslation, AppManager.canvasScale));
+
+			if (actualPoint.isInside(canvasCoords.x, canvasCoords.y)) {
+				selectedPoint = actualPoint;
+				break;
+			}
+		}
+
+		// SELECT FIRST FIGURE TO HOLD THE SELECTED POINT
+		for (int i = 0; i < canvas.figures.size(); i++) {
+			Figure actualFigure = canvas.figures.get(i);
+
+			if (actualFigure.hasPoint(selectedPoint)) {
+				selectedFigure = actualFigure;
+				break;
+			} else {
+				selectedFigure = null;
+			}
+
+		}
+
+	}
+
+	private void showFigureGizmos() {
+
+		// FOR EXISTING FIGURES
+		for (int i = 0; i < canvas.figures.size(); i++) {
+			Figure actualFigure = canvas.figures.get(i);
+
+			boolean isSelected = actualFigure == selectedFigure && selectedFigure != null ? true : false;
+
+			// DRAW OVER SELECTED POINTS by BACKTRANSFORMING THE LINKED POINTS
+			p5.fill(0, 255, 255);
+			p5.stroke(0, 255, 255);
+			for (int j = 0; j < actualFigure.points.size(); j++) {
+				PVector canvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j).position, AppManager.canvasTranslation, AppManager.canvasScale);
+
+				// DRAW THE LINES
+				if (j > 0) {
+					PVector prevCanvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j - 1).position, AppManager.canvasTranslation, AppManager.canvasScale);
+					p5.line(prevCanvasCoords.x, prevCanvasCoords.y, canvasCoords.x, canvasCoords.y);
+					
+					// DRAW CLOSING LINE
+					if (j == actualFigure.points.size() - 1) {
+						PVector pointZero = AppManager.canvasToViewTransform(actualFigure.points.get(0).position, AppManager.canvasTranslation, AppManager.canvasScale);
+						p5.line(pointZero.x, pointZero.y, canvasCoords.x, canvasCoords.y);
+					}
+				}
+				// DRAW THE DOTS
+				p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.25f, CanvasManager.pointSize * AppManager.canvasScale * 0.25f);
+
+				// IF FIGURE IS SELECTED, DRAW SOMETHING ELSE OVER THE POINTS
+				if (isSelected) {
+					p5.noFill();
+					p5.stroke(175, 0, 0);
+					p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.5f, CanvasManager.pointSize * AppManager.canvasScale * 0.5f);
+					p5.stroke(255, 200, 200);
+					p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.8f, CanvasManager.pointSize * AppManager.canvasScale * 0.8f);
+				}
+			}
+
+		}
+
+		// FOR THE FIGURE BEING CREATED NOW
+		if (figureVertices.size() > 0) {
+
+			// DRAW OVER SELECTED POINTS by BACKTRANSFORMING THE LINKED POINTS
+			p5.fill(0, 255, 255);
+			p5.stroke(0, 255, 255);
+			for (int i = 0; i < figurePointsLink.size(); i++) {
+				PVector canvasCoords = AppManager.canvasToViewTransform(figurePointsLink.get(i).position, AppManager.canvasTranslation, AppManager.canvasScale);
+
+				// DRAW THE LINES
+				if (i > 0) {
+					PVector prevCanvasCoords = AppManager.canvasToViewTransform(figurePointsLink.get(i - 1).position, AppManager.canvasTranslation, AppManager.canvasScale);
+					p5.line(prevCanvasCoords.x, prevCanvasCoords.y, canvasCoords.x, canvasCoords.y);
+				}
+				// DRAW THE DOTS
+				p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.25f, CanvasManager.pointSize * AppManager.canvasScale * 0.25f);
+
+			}
+
+		}
+	}
+
+	public void prepareNewFigure() {
+		createFigureMode = true;
+		resetNewFigureData();
+	}
+
+	public void resetNewFigureData() {
+		figureVertices.clear();
+		figureDirectionVectors.clear();
+		figurePointsLink.clear();
 	}
 
 	private void createGridDirectionVectors() {
@@ -201,92 +311,53 @@ public class EditorManager {
 		return p;
 	}
 
-	public void keyPressed(int key) {
+	private void createNewFigureProcedure() {
 
-	}
+		// DETECT POINT CLICKED
+		int pointClicked = -1;
+		for (int i = 0; i < canvas.points.size(); i++) {
+			Point actualPoint = canvas.points.get(i);
 
-	public void mousePressed(int button, PVector transformedCoords) {
+			PVector canvasCoords = new PVector();
+			canvasCoords.set(AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY), AppManager.canvasTranslation, AppManager.canvasScale));
 
-		if (createFigureMode) {
+			if (actualPoint.isInside(canvasCoords.x, canvasCoords.y)) {
+				pointClicked = i;
 
-			// SWITCH BETWEEN DRAWING THE LINES AND DRAWING THE DIRECTIONS VERCTORS
-			if (drawDirectionsTurn) {
+				PVector pointSelected = actualPoint.position.get();
 
-				newFigureDirectionVectors.add(gridDirectionVectors[lastVertexGridIdDirection]);
-				canvas.step();
+				// MOMENTARILY DRAW A CIRCLE OVER CLICKED POINT.
+				p5.fill(0, 255, 255);
+				p5.ellipse(p5.mouseX, p5.mouseY, CanvasManager.pointSize * AppManager.canvasScale, CanvasManager.pointSize * AppManager.canvasScale);
+				p5.println("-| Point " + i + " Clicked");
 
-				drawDirectionsTurn = false;
-			} else {
-				// DETECT POINT CLICKED
-				int pointClicked = -1;
-				for (int i = 0; i < canvas.points.size(); i++) {
-					Point actualPoint = canvas.points.get(i);
-					if (actualPoint.isInside(transformedCoords.x, transformedCoords.y)) {
-						pointClicked = i;
-
-						PVector pointSelected = actualPoint.position.get();
-						newFigurePointsLink.add(actualPoint);
-
-						// CHECKING FOR INITIAL, MIDDLE AND CLOSING VERTICES
-						if (newFigureVertices.size() != 0) {
-							if (detectClosingVertex(pointClicked)) {
-								p5.println("CLOSING FIGURE");
-								//spawnNewFigure();
-							} else {
-								newFigureVertices.add(pointSelected);
-								newFigureDirectionVectors.add(gridDirectionVectors[0]); // DEFAULT TO DIRECTION 0
-							}
-						} else {
-							initialVertex = pointClicked;
-							newFigureVertices.add(pointSelected);
-							newFigureDirectionVectors.add(gridDirectionVectors[0]); // DEFAULT TO DIRECTION 0
-						}
-
-						lastMousePosition.set(p5.mouseX, p5.mouseY);
-						//drawDirectionsTurn = true;
-
-						// MOMENTARILY DRAW A CIRCLE OVER CLICKED POINT.
-						p5.fill(255, 255, 0);
-						p5.ellipse(p5.mouseX, p5.mouseY, CanvasManager.pointSize * AppManager.canvasScale, CanvasManager.pointSize * AppManager.canvasScale);
-						p5.println("Point " + i + " Clicked");
-
-						break;
+				// CHECKING FOR INITIAL, MIDDLE AND CLOSING VERTICES
+				if (figureVertices.size() != 0) {
+					if (detectClosingVertex(pointClicked)) {
+						p5.println("-|| CLOSING FIGURE: " + figureVertices.size() + " vertices in Figure");
+						spawnNewFigure();
+						resetNewFigureData();
+					} else {
+						figureVertices.add(pointSelected);
+						figurePointsLink.add(actualPoint);
+						p5.println("---> Added to New Figure");
+						//newFigureDirectionVectors.add(gridDirectionVectors[0]); // DEFAULT TO DIRECTION 0
 					}
-
+				} else {
+					initialVertex = pointClicked;
+					figureVertices.add(pointSelected);
+					figurePointsLink.add(actualPoint);
+					//newFigureDirectionVectors.add(gridDirectionVectors[0]); // DEFAULT TO DIRECTION 0
 				}
-			}
-		}
 
-		/*
-		 * // --- INSERT A NEW FIGURE, BASED ON A COLOR PALETTE ColorPalette
-		 * newPalette = new ColorPalette("PALETA " + colorPalettes.size());
-		 * colorPalettes.add(newPalette);
-		 * 
-		 * // DETECT POINT CLICKED int pointClicked = -1; for (int i = 0; i <
-		 * CanvasManager.points.size(); i++) { if
-		 * (CanvasManager.points.get(i).isInside(transformedCoords.x,
-		 * transformedCoords.y)) { pointClicked = i;
-		 * 
-		 * // MOMENTARILY DRAW A CIRCLE OVER CLICKED POINT. p5.fill(255, 255,
-		 * 0); p5.ellipse(CanvasManager.points.get(pointClicked).position.x,
-		 * CanvasManager.points.get(pointClicked).position.y,
-		 * CanvasManager.pointSize, CanvasManager.pointSize);
-		 * 
-		 * break; }
-		 * 
-		 * }
-		 * 
-		 * // CREATE POSITION AND DIRECTION VECTORS (JUST AN HEXAGON FOR NOW) if
-		 * (pointClicked != -1) { PVector[] directions =
-		 * Arrays.copyOf(directionVectors, directionVectors.length); PVector[]
-		 * positions = new PVector[6]; for (int i = 0; i < positions.length;
-		 * i++) { positions[i] = new
-		 * PVector(points.get(pointClicked).position.x,
-		 * points.get(pointClicked).position.y); } int figureCycles = 3; Figure
-		 * newFigure = new Figure(figuresLayer); newFigure.initialize(positions,
-		 * directions, colorPalettes.get(colorPalettes.size() - 1),
-		 * figureCycles); figures.add(newFigure); }
-		 */
+				lastMousePosition.set(p5.mouseX, p5.mouseY);
+
+				p5.println("-| newVertices.size() = " + figureVertices.size());
+
+				break;
+			}
+
+		}
 
 	}
 
@@ -294,22 +365,28 @@ public class EditorManager {
 
 		// ---  INSERT A NEW FIGURE, BASED ON A COLOR PALETTE
 
-		//ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
-		//colorPalettes.add(newPalette);
+		ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
+		colorPalettes.add(newPalette);
 
 		// CREATE POSITION AND DIRECTION VECTORS (JUST AN HEXAGON FOR NOW)
-		if (pointClicked != -1) {
-			PVector[] directions = Arrays.copyOf(newFigureDirectionVectors, newFigureDirectionVectors.length);
-			PVector[] positions = new PVector[6];
-			for (int i = 0; i < positions.length; i++) {
-				positions[i] = new PVector(points.get(pointClicked).position.x, points.get(pointClicked).position.y);
-			}
-			int figureCycles = 3;
-			Figure newFigure = new Figure(figuresLayer);
-			newFigure.initialize(positions, directions, colorPalettes.get(colorPalettes.size() - 1), figureCycles);
-			figures.add(newFigure);
-		}
+		//if (pointClicked != -1) {
+		//PVector[] directions = Arrays.copyOf(newFigureDirectionVectors, newFigureDirectionVectors.length);
+		PVector[] directions = getRandomDirections(figureVertices.size());
+		int figureCycles = 3;
+		Figure newFigure = new Figure(canvas.figuresLayer);
+		newFigure.initialize(figurePointsLink, directions, colorPalettes.get(colorPalettes.size() - 1), figureCycles);
+		canvas.addFigure(newFigure);
+		//}
 
+		createFigureMode = false;
+	}
+
+	private PVector[] getRandomDirections(int pointCount) {
+		PVector[] randomDirection = new PVector[pointCount];
+		for (int i = 0; i < randomDirection.length; i++) {
+			randomDirection[i] = gridDirectionVectors[p5.floor(p5.random(5.99f))];
+		}
+		return randomDirection;
 	}
 
 	private boolean detectClosingVertex(int pointClicked) {

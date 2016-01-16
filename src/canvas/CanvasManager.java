@@ -9,6 +9,7 @@ import editor.ColorPalette;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.core.PVector;
+import globals.AppManager;
 import globals.Main;
 import globals.PAppletSingleton;
 
@@ -24,7 +25,7 @@ public class CanvasManager {
 	public int gridWidth;
 
 	public ArrayList<Point> points;
-	ArrayList<Figure> figures;
+	public ArrayList<Figure> figures;
 
 	//ArrayList<ColorPalette> colorPalettes;
 
@@ -102,7 +103,7 @@ public class CanvasManager {
 
 		figuresLayer.beginDraw();
 		figuresLayer.background(50);
-		figuresLayer.noStroke();
+		//figuresLayer.noStroke();
 
 		//figuresLayer.image(backGrid, 0, 0);
 
@@ -119,6 +120,7 @@ public class CanvasManager {
 		//------- DRAW SHAPES SHAPES - END
 
 		//------  DRAW POINTS LAYER - BEGIN
+		
 		// FIRST LOAD figuresLayer PIXELS, BEFORE BEING INSIDE pointsLayer. OTHERWISE, IT FUCKS pointsLayer INNER TRANSFORMS
 		figuresLayer.loadPixels();
 
@@ -129,8 +131,8 @@ public class CanvasManager {
 		pointsLayer.noStroke();
 
 		//pointsLayer.image(backGrid, 0,0);
-		pointsLayer.fill(255, 255, 0);
-		pointsLayer.rect(0, 0, 40, 40);
+		//pointsLayer.fill(255, 255, 0);
+		//pointsLayer.rect(0, 0, 40, 40);
 
 		// -- SAMPLING FIGURES LAYER TO COLOR POINTS LAYER
 		//figuresLayer.loadPixels();
@@ -168,9 +170,15 @@ public class CanvasManager {
 
 	public void render() {
 
-		p5.image(figuresLayer, 0, 0);
+		//p5.image(figuresLayer, 0, 0);
 		p5.image(pointsLayer, 0, 0);
+		
+		//showDirections();
 
+	}
+	
+	public void addFigure(Figure _newFigure){
+		figures.add(_newFigure);
 	}
 
 	private int getColorAtPoint(int pix[], int x, int y) {
@@ -194,6 +202,22 @@ public class CanvasManager {
 		pointsLayer.endShape();
 
 		pointsLayer.endDraw();
+	}
+	
+	@Deprecated
+	public void showDirections(){
+		// render() IS ALREADY TRANSFORMED TO AppManager.canvasTranslation
+		p5.stroke(0,255,255);
+		for (int i = 0; i < figures.size(); i++) {
+			Figure actualFigure = figures.get(i);
+			
+			for (int j = 0; j < actualFigure.points.size(); j++) {
+				PVector pos =actualFigure.points.get(j).position;			
+				
+				p5.line(pos.x,pos.y, pos.x + actualFigure.directions.get(j).x, pos.y + actualFigure.directions.get(j).y);
+
+			}
+		}
 	}
 
 	@Deprecated
@@ -255,7 +279,8 @@ public class CanvasManager {
 		}
 
 	}
-
+	
+	@Deprecated
 	private int[] getNeighboursIndex(int index) {
 
 		int[] neighbours;
