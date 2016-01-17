@@ -111,7 +111,7 @@ public class Figure {
 			}
 		}
 
-		p5.println("||- Cycle: " + cycle + " | At Stage: " + atColorStage);
+		//p5.println("||- Cycle: " + cycle + " | At Stage: " + atColorStage);
 
 	}
 
@@ -132,14 +132,12 @@ public class Figure {
 		//drawLayer.fill(colorPalette.getColor(atColorStage));
 		//drawLayer.ellipse(p5.mouseX, p5.mouseY, 20, 20);
 	}
-	
-
 
 	public void setColorPalette(ColorPalette palette) {
 		colorPalette = palette;
 	}
-	
-	public boolean hasPoint(Point _point){
+
+	public boolean hasPoint(Point _point) {
 		boolean hasPoint = false;
 		for (int i = 0; i < points.size(); i++) {
 			// CHECK OBJECT POINTER EQUALITY
@@ -159,5 +157,17 @@ public class Figure {
 
 	public boolean isFinished() {
 		return shapes.size() <= 0;
+	}
+
+	public PVector getPointDirectionVector(Point _point) {
+		PVector pointDirection = null;
+		for (int i = 0; i < points.size(); i++) {
+			// CHECK OBJECT POINTER EQUALITY
+			if (_point == points.get(i)) {
+				pointDirection = directions.get(i);
+				break;
+			}
+		}
+		return pointDirection;
 	}
 }

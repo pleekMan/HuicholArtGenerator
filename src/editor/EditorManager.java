@@ -30,9 +30,9 @@ public class EditorManager {
 
 	public int testColorControl;
 	boolean createFigureMode;
+	boolean setDirectionsMode;
 	boolean showFigureGizmos;
 
-	boolean drawDirectionsTurn;
 	int lastVertexGridIdDirection;
 
 	ArrayList<ColorPalette> colorPalettes;
@@ -43,6 +43,8 @@ public class EditorManager {
 	PVector[] gridDirectionVectors; // THE SIX POSIBLE DIRECTION VECTORS THAT A POINT CAN HAVE
 
 	Figure selectedFigure;
+	Point selectedFigurePoint;
+	PVector selectedPointDirection;
 
 	PVector lastMousePosition;
 
@@ -58,8 +60,8 @@ public class EditorManager {
 		controlFrame = addControlFrame("Editor Options", 300, 500);
 
 		createFigureMode = false;
-		showFigureGizmos = false;
-		drawDirectionsTurn = false;
+		showFigureGizmos = true;
+		setDirectionsMode = false;
 
 		colorPalettes = new ArrayList<ColorPalette>();
 
@@ -71,13 +73,15 @@ public class EditorManager {
 		lastVertexGridIdDirection = 0;
 
 		selectedFigure = null;
+		selectedFigurePoint = null;
+		selectedPointDirection = null;
 
 		lastMousePosition = new PVector();
 
 		logFooterText = "";
 
 		createDefaultPalette();
-		createGridDirectionVectors();
+		createHexagonalDirectionVectors();
 
 	}
 
@@ -88,53 +92,55 @@ public class EditorManager {
 	public void render() {
 
 		if (showFigureGizmos) {
-
 			showFigureGizmos();
+		}
 
-			/*
-			p5.stroke(0,255,255);
-			if (drawDirectionsTurn) {
-				PVector lastVertex = newFigureVertices.get(newFigureVertices.size() - 1);
-				PVector mouseVector = new PVector(p5.mouseX - lastVertex.x, p5.mouseY - lastVertex.y);
-				
-				float angle = PVector.angleBetween(mouseVector, gridDirectionVectors[0]);
-				
-				// RETURNED ANGLE GOES FROM 0 TO PI, TWICE AROUND THE CIRCLE
-				if (mouseVector.y > 0) {
-					lastVertexGridIdDirection = p5.floor(p5.map(angle, 0, p5.PI, 0, 3));
-				} else {
-					lastVertexGridIdDirection = p5.floor(p5.map(angle, p5.PI, 0, 3, 6));
-				}
-				
-				// DRAW THIS DIRECTION LINE (KINDA CHOTO: DRAWING FROM MOUSE AND NOT FROM POINT CENTER)
-				p5.pushMatrix();
-				p5.translate(lastMousePosition.x, lastMousePosition.y);
-				p5.rotate((p5.TWO_PI / 6) * lastVertexGridIdDirection);
-				p5.line(0,0,40,0);
-				
-				p5.popMatrix();
-				p5.text(angle + " : " + lastVertexGridIdDirection, p5.mouseX, p5.mouseY - 20);
-			}
-			*/
-
-			// KEEP DRAWING THE DIRECTION LINES
-			// TODO NOT QUITE WORKING
-			/*
-			p5.stroke(0,255,255);
-			for (int i = 0; i < newFigureDirectionVectors.size(); i++) {
-				p5.pushMatrix();
-				p5.translate(newFigureVertices.get(i).x, newFigureVertices.get(i).y);
-				p5.rotate((p5.TWO_PI / 6) * lastVertexGridIdDirection);
-				p5.line(0,0,40,0);
-				
-				p5.popMatrix();
-				//p5.line(newFigureVertices.get(i).x, newFigureVertices.get(i).y, newFigureVertices.get(i).x + newFigureDirectionVectors.get(i).x, newFigureVertices.get(i).y + newFigureDirectionVectors.get(i).y);
-			}
-			*/
-
+		if (setDirectionsMode) {
+			setDirectionsProcedure();
 		}
 
 		drawLogFooter();
+
+		/*
+		p5.stroke(0,255,255);
+		if (drawDirectionsTurn) {
+			PVector lastVertex = newFigureVertices.get(newFigureVertices.size() - 1);
+			PVector mouseVector = new PVector(p5.mouseX - lastVertex.x, p5.mouseY - lastVertex.y);
+			
+			float angle = PVector.angleBetween(mouseVector, gridDirectionVectors[0]);
+			
+			// RETURNED ANGLE GOES FROM 0 TO PI, TWICE AROUND THE CIRCLE
+			if (mouseVector.y > 0) {
+				lastVertexGridIdDirection = p5.floor(p5.map(angle, 0, p5.PI, 0, 3));
+			} else {
+				lastVertexGridIdDirection = p5.floor(p5.map(angle, p5.PI, 0, 3, 6));
+			}
+			
+			// DRAW THIS DIRECTION LINE (KINDA CHOTO: DRAWING FROM MOUSE AND NOT FROM POINT CENTER)
+			p5.pushMatrix();
+			p5.translate(lastMousePosition.x, lastMousePosition.y);
+			p5.rotate((p5.TWO_PI / 6) * lastVertexGridIdDirection);
+			p5.line(0,0,40,0);
+			
+			p5.popMatrix();
+			p5.text(angle + " : " + lastVertexGridIdDirection, p5.mouseX, p5.mouseY - 20);
+		}
+		*/
+
+		// KEEP DRAWING THE DIRECTION LINES
+		// TODO NOT QUITE WORKING
+		/*
+		p5.stroke(0,255,255);
+		for (int i = 0; i < newFigureDirectionVectors.size(); i++) {
+			p5.pushMatrix();
+			p5.translate(newFigureVertices.get(i).x, newFigureVertices.get(i).y);
+			p5.rotate((p5.TWO_PI / 6) * lastVertexGridIdDirection);
+			p5.line(0,0,40,0);
+			
+			p5.popMatrix();
+			//p5.line(newFigureVertices.get(i).x, newFigureVertices.get(i).y, newFigureVertices.get(i).x + newFigureDirectionVectors.get(i).x, newFigureVertices.get(i).y + newFigureDirectionVectors.get(i).y);
+		}
+		*/
 
 	}
 
@@ -143,18 +149,16 @@ public class EditorManager {
 	}
 
 	public void mousePressed(int button) {
-		p5.println("--| Mouse button: " + button + " pressed");
+		//p5.println("--| Mouse button: " + button + " pressed");
 		if (createFigureMode && button == p5.LEFT) {
 			createNewFigureProcedure();
 		} else {
-
-			selectFigure();
-
+			select();
 		}
 
 	}
 
-	public void selectFigure() {
+	public void select() {
 
 		// SELECT FIGURE BY CHECKING WHICH POINTS IS CLICKED, AND THEN THE FIRST FIGURE THAT CONTAINS THAT POINT
 
@@ -168,6 +172,7 @@ public class EditorManager {
 
 			if (actualPoint.isInside(canvasCoords.x, canvasCoords.y)) {
 				selectedPoint = actualPoint;
+				selectedFigurePoint = selectedPoint;
 				break;
 			}
 		}
@@ -178,11 +183,18 @@ public class EditorManager {
 
 			if (actualFigure.hasPoint(selectedPoint)) {
 				selectedFigure = actualFigure;
+				selectedPointDirection = actualFigure.getPointDirectionVector(selectedPoint);
+				setDirectionsMode = true;
 				logFooterText = "FIGURE SELECTED --> " + i;
 				break;
 			} else {
-				selectedFigure = null;
-				logFooterText = "NO FIGURE SELECTED";
+				if (!setDirectionsMode) {
+					selectedFigure = null;
+					logFooterText = "NO FIGURE SELECTED";
+				} else {
+					setDirectionsMode = false;
+					break;
+				}
 			}
 
 		}
@@ -203,7 +215,8 @@ public class EditorManager {
 			for (int j = 0; j < actualFigure.points.size(); j++) {
 				PVector canvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j).position, AppManager.canvasTranslation, AppManager.canvasScale);
 
-				// DRAW THE LINES
+				// DRAW THE LINES CONNECTING THE POINTS
+				p5.stroke(0, 255, 255);
 				if (j > 0) {
 					PVector prevCanvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j - 1).position, AppManager.canvasTranslation, AppManager.canvasScale);
 					p5.line(prevCanvasCoords.x, prevCanvasCoords.y, canvasCoords.x, canvasCoords.y);
@@ -217,15 +230,27 @@ public class EditorManager {
 				// DRAW THE DOTS
 				p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.25f, CanvasManager.pointSize * AppManager.canvasScale * 0.25f);
 
+				p5.strokeWeight(3);
+				p5.stroke(255);
+				p5.line(canvasCoords.x, canvasCoords.y, canvasCoords.x + (actualFigure.directions.get(j).x * AppManager.canvasScale), canvasCoords.y + (actualFigure.directions.get(j).y * AppManager.canvasScale));
+				p5.strokeWeight(1);
+				
 				// IF FIGURE IS SELECTED, DRAW SOMETHING ELSE OVER THE POINTS
 				if (isSelected) {
 					p5.noFill();
-					p5.stroke(175, 0, 0);
+					p5.stroke(255, 255, 0);
 					p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.5f, CanvasManager.pointSize * AppManager.canvasScale * 0.5f);
-					p5.stroke(255, 200, 200);
-					p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.8f, CanvasManager.pointSize * AppManager.canvasScale * 0.8f);
 				}
 			}
+
+		}
+
+		// DRAW SELECTED POINT GIZMO
+		if (selectedFigurePoint != null && selectedFigure != null) {
+			PVector selectedPointCoord = AppManager.canvasToViewTransform(selectedFigurePoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
+			p5.noFill();
+			p5.stroke(255, 255, 0);
+			p5.ellipse(selectedPointCoord.x, selectedPointCoord.y, CanvasManager.pointSize * AppManager.canvasScale * 1.2f, CanvasManager.pointSize * AppManager.canvasScale * 1.2f);
 
 		}
 
@@ -254,11 +279,25 @@ public class EditorManager {
 			p5.noFill();
 			p5.line(lastMousePosition.x, lastMousePosition.y, p5.mouseX, p5.mouseY);
 		}
+
 	}
 
 	public void drawLogFooter() {
 
-		p5.fill(255, 255, 0, 175);
+		if (createFigureMode) {
+			p5.fill(0, 255, 255, 175);
+			p5.stroke(0, 255, 255, 175);
+
+			p5.strokeWeight(10);
+			p5.line(0, 0, p5.width, 0);
+			p5.line(p5.width, 0, p5.width, p5.height);
+			p5.line(0, 0, 0, p5.height);
+			p5.strokeWeight(1);
+
+		} else {
+			p5.fill(255, 255, 0, 175);
+		}
+
 		p5.stroke(0);
 		p5.rect(-1, p5.height - 22, p5.width + 1, 22);
 
@@ -280,7 +319,7 @@ public class EditorManager {
 		figurePointsLink.clear();
 	}
 
-	private void createGridDirectionVectors() {
+	private void createHexagonalDirectionVectors() {
 		// DEFAULT HEXAGONAL GRID VECTORS
 		// GET DISTANCE VECTORS TO NEIGHBOUR POINTS BY CALCULATING DISTANCE OVER THE GRID (taking the first point as reference to calculate)
 
@@ -335,6 +374,39 @@ public class EditorManager {
 		f.setResizable(false);
 		f.setVisible(true);
 		return p;
+	}
+
+	private void setDirectionsProcedure() {
+		PVector pointTransformed = AppManager.canvasToViewTransform(new PVector(selectedFigurePoint.position.x, selectedFigurePoint.position.y), AppManager.canvasTranslation, AppManager.canvasScale);
+		PVector mouseVector = new PVector(p5.mouseX - pointTransformed.x, p5.mouseY - pointTransformed.y);
+		float angle = PVector.angleBetween(mouseVector, gridDirectionVectors[0]);
+
+		// RETURNED ANGLE GOES FROM 0 TO PI, TWICE AROUND THE CIRCLE
+		if (mouseVector.y > 0) {
+			lastVertexGridIdDirection = p5.floor(p5.map(angle, 0, p5.PI, 0, 3));
+		} else {
+			lastVertexGridIdDirection = p5.floor(p5.map(angle, p5.PI, 0, 3, 5.99f));
+		}
+
+		// ASSIGN THE NEW DIRECTION TO THE SELECTED PVector AT THE SELECTED POINT AT THE SELECTED FIGURE 
+		selectedPointDirection.set(gridDirectionVectors[lastVertexGridIdDirection]);
+
+		// DRAW THIS DIRECTION LINEs
+		/*
+		p5.pushMatrix();
+		float x = AppManager.canvasToViewTransform(selectedFigurePoint.position, AppManager.canvasTranslation, AppManager.canvasScale).x;
+		float y = AppManager.canvasToViewTransform(selectedFigurePoint.position, AppManager.canvasTranslation, AppManager.canvasScale).y;
+		p5.translate(x, y);
+		p5.rotate((p5.TWO_PI / 6) * lastVertexGridIdDirection);
+		p5.stroke(0, 255, 255);
+		p5.strokeWeight(4);
+		p5.line(0, 0, gridDirectionVectors[0].x * AppManager.canvasScale, 0);
+		p5.strokeWeight(1);
+
+		p5.popMatrix();
+		logFooterText = "Angle " + lastVertexGridIdDirection + " :: " + angle;
+		p5.text(angle + " : " + lastVertexGridIdDirection, p5.mouseX, p5.mouseY - 20);
+		*/
 	}
 
 	private void createNewFigureProcedure() {
@@ -397,15 +469,13 @@ public class EditorManager {
 		ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
 		colorPalettes.add(newPalette);
 
-		// CREATE POSITION AND DIRECTION VECTORS (JUST AN HEXAGON FOR NOW)
-		//if (pointClicked != -1) {
-		//PVector[] directions = Arrays.copyOf(newFigureDirectionVectors, newFigureDirectionVectors.length);
 		PVector[] directions = getRandomDirections(figureVertices.size());
 		int figureCycles = 3;
 		Figure newFigure = new Figure(canvas.figuresLayer);
 		newFigure.initialize(figurePointsLink, directions, colorPalettes.get(colorPalettes.size() - 1), figureCycles);
 		canvas.addFigure(newFigure);
-		//}
+
+		selectedFigure = newFigure;
 
 		createFigureMode = false;
 	}
@@ -413,7 +483,7 @@ public class EditorManager {
 	private PVector[] getRandomDirections(int pointCount) {
 		PVector[] randomDirection = new PVector[pointCount];
 		for (int i = 0; i < randomDirection.length; i++) {
-			randomDirection[i] = gridDirectionVectors[p5.floor(p5.random(5.99f))];
+			randomDirection[i] = (gridDirectionVectors[p5.floor(p5.random(5.99f))]).get();
 		}
 		return randomDirection;
 	}

@@ -27,12 +27,12 @@ public class ControlWindow extends PApplet {
 		cp5.setColorActive(color(200,127,0));
 		cp5.setColorCaptionLabel(color(255,255,0));
 		
-		cp5.addSlider("abc").setRange(0, 255).setPosition(10, 10);
+		cp5.addSlider("abc").setRange(0, 255).setPosition(10, 10).setValue(0);;
 		cp5.addSlider("testColorControl").plugTo(parent, "testColorControl").setRange(0, 255).setPosition(10, 30);
 		cp5.addButton("gui_newFigure").plugTo(parent, "gui_newFigure").setPosition(10, 50).setLabel("NEW FIGURE");
 		cp5.addSlider("viewPortScale").plugTo(parent, "viewPortScale").setRange(0.1f, 1).setPosition(10, 80).setValue(1f).setLabel("VIEWPORT SCALE");
 		
-		cp5.addToggle("showFigureGizmos").plugTo(parent, "showFigureGizmos").setValue(false).setPosition(10, 100).setLabel("SHOW FIGURE GIZMOS");
+		cp5.addToggle("showFigureGizmos").plugTo(parent, "showFigureGizmos").setValue(true).setPosition(10, 100).setLabel("SHOW FIGURE GIZMOS");
 	}
 
 	public void draw() {
@@ -53,7 +53,7 @@ public class ControlWindow extends PApplet {
 	}
 
 	public void gui_newFigure(int theValue) {
-		println("a button event from buttonA: " + theValue);
+		//println("a button event from buttonA: " + theValue);
 		parent.prepareNewFigure();
 	}
 	

@@ -33,8 +33,8 @@ public class Point {
 		//drawLayer.noFill();
 		drawLayer.fill(color);
 		drawLayer.ellipse(position.x, position.y, CanvasManager.pointSize, CanvasManager.pointSize);
-		drawLayer.fill(225,255,0);
-		drawLayer.text(id, position.x, position.y);
+		//drawLayer.fill(225,255,0);
+		//drawLayer.text(id, position.x, position.y);
 		
 		/*
 		if (isInside(p5.mouseX, p5.mouseY)) {
