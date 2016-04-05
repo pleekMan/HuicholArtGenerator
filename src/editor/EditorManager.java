@@ -31,7 +31,9 @@ public class EditorManager {
 	public int testColorControl;
 	boolean createFigureMode;
 	boolean setDirectionsMode;
+	boolean movePointMode;
 	boolean showFigureGizmos;
+	public static boolean showGridPoints;
 
 	int lastVertexGridIdDirection;
 
@@ -51,6 +53,8 @@ public class EditorManager {
 	int initialVertex;
 
 	String logFooterText;
+	
+	
 
 	public EditorManager(CanvasManager _canvas) {
 		p5 = getP5();
@@ -62,6 +66,8 @@ public class EditorManager {
 		createFigureMode = false;
 		showFigureGizmos = true;
 		setDirectionsMode = false;
+		movePointMode = false;
+		showGridPoints = true;
 
 		colorPalettes = new ArrayList<ColorPalette>();
 
@@ -97,6 +103,10 @@ public class EditorManager {
 
 		if (setDirectionsMode) {
 			setDirectionsProcedure();
+		}
+
+		if (showGridPoints) {
+			showGridPoints();
 		}
 
 		drawLogFooter();
@@ -156,6 +166,45 @@ public class EditorManager {
 			select();
 		}
 
+	}
+	
+
+
+	public void mouseDragged(int button) {
+
+		if (button == p5.LEFT) {
+			if (selectedFigurePoint != null) {
+				
+				movePointMode = true;
+				
+				p5.ellipse(p5.mouseX, p5.mouseY, 20, 20);
+				PVector viewCoords = AppManager.canvasToViewTransform(selectedFigurePoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
+				p5.line(viewCoords.x, viewCoords.y, p5.mouseX, p5.mouseY);
+			}
+		}
+	}
+	
+	public void mouseReleased(int button){
+		
+		if (movePointMode) {
+			
+			Point selectedPoint = null;
+			for (int i = 0; i < canvas.points.size(); i++) {
+				Point actualPoint = canvas.points.get(i);
+
+				PVector canvasCoords = new PVector();
+				canvasCoords.set(AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY), AppManager.canvasTranslation, AppManager.canvasScale));
+
+				if (actualPoint.isInside(canvasCoords.x, canvasCoords.y)) {
+					//selectedPoint = actualPoint;
+					//selectedFigurePoint = selectedPoint;
+					selectedFigure.reAssignPoint(selectedFigurePoint, actualPoint);
+					break;
+				}
+			}
+			
+			
+		}
 	}
 
 	public void select() {
@@ -234,7 +283,7 @@ public class EditorManager {
 				p5.stroke(255);
 				p5.line(canvasCoords.x, canvasCoords.y, canvasCoords.x + (actualFigure.directions.get(j).x * AppManager.canvasScale), canvasCoords.y + (actualFigure.directions.get(j).y * AppManager.canvasScale));
 				p5.strokeWeight(1);
-				
+
 				// IF FIGURE IS SELECTED, DRAW SOMETHING ELSE OVER THE POINTS
 				if (isSelected) {
 					p5.noFill();
@@ -458,6 +507,18 @@ public class EditorManager {
 				break;
 			}
 
+		}
+
+	}
+
+	public void showGridPoints() {
+		p5.noFill();
+		p5.stroke(175);
+
+		for (int i = 0; i < canvas.points.size(); i++) {
+			Point actualPoint = canvas.points.get(i);
+			PVector viewCoords = AppManager.canvasToViewTransform(actualPoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
+			p5.ellipse(viewCoords.x, viewCoords.y, canvas.pointSize * AppManager.canvasScale, canvas.pointSize * AppManager.canvasScale);
 		}
 
 	}

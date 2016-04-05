@@ -68,7 +68,6 @@ public class Shape {
 	}
 
 	public void setPositions(PVector[] _positions) {
-		// CENTER OF SOME GRID POINT
 		for (int i = 0; i < verticesPos.length; i++) {
 			verticesPos[i] = _positions[i];
 		}

@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import editor.ColorPalette;
+import editor.EditorManager;
 import processing.core.PGraphics;
 import processing.core.PImage;
 import processing.core.PVector;
@@ -26,6 +27,10 @@ public class CanvasManager {
 
 	public ArrayList<Point> points;
 	public ArrayList<Figure> figures;
+	
+	int frameSaveCount;
+	
+	PImage backImage;
 
 	//ArrayList<ColorPalette> colorPalettes;
 
@@ -37,17 +42,20 @@ public class CanvasManager {
 
 		p5 = getP5();
 
-		//pointsLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
-		//figuresLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 		figuresLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 		pointsLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 
-		pointSize = 40;
+		pointSize = 20;
 
 		points = new ArrayList<Point>();
 		//colorPalettes = new ArrayList<ColorPalette>();
 		figures = new ArrayList<Figure>();
+		
+		frameSaveCount = 0;
 
+		backImage = null;
+		//setBackgroundImage(p5.loadImage("white_1024x.png"));
+		
 		//backGrid = p5.loadImage("grid.jpg");
 
 		//createDefaultPalette();
@@ -61,7 +69,7 @@ public class CanvasManager {
 		float startX = pointSize;
 		float posX = startX;
 		float posY = startX;
-		float separation = pointSize * 1.2f;
+		float separation = pointSize * 1.5f;
 		boolean offset = false;
 
 		int gridCounter = 0;
@@ -99,13 +107,15 @@ public class CanvasManager {
 
 	public void update() {
 
-		//------  DRAW SHAPES LAYER - BEGIN
+		//------  DRAW SHAPES LAYER - BEGIN -----------------------------------------
 
 		figuresLayer.beginDraw();
-		figuresLayer.background(50);
+		figuresLayer.background(0);
 		//figuresLayer.noStroke();
 
-		//figuresLayer.image(backGrid, 0, 0);
+		if (backImage != null) {
+			figuresLayer.image(backImage, 0, 0, figuresLayer.width, figuresLayer.height);
+		}
 
 		for (Figure actualFigure : figures) {
 			actualFigure.update();
@@ -119,8 +129,8 @@ public class CanvasManager {
 
 		//------- DRAW SHAPES SHAPES - END
 
-		//------  DRAW POINTS LAYER - BEGIN
-		
+		//------  DRAW POINTS LAYER - BEGIN -----------------------------------------
+
 		// FIRST LOAD figuresLayer PIXELS, BEFORE BEING INSIDE pointsLayer. OTHERWISE, IT FUCKS pointsLayer INNER TRANSFORMS
 		figuresLayer.loadPixels();
 
@@ -152,6 +162,7 @@ public class CanvasManager {
 		pointsLayer.popMatrix();
 		pointsLayer.endDraw();
 
+		figuresLayer.updatePixels();
 		//------- DRAW POINTS LAYER - END
 
 		// REMOVE FIGURES WHEN DONE ANIMATING
@@ -172,12 +183,55 @@ public class CanvasManager {
 
 		//p5.image(figuresLayer, 0, 0);
 		p5.image(pointsLayer, 0, 0);
-		
+
 		//showDirections();
 
 	}
+
+	/*
+	public void refreshBackgrounds() {
 	
-	public void addFigure(Figure _newFigure){
+		// PJOGL throws exception when attempting to acces PGraphics here.... WTF..!!!
+		 * 
+		 * 
+		// FIRST LOAD figuresLayer PIXELS, BEFORE BEING INSIDE pointsLayer. OTHERWISE, IT FUCKS pointsLayer INNER TRANSFORMS
+		figuresLayer.loadPixels();
+
+		pointsLayer.beginDraw();
+		pointsLayer.pushMatrix();
+
+		pointsLayer.background(0);
+		pointsLayer.noStroke();
+
+		//pointsLayer.image(backGrid, 0,0);
+		//pointsLayer.fill(255, 255, 0);
+		//pointsLayer.rect(0, 0, 40, 40);
+
+		// -- SAMPLING FIGURES LAYER TO COLOR POINTS LAYER
+		//figuresLayer.loadPixels();
+		for (Point actualPoint : points) {
+			//actualPoint.update();
+
+			int pointX = (int) actualPoint.position.x;
+			int pointY = (int) actualPoint.position.y;
+
+			actualPoint.setColor(getColorAtPoint(figuresLayer.pixels, pointX, pointY));
+			pointsLayer.stroke(100);
+
+			actualPoint.render();
+		}
+
+		//figuresLayer.updatePixels();
+
+		pointsLayer.popMatrix();
+		pointsLayer.endDraw();
+
+		//------- DRAW POINTS LAYER - END
+
+	}
+	*/
+
+	public void addFigure(Figure _newFigure) {
 		figures.add(_newFigure);
 	}
 
@@ -203,18 +257,18 @@ public class CanvasManager {
 
 		pointsLayer.endDraw();
 	}
-	
+
 	@Deprecated
-	public void showDirections(){
+	public void showDirections() {
 		// render() IS ALREADY TRANSFORMED TO AppManager.canvasTranslation
-		p5.stroke(0,255,255);
+		p5.stroke(0, 255, 255);
 		for (int i = 0; i < figures.size(); i++) {
 			Figure actualFigure = figures.get(i);
-			
+
 			for (int j = 0; j < actualFigure.points.size(); j++) {
-				PVector pos =actualFigure.points.get(j).position;			
-				
-				p5.line(pos.x,pos.y, pos.x + actualFigure.directions.get(j).x, pos.y + actualFigure.directions.get(j).y);
+				PVector pos = actualFigure.points.get(j).position;
+
+				p5.line(pos.x, pos.y, pos.x + actualFigure.directions.get(j).x, pos.y + actualFigure.directions.get(j).y);
 
 			}
 		}
@@ -279,7 +333,7 @@ public class CanvasManager {
 		}
 
 	}
-	
+
 	@Deprecated
 	private int[] getNeighboursIndex(int index) {
 
@@ -429,6 +483,10 @@ public class CanvasManager {
 		// (CALCULATED PREVIOUSLY AS THE PARAMETER)
 		return (i / gridWidth) % 2 == 0 ? true : false;
 	}
+	
+	public void setBackgroundImage(PImage _image){
+		backImage = _image;
+	}
 
 	/*
 	 * private void expandPoint(int pointIndex) {
@@ -438,10 +496,22 @@ public class CanvasManager {
 	 * 
 	 * }
 	 */
+	
+	private void saveFrame(){
+		String frameNumber = p5.nf(frameSaveCount, 3);
+		//pointsLayer.save("renders/render_7/render_7_" + frameNumber + ".png");
+		//pointsLayer.save("renders/whiteGrid.png");
+		frameSaveCount++;
+	}
 
 	public void keyPressed(char key) {
 		if (key == ' ') {
 			step();
+			//saveFrame();
+		}
+		
+		if(key == 'n'){
+
 		}
 	}
 

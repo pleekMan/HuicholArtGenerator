@@ -22,6 +22,7 @@ public class Point {
 		
 		position = _pos;
 		color = _color;
+
 	}
 
 	public void update() {
@@ -31,6 +32,7 @@ public class Point {
 	public void render() {
 		
 		//drawLayer.noFill();
+
 		drawLayer.fill(color);
 		drawLayer.ellipse(position.x, position.y, CanvasManager.pointSize, CanvasManager.pointSize);
 		//drawLayer.fill(225,255,0);

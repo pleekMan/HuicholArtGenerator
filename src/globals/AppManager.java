@@ -23,7 +23,7 @@ public class AppManager {
 	public AppManager() {
 		p5 = getP5();
 
-		canvasSize = new PVector(2048, 2048);
+		canvasSize = new PVector(4096, 4096);
 		//viewSize = new PVector(1024, 1024);
 		canvasTranslation = new PVector(0, 0);
 		canvasScale = 0.5f;
@@ -96,8 +96,9 @@ public class AppManager {
 		}
 	}
 
-	public void mouseReleased() {
-		canvas.mouseReleased();
+	public void mouseReleased(int button) {
+		//canvas.mouseReleased();
+		//editor.mouseReleased(button);
 	}
 
 	public void mouseDragged(int button) {
@@ -108,6 +109,8 @@ public class AppManager {
 			canvasTranslation.add(translationMouseOffset);
 			translationMouseOrigin.set(p5.mouseX, p5.mouseY);
 		}
+		
+		editor.mouseDragged(button);
 	}
 
 	protected Main getP5() {

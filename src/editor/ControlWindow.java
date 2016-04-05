@@ -30,9 +30,10 @@ public class ControlWindow extends PApplet {
 		cp5.addSlider("abc").setRange(0, 255).setPosition(10, 10).setValue(0);;
 		cp5.addSlider("testColorControl").plugTo(parent, "testColorControl").setRange(0, 255).setPosition(10, 30);
 		cp5.addButton("gui_newFigure").plugTo(parent, "gui_newFigure").setPosition(10, 50).setLabel("NEW FIGURE");
-		cp5.addSlider("viewPortScale").plugTo(parent, "viewPortScale").setRange(0.1f, 1).setPosition(10, 80).setValue(1f).setLabel("VIEWPORT SCALE");
+		cp5.addSlider("gui_viewPortScale").plugTo(parent, "gui_viewPortScale").setRange(0.1f, 1).setPosition(10, 80).setValue(1f).setLabel("VIEWPORT SCALE");
 		
-		cp5.addToggle("showFigureGizmos").plugTo(parent, "showFigureGizmos").setValue(true).setPosition(10, 100).setLabel("SHOW FIGURE GIZMOS");
+		cp5.addToggle("gui_showFigureGizmos").plugTo(parent, "gui_showFigureGizmos").setValue(true).setMode(cp5.SWITCH).setPosition(10, 100).setLabel("SHOW FIGURE GIZMOS");
+		cp5.addToggle("gui_showGridLayer").plugTo(parent, "gui_showGridLayer").setValue(true).setMode(cp5.SWITCH).setPosition(10, 140).setLabel("SHOW GRID");
 	}
 
 	public void draw() {
@@ -57,12 +58,16 @@ public class ControlWindow extends PApplet {
 		parent.prepareNewFigure();
 	}
 	
-	public void viewPortScale(float value){
+	public void gui_viewPortScale(float value){
 		AppManager.canvasScale = value;
 	}
 	
-	public void showFigureGizmos(boolean state){
+	public void gui_showFigureGizmos(boolean state){
 		parent.showFigureGizmos = state;
+	}
+	
+	public void gui_showGridLayer(boolean state){
+		parent.showGridPoints = state;
 	}
 
 }

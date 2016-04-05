@@ -6,6 +6,7 @@ import java.util.Arrays;
 import com.jogamp.common.util.IntIntHashMap;
 
 import processing.core.PGraphics;
+import processing.core.PImage;
 import processing.core.PVector;
 import editor.ColorPalette;
 import globals.Main;
@@ -27,6 +28,7 @@ public class Figure {
 
 	int cycle;
 	int maxCycles;
+	
 
 	//PVector startPosition;
 
@@ -38,6 +40,8 @@ public class Figure {
 
 		atColorStage = 0;
 		maxColorStages = -1;
+		
+
 
 	}
 
@@ -149,6 +153,26 @@ public class Figure {
 			}
 		}
 		return hasPoint;
+	}
+	
+
+
+	public void reAssignPoint(Point originalPoint, Point targetPoint) {
+		
+		for (int i = 0; i < points.size(); i++) {
+			// CHECK OBJECT POINTER EQUALITY
+			if (originalPoint == points.get(i)) {
+				points.set(i, targetPoint);
+				
+				PVector[] startingPositions = getPointsPosition();
+				
+				for (int j = 0; j < shapes.size(); j++) {
+					shapes.get(i).setPositions(startingPositions);
+				}
+
+				break;
+			}
+		}
 	}
 
 	protected Main getP5() {
