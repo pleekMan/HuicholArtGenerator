@@ -53,8 +53,9 @@ public class EditorManager {
 	int initialVertex;
 
 	String logFooterText;
-	
-	
+
+	PVector[] roiCorners;
+	boolean showRoi;
 
 	public EditorManager(CanvasManager _canvas) {
 		p5 = getP5();
@@ -89,6 +90,13 @@ public class EditorManager {
 		createDefaultPalette();
 		createHexagonalDirectionVectors();
 
+		roiCorners = new PVector[4];
+		roiCorners[0] = new PVector(200, 200);
+		roiCorners[1] = new PVector(400, 200);
+		roiCorners[2] = new PVector(400, 400);
+		roiCorners[3] = new PVector(200, 400);
+		showRoi = true;
+
 	}
 
 	public void update() {
@@ -107,6 +115,10 @@ public class EditorManager {
 
 		if (showGridPoints) {
 			showGridPoints();
+		}
+
+		if (showRoi) {
+			drawRoi();
 		}
 
 		drawLogFooter();
@@ -167,27 +179,29 @@ public class EditorManager {
 		}
 
 	}
-	
-
 
 	public void mouseDragged(int button) {
 
 		if (button == p5.LEFT) {
 			if (selectedFigurePoint != null) {
-				
+
 				movePointMode = true;
-				
+
 				p5.ellipse(p5.mouseX, p5.mouseY, 20, 20);
 				PVector viewCoords = AppManager.canvasToViewTransform(selectedFigurePoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
 				p5.line(viewCoords.x, viewCoords.y, p5.mouseX, p5.mouseY);
 			}
+
+			if (showRoi) {
+				calibrateRoi();
+			}
 		}
 	}
-	
-	public void mouseReleased(int button){
-		
+
+	public void mouseReleased(int button) {
+
 		if (movePointMode) {
-			
+
 			Point selectedPoint = null;
 			for (int i = 0; i < canvas.points.size(); i++) {
 				Point actualPoint = canvas.points.get(i);
@@ -202,8 +216,7 @@ public class EditorManager {
 					break;
 				}
 			}
-			
-			
+
 		}
 	}
 
@@ -521,6 +534,94 @@ public class EditorManager {
 			p5.ellipse(viewCoords.x, viewCoords.y, canvas.pointSize * AppManager.canvasScale, canvas.pointSize * AppManager.canvasScale);
 		}
 
+	}
+
+	private void drawRoi() {
+		p5.fill(0, 200);
+		p5.stroke(255, 255, 0);
+
+		PVector[] transformedRoiCorners = new PVector[roiCorners.length];
+		for (int i = 0; i < transformedRoiCorners.length; i++) {
+			transformedRoiCorners[i] = new PVector();
+			transformedRoiCorners[i].set(AppManager.canvasToViewTransform(roiCorners[i]));
+		}
+
+		PVector canvasOrigin = AppManager.canvasToViewTransform(new PVector(0, 0));
+		PVector canvasEnd = AppManager.canvasToViewTransform(new PVector(canvas.figuresLayer.width, canvas.figuresLayer.height));
+
+		// DRAW ROI - BEGIN
+
+		// DRAW SHAPE WITH HOLE IN IT
+		p5.beginShape();
+		// Exterior part of shape, clockwise winding
+		p5.vertex(canvasOrigin.x, canvasOrigin.y);
+		p5.vertex(canvasEnd.x, canvasOrigin.y);
+		p5.vertex(canvasEnd.x, canvasEnd.y);
+		p5.vertex(canvasOrigin.x, canvasEnd.y);
+		// Interior part of shape, has to be counter-clockwise winding
+		p5.beginContour();
+		p5.vertex(transformedRoiCorners[0].x, transformedRoiCorners[0].y);
+		p5.vertex(transformedRoiCorners[3].x, transformedRoiCorners[3].y);
+		p5.vertex(transformedRoiCorners[2].x, transformedRoiCorners[2].y);
+		p5.vertex(transformedRoiCorners[1].x, transformedRoiCorners[1].y);
+		p5.endContour();
+		p5.endShape(p5.CLOSE);
+
+		// DRAW ROI - END
+
+	}
+
+	public void calibrateRoi() {
+		PVector[] transformedRoiCorners = new PVector[roiCorners.length];
+		for (int i = 0; i < transformedRoiCorners.length; i++) {
+			transformedRoiCorners[i] = new PVector();
+			transformedRoiCorners[i].set(AppManager.canvasToViewTransform(roiCorners[i]));
+		}
+
+		int detectionArea = 30;
+		float newValue = 0;
+
+		p5.pushStyle();
+		p5.strokeWeight(3);
+		p5.stroke(0, 255, 255);
+		// LEFT
+		if (p5.mouseX > (transformedRoiCorners[0].x - detectionArea) && p5.mouseX < (transformedRoiCorners[0].x + detectionArea)) {
+			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).x;
+			roiCorners[0].x = roiCorners[3].x = newValue;
+			p5.line(transformedRoiCorners[0].x, transformedRoiCorners[0].y, transformedRoiCorners[3].x, transformedRoiCorners[3].y);
+		} else
+		// RIGHT
+		if (p5.mouseX > (transformedRoiCorners[1].x - detectionArea) && p5.mouseX < (transformedRoiCorners[1].x + detectionArea)) {
+			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).x;
+			roiCorners[1].x = roiCorners[2].x = newValue;
+			p5.line(transformedRoiCorners[1].x, transformedRoiCorners[1].y, transformedRoiCorners[2].x, transformedRoiCorners[2].y);
+		} else
+		// TOP
+		if (p5.mouseY > (transformedRoiCorners[0].y - detectionArea) && p5.mouseY < (transformedRoiCorners[0].y + detectionArea)) {
+			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).y;
+			roiCorners[0].y = roiCorners[1].y = newValue;
+			p5.line(transformedRoiCorners[0].x, transformedRoiCorners[0].y, transformedRoiCorners[1].x, transformedRoiCorners[1].y);
+		} else
+		// BOTTOM
+		if (p5.mouseY > (transformedRoiCorners[2].y - detectionArea) && p5.mouseY < (transformedRoiCorners[2].y + detectionArea)) {
+			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).y;
+			roiCorners[2].y = roiCorners[3].y = newValue;
+			p5.line(transformedRoiCorners[2].x, transformedRoiCorners[2].y, transformedRoiCorners[3].x, transformedRoiCorners[3].y);
+		} /*else
+		// DRAG FROM CENTER
+		if(p5.mouseX > transformedRoiCorners[0].x && p5.mouseX < transformedRoiCorners[1].x && p5.mouseY > transformedRoiCorners[0].y && p5.mouseY < transformedRoiCorners[3].y){
+			// HAVE TO CALCULATE A DELTA POS.... MAYBE LATER....
+		}
+		*/
+		
+		
+		
+		
+		p5.popStyle();
+	}
+
+	public PVector[] getRoi() {
+		return roiCorners;
 	}
 
 	private void spawnNewFigure() {

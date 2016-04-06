@@ -34,6 +34,8 @@ public class ControlWindow extends PApplet {
 		
 		cp5.addToggle("gui_showFigureGizmos").plugTo(parent, "gui_showFigureGizmos").setValue(true).setMode(cp5.SWITCH).setPosition(10, 100).setLabel("SHOW FIGURE GIZMOS");
 		cp5.addToggle("gui_showGridLayer").plugTo(parent, "gui_showGridLayer").setValue(true).setMode(cp5.SWITCH).setPosition(10, 140).setLabel("SHOW GRID");
+		cp5.addToggle("gui_showRoi").plugTo(parent, "gui_showRoi").setValue(false).setMode(cp5.SWITCH).setPosition(10, 180).setLabel("SHOW ROI");
+
 	}
 
 	public void draw() {
@@ -68,6 +70,10 @@ public class ControlWindow extends PApplet {
 	
 	public void gui_showGridLayer(boolean state){
 		parent.showGridPoints = state;
+	}
+	
+	public void gui_showRoi(boolean state){
+		parent.showRoi = state;
 	}
 
 }

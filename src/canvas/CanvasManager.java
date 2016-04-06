@@ -28,7 +28,6 @@ public class CanvasManager {
 	public ArrayList<Point> points;
 	public ArrayList<Figure> figures;
 	
-	int frameSaveCount;
 	
 	PImage backImage;
 
@@ -51,7 +50,6 @@ public class CanvasManager {
 		//colorPalettes = new ArrayList<ColorPalette>();
 		figures = new ArrayList<Figure>();
 		
-		frameSaveCount = 0;
 
 		backImage = null;
 		//setBackgroundImage(p5.loadImage("white_1024x.png"));
@@ -497,12 +495,6 @@ public class CanvasManager {
 	 * }
 	 */
 	
-	private void saveFrame(){
-		String frameNumber = p5.nf(frameSaveCount, 3);
-		//pointsLayer.save("renders/render_7/render_7_" + frameNumber + ".png");
-		//pointsLayer.save("renders/whiteGrid.png");
-		frameSaveCount++;
-	}
 
 	public void keyPressed(char key) {
 		if (key == ' ') {

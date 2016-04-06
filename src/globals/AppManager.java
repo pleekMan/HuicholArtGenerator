@@ -1,5 +1,6 @@
 package globals;
 
+import processing.core.PImage;
 import processing.core.PVector;
 import canvas.CanvasManager;
 import editor.EditorManager;
@@ -19,6 +20,10 @@ public class AppManager {
 	PVector translationMouseOffset;
 
 	PVector transformedCoords;
+	
+	PImage renderBuffer;
+	int frameSaveCount;
+
 
 	public AppManager() {
 		p5 = getP5();
@@ -35,6 +40,9 @@ public class AppManager {
 		editor = new EditorManager(canvas);
 
 		transformedCoords = new PVector();
+
+		renderBuffer = p5.createImage(100, 100, p5.RGB);
+		frameSaveCount = 0;
 
 	}
 
@@ -60,6 +68,11 @@ public class AppManager {
 
 		editor.render();
 	}
+	
+	public void setCanvasTransforms(PVector _canvasTranslation, float _canvasScale){
+		canvasTranslation.set(_canvasTranslation);
+		AppManager.canvasScale = _canvasScale;
+	}
 
 	public static PVector viewToCanvasTransform(PVector viewCoords, PVector canvasTranslation, float canvasScale) {
 		PVector invertedTranslation = PVector.mult(canvasTranslation, -1);
@@ -67,7 +80,19 @@ public class AppManager {
 		newCoords.mult(1.0f / canvasScale);
 		return newCoords;
 	}
+	
+	public static PVector viewToCanvasTransform(PVector viewCoords) {
+		PVector invertedTranslation = PVector.mult(canvasTranslation, -1);
+		PVector newCoords = PVector.add(viewCoords, invertedTranslation);
+		newCoords.mult(1.0f / canvasScale);
+		return newCoords;
+	}
+	
 	public static PVector canvasToViewTransform(PVector canvasCoords, PVector canvasTranslation, float canvasScale) {
+		PVector scaledCoord = PVector.mult(canvasCoords, canvasScale);
+		return PVector.add(scaledCoord, canvasTranslation);
+	}
+	public static PVector canvasToViewTransform(PVector canvasCoords) {
 		PVector scaledCoord = PVector.mult(canvasCoords, canvasScale);
 		return PVector.add(scaledCoord, canvasTranslation);
 	}
@@ -84,6 +109,20 @@ public class AppManager {
 			
 		}
 		
+		if(key == 'r'){
+			renderFrame(editor.getRoi());
+		}
+		
+	}
+	
+	private void renderFrame(PVector[] roi){
+		String frameNumber = p5.nf(frameSaveCount, 3);
+		
+		renderBuffer.resize((int)(roi[1].x - roi[0].x), (int)(roi[3].y - roi[0].y));
+		renderBuffer = canvas.pointsLayer.get((int)roi[0].x, (int)roi[0].y, (int)(roi[1].x - roi[0].x), (int)(roi[3].y - roi[0].y));
+		renderBuffer.save("renders/tests/test_" + frameNumber + ".png");
+		
+		frameSaveCount++;
 	}
 
 	public void mousePressed(int button) {
