@@ -12,6 +12,9 @@ public class Main extends PApplet {
 
 	public void setup() {
 		size(1024, 1024, P2D);
+		frameRate(30);
+		//noSmooth();
+		
 		setPAppletSingleton();
 		
 		imageMode(CORNER);
@@ -24,7 +27,7 @@ public class Main extends PApplet {
 		background(0);
 		drawBackLines();
 
-		//appManager.update();
+		appManager.update();
 		appManager.render();
 		
 		drawMouseCoordinates();

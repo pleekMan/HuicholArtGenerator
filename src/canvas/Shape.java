@@ -18,53 +18,60 @@ public class Shape {
 	PVector[] verticesPos;
 	PVector[] startingVerticesPos;
 	int color;
-	int atStage;;
+	int atStage;
+	boolean isDrawn;
 
 	public Shape(PGraphics _drawLayer, PVector[] _verticesPos, PVector[] _verticesVel) {
 		p5 = getP5();
 
 		drawLayer = _drawLayer;
-		
+
 		// COPYING THE VERTICES POSITION (VERTICES VELOCITY IS THE SAME FOR ALL SHAPES)
 		verticesPos = new PVector[_verticesPos.length];
 		startingVerticesPos = new PVector[_verticesPos.length];
 		for (int i = 0; i < _verticesVel.length; i++) {
 			verticesPos[i] = new PVector(_verticesPos[i].x, _verticesPos[i].y);
 			startingVerticesPos[i] = new PVector(_verticesPos[i].x, _verticesPos[i].y);
-		}		
+		}
 		verticesVel = _verticesVel;
-		
-		color = p5.color(0,127,255);
+
+		color = p5.color(0, 127, 255);
 		atStage = 0;
+		isDrawn = true;
 
 	}
 
 	public void update() {
-		for (int i = 0; i < verticesVel.length; i++) {
-			verticesPos[i].add(verticesVel[i]);
+		if (isDrawn) {
+			for (int i = 0; i < verticesVel.length; i++) {
+				verticesPos[i].add(verticesVel[i]);
+			}
+			atStage++;
 		}
-		atStage++;
 	}
-	
+
 	public void updateWithScale(float scale) {
 		for (int i = 0; i < verticesVel.length; i++) {
-			verticesPos[i].add(PVector.mult(verticesVel[i],scale));
+			verticesPos[i].add(PVector.mult(verticesVel[i], scale));
 		}
 	}
 
 	public void render() {
-		
-		//drawLayer.fill(color);
-		drawLayer.noFill();
-		drawLayer.stroke(color);
-		
-		drawLayer.beginShape();
-		
-		for (int i = 0; i < verticesPos.length; i++) {
-			drawLayer.vertex(verticesPos[i].x, verticesPos[i].y);
+		//p5.println("Shape Render");
 
+		//drawLayer.fill(color);
+		if (isDrawn) {
+			drawLayer.noFill();
+			drawLayer.stroke(color);
+
+			drawLayer.beginShape();
+
+			for (int i = 0; i < verticesPos.length; i++) {
+				drawLayer.vertex(verticesPos[i].x, verticesPos[i].y);
+
+			}
+			drawLayer.endShape(p5.CLOSE);
 		}
-		drawLayer.endShape(p5.CLOSE);
 	}
 
 	public void setPositions(PVector[] _positions) {
@@ -72,7 +79,7 @@ public class Shape {
 			verticesPos[i] = _positions[i];
 		}
 	}
-	
+
 	/*
 	public void resetShape(PVector startPos){
 		//RE-CODE
@@ -81,16 +88,16 @@ public class Shape {
 		}
 	}
 	*/
-	
-	public void setColor(int _color){
+
+	public void setColor(int _color) {
 		color = _color;
 	}
-	
+
 	public boolean isFinished(int _atStage) {
 		return atStage == (_atStage);
 	}
-	
-	public void restart(){
+
+	public void restart() {
 		for (int i = 0; i < verticesPos.length; i++) {
 			verticesPos[i].set(startingVerticesPos[i]);
 		}
@@ -98,6 +105,9 @@ public class Shape {
 
 	}
 
+	public void setIsDrawn(boolean _state) {
+		isDrawn = _state;
+	}
 
 	/*
 	public void setVelocity(PVector _velocity) {
@@ -117,8 +127,5 @@ public class Shape {
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}
-
-
-
 
 }

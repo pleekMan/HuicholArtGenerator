@@ -16,7 +16,8 @@ public class ColorPalette {
 
 		name = _name;
 
-		generateColors(p5.floor(p5.random(3.99f)));
+		//generateColors(p5.floor(p5.random(3.99f)));
+		generateColors(2);
 
 	}
 

@@ -47,7 +47,7 @@ public class AppManager {
 	}
 
 	public void update() {
-		//canvas.update();
+		canvas.update();
 
 	}
 

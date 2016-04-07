@@ -531,9 +531,11 @@ public class EditorManager {
 		for (int i = 0; i < canvas.points.size(); i++) {
 			Point actualPoint = canvas.points.get(i);
 			PVector viewCoords = AppManager.canvasToViewTransform(actualPoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
-			p5.ellipse(viewCoords.x, viewCoords.y, canvas.pointSize * AppManager.canvasScale, canvas.pointSize * AppManager.canvasScale);
+			// YEAH OPTIMIZATION --> ONLY DRAW CIRCLES IF THE ARE INSIDE THE VIEWPORT
+			if (viewCoords.x < p5.width && viewCoords.x > 0 && viewCoords.y < p5.height && viewCoords.y > 0) {
+				p5.ellipse(viewCoords.x, viewCoords.y, canvas.pointSize * AppManager.canvasScale, canvas.pointSize * AppManager.canvasScale);
+			}
 		}
-
 	}
 
 	private void drawRoi() {
@@ -608,15 +610,12 @@ public class EditorManager {
 			roiCorners[2].y = roiCorners[3].y = newValue;
 			p5.line(transformedRoiCorners[2].x, transformedRoiCorners[2].y, transformedRoiCorners[3].x, transformedRoiCorners[3].y);
 		} /*else
-		// DRAG FROM CENTER
-		if(p5.mouseX > transformedRoiCorners[0].x && p5.mouseX < transformedRoiCorners[1].x && p5.mouseY > transformedRoiCorners[0].y && p5.mouseY < transformedRoiCorners[3].y){
+			// DRAG FROM CENTER
+			if(p5.mouseX > transformedRoiCorners[0].x && p5.mouseX < transformedRoiCorners[1].x && p5.mouseY > transformedRoiCorners[0].y && p5.mouseY < transformedRoiCorners[3].y){
 			// HAVE TO CALCULATE A DELTA POS.... MAYBE LATER....
-		}
-		*/
-		
-		
-		
-		
+			}
+			*/
+
 		p5.popStyle();
 	}
 
@@ -652,6 +651,18 @@ public class EditorManager {
 
 	private boolean detectClosingVertex(int pointClicked) {
 		return pointClicked == initialVertex;
+	}
+
+	public void rewind() {
+		canvas.rewind();
+	}
+
+	public void pause() {
+		canvas.pause();
+	}
+
+	public void play() {
+		canvas.play();
 	}
 
 	protected Main getP5() {

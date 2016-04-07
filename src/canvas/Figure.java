@@ -21,14 +21,13 @@ public class Figure {
 	ColorPalette colorPalette;
 	public ArrayList<Point> points;
 	public ArrayList<PVector> directions;
-	// TODO WORK WITH THE initialPoints
 
 	int atColorStage;
 	int maxColorStages;
 
 	int cycle;
 	int maxCycles;
-	
+	int maxCyclesInit;
 
 	//PVector startPosition;
 
@@ -40,8 +39,6 @@ public class Figure {
 
 		atColorStage = 0;
 		maxColorStages = -1;
-		
-
 
 	}
 
@@ -54,6 +51,7 @@ public class Figure {
 
 		cycle = 2; // STARTS AT 2 CUZ IT NEEDS TO FINISH ALONG WITH atStage, WHICH STARTS AT NEGATIVE maxColorStage (FOR SHAPE SHOOTING REASONS)
 		maxCycles = _maxCycles;
+		maxCyclesInit = maxCycles;
 
 		points = new ArrayList<Point>(_pointsLink); // COPY THE ARRAYLIST (NOT THE REFERENCES/POINTERS)
 		PVector[] startingPositions = getPointsPosition();
@@ -93,11 +91,16 @@ public class Figure {
 
 		}
 
-		// REMOVE THE FIRST SHAPE (ALWAYS THE OUTER ONE) IF maxCycles REACHED AND THE SHAPE IS FINISHED
-		if (shapes.size() > 0) {
-			if (cycle >= maxCycles && shapes.get(0).isFinished(maxColorStages)) {
-				shapes.remove(0);
+		// IF CYCLES (AND EACH SHAPE IN IT'S LAST CYCLE) ARE FINISHED, DISABLE SHAPE DRAW
+		if (shapes.size() > 0 && cycle >= maxCycles) {
+			for (int i = 0; i < shapes.size(); i++) {
+				if (shapes.get(i).isFinished(maxColorStages)) {
+					shapes.get(i).setIsDrawn(false);
+				}
 			}
+			/*if (cycle >= maxCycles && shapes.get(0).isFinished(maxColorStages)) {
+				shapes.remove(0);
+			}*/
 		}
 
 		// UPDATE FIGURE COLOR STAGE AND CYCLES
@@ -120,10 +123,9 @@ public class Figure {
 	}
 
 	public void render() {
-
+		//p5.println("Figure Render");
 		drawLayer.strokeWeight(2);
 		for (int i = 0; i < shapes.size(); i++) {
-
 			//if (atColorStage + (maxColorStages - i) >= 0) {
 			shapes.get(i).render();
 
@@ -135,6 +137,18 @@ public class Figure {
 		}
 		//drawLayer.fill(colorPalette.getColor(atColorStage));
 		//drawLayer.ellipse(p5.mouseX, p5.mouseY, 20, 20);
+	}
+
+	public void rewind() {
+
+		atColorStage = -maxColorStages; // START AT NEGATIVE SHAPE COUNT, TO SHOOT THE SHAPES INCREMENTALLY
+		cycle = 2; // STARTS AT 2 CUZ IT NEEDS TO FINISH ALONG WITH atStage, WHICH STARTS AT NEGATIVE maxColorStage (FOR SHAPE SHOOTING REASONS)
+		maxCycles = maxCyclesInit;
+		
+		for (int i = 0; i < shapes.size(); i++) {
+			shapes.get(i).setIsDrawn(true);
+		}
+		
 	}
 
 	public void setColorPalette(ColorPalette palette) {
@@ -154,18 +168,16 @@ public class Figure {
 		}
 		return hasPoint;
 	}
-	
-
 
 	public void reAssignPoint(Point originalPoint, Point targetPoint) {
-		
+
 		for (int i = 0; i < points.size(); i++) {
 			// CHECK OBJECT POINTER EQUALITY
 			if (originalPoint == points.get(i)) {
 				points.set(i, targetPoint);
-				
+
 				PVector[] startingPositions = getPointsPosition();
-				
+
 				for (int j = 0; j < shapes.size(); j++) {
 					shapes.get(i).setPositions(startingPositions);
 				}

@@ -27,8 +27,11 @@ public class CanvasManager {
 
 	public ArrayList<Point> points;
 	public ArrayList<Figure> figures;
-	
-	
+
+	static public int timeStep;
+
+	public boolean isPlaying;
+
 	PImage backImage;
 
 	//ArrayList<ColorPalette> colorPalettes;
@@ -44,21 +47,21 @@ public class CanvasManager {
 		figuresLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 		pointsLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 
-		pointSize = 20;
+		pointSize = 20; // 20 IS "THE ONE THAT GOES"
 
 		points = new ArrayList<Point>();
 		//colorPalettes = new ArrayList<ColorPalette>();
 		figures = new ArrayList<Figure>();
-		
 
 		backImage = null;
 		//setBackgroundImage(p5.loadImage("white_1024x.png"));
-		
+
 		//backGrid = p5.loadImage("grid.jpg");
 
-		//createDefaultPalette();
+		timeStep = 2; // IT DOESN'T REALLY REFRESH THIS FAST (FRAMERATE DROPS CONSIDERABLY)
+		isPlaying = false;
+
 		createGrid();
-		//createDirectionVectors();
 		step();
 	}
 
@@ -103,7 +106,7 @@ public class CanvasManager {
 
 	}
 
-	public void update() {
+	public void step() {
 
 		//------  DRAW SHAPES LAYER - BEGIN -----------------------------------------
 
@@ -119,9 +122,6 @@ public class CanvasManager {
 			actualFigure.update();
 			actualFigure.render();
 		}
-
-		//figuresLayer.fill(255,255,0);
-		//figuresLayer.ellipse(p5.mouseX, p5.mouseY, 20,20);
 
 		figuresLayer.endDraw();
 
@@ -160,21 +160,27 @@ public class CanvasManager {
 		pointsLayer.popMatrix();
 		pointsLayer.endDraw();
 
-		figuresLayer.updatePixels();
+		//figuresLayer.updatePixels(); // INFO CANNOT DRAW FIGURES IF updatingPixels IS ON
+
 		//------- DRAW POINTS LAYER - END
 
 		// REMOVE FIGURES WHEN DONE ANIMATING
 		for (int i = 0; i < figures.size(); i++) {
 			if (figures.get(i).isFinished()) {
-				figures.remove(i);
+				//figures.remove(i);
+				figures.get(i).rewind();
 			}
 		}
 		//p5.println("Figure Count: " + figures.size());
 
 	}
 
-	public void step() {
-		update();
+	public void update() {
+		if (isPlaying) {
+			if (p5.frameCount % timeStep == 0) {
+				step();
+			}
+		}
 	}
 
 	public void render() {
@@ -184,6 +190,18 @@ public class CanvasManager {
 
 		//showDirections();
 
+	}
+
+	public void rewind() {
+		for (int i = 0; i < figures.size(); i++) {
+			figures.get(i).rewind();
+		}
+	}
+	public void pause(){
+		isPlaying = false;
+	}
+	public void play() {
+		isPlaying = true;
 	}
 
 	/*
@@ -481,8 +499,8 @@ public class CanvasManager {
 		// (CALCULATED PREVIOUSLY AS THE PARAMETER)
 		return (i / gridWidth) % 2 == 0 ? true : false;
 	}
-	
-	public void setBackgroundImage(PImage _image){
+
+	public void setBackgroundImage(PImage _image) {
 		backImage = _image;
 	}
 
@@ -494,16 +512,17 @@ public class CanvasManager {
 	 * 
 	 * }
 	 */
-	
 
 	public void keyPressed(char key) {
 		if (key == ' ') {
 			step();
 			//saveFrame();
 		}
-		
-		if(key == 'n'){
 
+		if (key == 'j') {
+			for (int i = 0; i < figures.size(); i++) {
+				figures.get(i).rewind();
+			}
 		}
 	}
 

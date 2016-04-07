@@ -35,6 +35,12 @@ public class ControlWindow extends PApplet {
 		cp5.addToggle("gui_showFigureGizmos").plugTo(parent, "gui_showFigureGizmos").setValue(true).setMode(cp5.SWITCH).setPosition(10, 100).setLabel("SHOW FIGURE GIZMOS");
 		cp5.addToggle("gui_showGridLayer").plugTo(parent, "gui_showGridLayer").setValue(true).setMode(cp5.SWITCH).setPosition(10, 140).setLabel("SHOW GRID");
 		cp5.addToggle("gui_showRoi").plugTo(parent, "gui_showRoi").setValue(false).setMode(cp5.SWITCH).setPosition(10, 180).setLabel("SHOW ROI");
+		
+		cp5.addButton("gui_rewind").plugTo(parent, "gui_rewind").setPosition(10, 240).setLabel("|<").setWidth(30);
+		cp5.addButton("gui_pause").plugTo(parent, "gui_pause").setPosition(50, 240).setLabel("||").setWidth(30);
+		cp5.addButton("gui_play").plugTo(parent, "gui_play").setPosition(90, 240).setLabel(">").setWidth(30);
+
+
 
 	}
 
@@ -74,6 +80,16 @@ public class ControlWindow extends PApplet {
 	
 	public void gui_showRoi(boolean state){
 		parent.showRoi = state;
+	}
+	
+	public void gui_rewind(){
+		parent.rewind();
+	}
+	public void gui_pause(){
+		parent.pause();
+	}
+	public void gui_play(){
+		parent.play();
 	}
 
 }
