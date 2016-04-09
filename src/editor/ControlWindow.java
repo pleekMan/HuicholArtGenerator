@@ -39,6 +39,11 @@ public class ControlWindow extends PApplet {
 		cp5.addButton("gui_rewind").plugTo(parent, "gui_rewind").setPosition(10, 240).setLabel("|<").setWidth(30);
 		cp5.addButton("gui_pause").plugTo(parent, "gui_pause").setPosition(50, 240).setLabel("||").setWidth(30);
 		cp5.addButton("gui_play").plugTo(parent, "gui_play").setPosition(90, 240).setLabel(">").setWidth(30);
+		
+		cp5.addButton("gui_delete").plugTo(parent, "gui_delete").setPosition(10, 300).setLabel("DELETE");
+		cp5.addButton("gui_deleteAll").plugTo(parent, "gui_deleteAll").setPosition(100, 300).setLabel("DELETE ALL");
+
+
 
 
 
@@ -90,6 +95,14 @@ public class ControlWindow extends PApplet {
 	}
 	public void gui_play(){
 		parent.play();
+	}
+	
+	public void gui_delete(){
+		parent.deleteFigure();
+	}
+	
+	public void gui_deleteAll(){
+		parent.deleteAllFigures();
 	}
 
 }

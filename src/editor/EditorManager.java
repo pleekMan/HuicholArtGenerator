@@ -275,33 +275,52 @@ public class EditorManager {
 			p5.fill(0, 255, 255);
 			p5.stroke(0, 255, 255);
 			for (int j = 0; j < actualFigure.points.size(); j++) {
-				PVector canvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j).position, AppManager.canvasTranslation, AppManager.canvasScale);
+				PVector canvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j).position);
 
 				// DRAW THE LINES CONNECTING THE POINTS
 				p5.stroke(0, 255, 255);
 				if (j > 0) {
-					PVector prevCanvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j - 1).position, AppManager.canvasTranslation, AppManager.canvasScale);
+					PVector prevCanvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j - 1).position);
 					p5.line(prevCanvasCoords.x, prevCanvasCoords.y, canvasCoords.x, canvasCoords.y);
 
 					// DRAW CLOSING LINE
 					if (j == actualFigure.points.size() - 1) {
-						PVector pointZero = AppManager.canvasToViewTransform(actualFigure.points.get(0).position, AppManager.canvasTranslation, AppManager.canvasScale);
+						PVector pointZero = AppManager.canvasToViewTransform(actualFigure.points.get(0).position);
 						p5.line(pointZero.x, pointZero.y, canvasCoords.x, canvasCoords.y);
 					}
 				}
 				// DRAW THE DOTS
 				p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.25f, CanvasManager.pointSize * AppManager.canvasScale * 0.25f);
-
-				p5.strokeWeight(3);
+				
+				// DRAW DIRECTION LINES
+				p5.strokeWeight(2);
 				p5.stroke(255);
 				p5.line(canvasCoords.x, canvasCoords.y, canvasCoords.x + (actualFigure.directions.get(j).x * AppManager.canvasScale), canvasCoords.y + (actualFigure.directions.get(j).y * AppManager.canvasScale));
+				
+				// ARROW HEADS
+				float directionAngle = actualFigure.directions.get(j).heading();
+				
+				p5.pushMatrix();
+				
+				p5.translate(canvasCoords.x + (actualFigure.directions.get(j).x * AppManager.canvasScale), canvasCoords.y + (actualFigure.directions.get(j).y * AppManager.canvasScale));
+				p5.rotate(directionAngle);
+				
+				//p5.fill(255,0,0);
+				p5.line(0, 0, -5, -5);
+				p5.line(0, 0, -5, 5);
+
+				//p5.rect(0, 0, 50, 10);
+				
+				p5.popMatrix();
+				
 				p5.strokeWeight(1);
+				
 
 				// IF FIGURE IS SELECTED, DRAW SOMETHING ELSE OVER THE POINTS
 				if (isSelected) {
-					p5.noFill();
-					p5.stroke(255, 255, 0);
-					p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.5f, CanvasManager.pointSize * AppManager.canvasScale * 0.5f);
+					p5.fill(0, 255, 255);
+					p5.noStroke();
+					p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.8f, CanvasManager.pointSize * AppManager.canvasScale * 0.8f);
 				}
 			}
 
@@ -347,8 +366,8 @@ public class EditorManager {
 	public void drawLogFooter() {
 
 		if (createFigureMode) {
-			p5.fill(0, 255, 255, 175);
-			p5.stroke(0, 255, 255, 175);
+			p5.fill(0, 255, 255);
+			p5.stroke(0, 255, 255);
 
 			p5.strokeWeight(10);
 			p5.line(0, 0, p5.width, 0);
@@ -357,7 +376,7 @@ public class EditorManager {
 			p5.strokeWeight(1);
 
 		} else {
-			p5.fill(255, 255, 0, 175);
+			p5.fill(255, 255, 0);
 		}
 
 		p5.stroke(0);
@@ -439,7 +458,7 @@ public class EditorManager {
 	}
 
 	private void setDirectionsProcedure() {
-		PVector pointTransformed = AppManager.canvasToViewTransform(new PVector(selectedFigurePoint.position.x, selectedFigurePoint.position.y), AppManager.canvasTranslation, AppManager.canvasScale);
+		PVector pointTransformed = AppManager.canvasToViewTransform(new PVector(selectedFigurePoint.position.x, selectedFigurePoint.position.y));
 		PVector mouseVector = new PVector(p5.mouseX - pointTransformed.x, p5.mouseY - pointTransformed.y);
 		float angle = PVector.angleBetween(mouseVector, gridDirectionVectors[0]);
 
@@ -530,7 +549,8 @@ public class EditorManager {
 
 		for (int i = 0; i < canvas.points.size(); i++) {
 			Point actualPoint = canvas.points.get(i);
-			PVector viewCoords = AppManager.canvasToViewTransform(actualPoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
+			PVector viewCoords = AppManager.canvasToViewTransform(actualPoint.position);
+			
 			// YEAH OPTIMIZATION --> ONLY DRAW CIRCLES IF THE ARE INSIDE THE VIEWPORT
 			if (viewCoords.x < p5.width && viewCoords.x > 0 && viewCoords.y < p5.height && viewCoords.y > 0) {
 				p5.ellipse(viewCoords.x, viewCoords.y, canvas.pointSize * AppManager.canvasScale, canvas.pointSize * AppManager.canvasScale);
@@ -539,7 +559,7 @@ public class EditorManager {
 	}
 
 	private void drawRoi() {
-		p5.fill(0, 200);
+		p5.fill(0, 175);
 		p5.stroke(255, 255, 0);
 
 		PVector[] transformedRoiCorners = new PVector[roiCorners.length];
@@ -655,14 +675,26 @@ public class EditorManager {
 
 	public void rewind() {
 		canvas.rewind();
+		logFooterText = canvas.isPlaying == true ? "PLAYING -->" : "PAUSE ||";
 	}
 
 	public void pause() {
 		canvas.pause();
+		logFooterText = "PAUSE  ||";
+
 	}
 
 	public void play() {
 		canvas.play();
+		logFooterText = "PLAYING  -->";
+	}
+	
+	public void deleteFigure(){
+		canvas.figures.remove(selectedFigure);
+	}
+	
+	public void deleteAllFigures(){
+		canvas.figures.clear();
 	}
 
 	protected Main getP5() {

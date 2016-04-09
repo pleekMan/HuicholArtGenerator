@@ -147,6 +147,7 @@ public class Figure {
 		
 		for (int i = 0; i < shapes.size(); i++) {
 			shapes.get(i).setIsDrawn(true);
+			shapes.get(i).restart();
 		}
 		
 	}

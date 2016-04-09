@@ -147,12 +147,13 @@ public class CanvasManager {
 		for (Point actualPoint : points) {
 			//actualPoint.update();
 
-			int pointX = (int) actualPoint.position.x;
-			int pointY = (int) actualPoint.position.y;
-
-			actualPoint.setColor(getColorAtPoint(figuresLayer.pixels, pointX, pointY));
-
-			actualPoint.render();
+			PVector pointViewCoords = AppManager.canvasToViewTransform(actualPoint.position);
+			
+			// ONLY SAMPLE/REFRESH THE POINTS INSIDE THE VIEWPORT
+			if (pointViewCoords.x < p5.width && pointViewCoords.x > 0 && pointViewCoords.y < p5.height && pointViewCoords.y > 0) {
+				actualPoint.setColor(getColorAtPoint(figuresLayer.pixels, (int) actualPoint.position.x, (int) actualPoint.position.y));
+				actualPoint.render();
+			}
 		}
 
 		//figuresLayer.updatePixels();
@@ -160,11 +161,11 @@ public class CanvasManager {
 		pointsLayer.popMatrix();
 		pointsLayer.endDraw();
 
-		//figuresLayer.updatePixels(); // INFO CANNOT DRAW FIGURES IF updatingPixels IS ON
+		//figuresLayer.updatePixels(); // INFO CANNOT DRAW FIGURES (AT THIS CLASS' render() METHOD) IF updatingPixels IS ON
 
 		//------- DRAW POINTS LAYER - END
 
-		// REMOVE FIGURES WHEN DONE ANIMATING
+		// REWIND FIGURES WHEN DONE ANIMATING
 		for (int i = 0; i < figures.size(); i++) {
 			if (figures.get(i).isFinished()) {
 				//figures.remove(i);
@@ -196,10 +197,13 @@ public class CanvasManager {
 		for (int i = 0; i < figures.size(); i++) {
 			figures.get(i).rewind();
 		}
+
 	}
-	public void pause(){
+
+	public void pause() {
 		isPlaying = false;
 	}
+
 	public void play() {
 		isPlaying = true;
 	}
@@ -207,7 +211,7 @@ public class CanvasManager {
 	/*
 	public void refreshBackgrounds() {
 	
-		// PJOGL throws exception when attempting to acces PGraphics here.... WTF..!!!
+		// PJOGL throws exception when attempting to access PGraphics here.... WTF..!!!
 		 * 
 		 * 
 		// FIRST LOAD figuresLayer PIXELS, BEFORE BEING INSIDE pointsLayer. OTHERWISE, IT FUCKS pointsLayer INNER TRANSFORMS
