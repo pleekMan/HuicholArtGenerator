@@ -46,6 +46,7 @@ public class ControlWindow extends PApplet {
 		cp5.addToggle("gui_showBackImage").plugTo(parent, "gui_showBackImage").setValue(false).setMode(cp5.SWITCH).setPosition(10, 350).setLabel("SHOW BACKGROUND IMAGE");
 		cp5.addSlider("gui_backImageScale").plugTo(parent, "gui_backImageScale").setRange(0.1f, 2).setPosition(10, 390).setValue(1f).setLabel("BACK IMAGE SCALE");
 		cp5.addSlider("gui_backImageOpacity").plugTo(parent, "gui_backImageOpacity").setRange(0, 1).setPosition(10, 410).setValue(1f).setLabel("BACK IMAGE opacity");
+		cp5.addButton("gui_backImageSelect").plugTo(parent, "gui_backImageSelect").setPosition(10, 430).setLabel("BUSCAR IMAGEN");
 
 
 
@@ -117,6 +118,10 @@ public class ControlWindow extends PApplet {
 	}
 	public void gui_backImageOpacity(float value){
 		parent.backImageOpacity = value;
+	}
+	
+	public void gui_backImageSelect(){
+		parent.selectImageInput();
 	}
 
 }

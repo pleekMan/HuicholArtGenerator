@@ -118,7 +118,7 @@ public class EditorManager {
 	public void render() {
 
 		if (showBackImage) {
-			if (backImage != null || backImage.width != 0) {
+			if (backImage != null && backImage.width != 0) {
 				p5.pushStyle();
 				p5.tint(255, backImageOpacity * 255);
 				p5.image(backImage, AppManager.canvasTranslation.x, AppManager.canvasTranslation.y, backImage.width * backImageScale, backImage.height * backImageScale);
@@ -167,21 +167,6 @@ public class EditorManager {
 			
 			p5.popMatrix();
 			p5.text(angle + " : " + lastVertexGridIdDirection, p5.mouseX, p5.mouseY - 20);
-		}
-		*/
-
-		// KEEP DRAWING THE DIRECTION LINES
-		// TODO NOT QUITE WORKING
-		/*
-		p5.stroke(0,255,255);
-		for (int i = 0; i < newFigureDirectionVectors.size(); i++) {
-			p5.pushMatrix();
-			p5.translate(newFigureVertices.get(i).x, newFigureVertices.get(i).y);
-			p5.rotate((p5.TWO_PI / 6) * lastVertexGridIdDirection);
-			p5.line(0,0,40,0);
-			
-			p5.popMatrix();
-			//p5.line(newFigureVertices.get(i).x, newFigureVertices.get(i).y, newFigureVertices.get(i).x + newFigureDirectionVectors.get(i).x, newFigureVertices.get(i).y + newFigureDirectionVectors.get(i).y);
 		}
 		*/
 
