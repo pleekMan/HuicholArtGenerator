@@ -100,6 +100,7 @@ public class AppManager {
 	public void keyPressed(char key) {
 
 		canvas.keyPressed(key);
+		editor.keyPressed(key);
 
 		if (key == '1') {
 			PVector canvasCoords = canvas.points.get(0).position;

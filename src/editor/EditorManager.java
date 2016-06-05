@@ -6,12 +6,14 @@ import globals.PAppletSingleton;
 
 import java.awt.Frame;
 import java.awt.BorderLayout;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import canvas.CanvasManager;
 import canvas.Figure;
 import canvas.Point;
+import processing.core.PImage;
 import processing.core.PVector;
 import controlP5.*;
 
@@ -57,6 +59,11 @@ public class EditorManager {
 	PVector[] roiCorners;
 	boolean showRoi;
 
+	PImage backImage;
+	float backImageScale;
+	float backImageOpacity;
+	boolean showBackImage;
+
 	public EditorManager(CanvasManager _canvas) {
 		p5 = getP5();
 
@@ -95,7 +102,12 @@ public class EditorManager {
 		roiCorners[1] = new PVector(400, 200);
 		roiCorners[2] = new PVector(400, 400);
 		roiCorners[3] = new PVector(200, 400);
-		showRoi = true;
+		showRoi = false;
+
+		backImage = p5.createImage(100, 100, p5.RGB);
+		backImageScale = 1f;
+		backImageOpacity = 1f;
+		showBackImage = false;
 
 	}
 
@@ -104,6 +116,15 @@ public class EditorManager {
 	}
 
 	public void render() {
+
+		if (showBackImage) {
+			if (backImage != null || backImage.width != 0) {
+				p5.pushStyle();
+				p5.tint(255, backImageOpacity * 255);
+				p5.image(backImage, AppManager.canvasTranslation.x, AppManager.canvasTranslation.y, backImage.width * backImageScale, backImage.height * backImageScale);
+				p5.popStyle();
+			}
+		}
 
 		if (showFigureGizmos) {
 			showFigureGizmos();
@@ -167,7 +188,9 @@ public class EditorManager {
 	}
 
 	public void keyPressed(int key) {
-
+		if (key == 'i') {
+			selectImageInput();
+		}
 	}
 
 	public void mousePressed(int button) {
@@ -291,30 +314,29 @@ public class EditorManager {
 				}
 				// DRAW THE DOTS
 				p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.25f, CanvasManager.pointSize * AppManager.canvasScale * 0.25f);
-				
+
 				// DRAW DIRECTION LINES
 				p5.strokeWeight(2);
 				p5.stroke(255);
 				p5.line(canvasCoords.x, canvasCoords.y, canvasCoords.x + (actualFigure.directions.get(j).x * AppManager.canvasScale), canvasCoords.y + (actualFigure.directions.get(j).y * AppManager.canvasScale));
-				
+
 				// ARROW HEADS
 				float directionAngle = actualFigure.directions.get(j).heading();
-				
+
 				p5.pushMatrix();
-				
+
 				p5.translate(canvasCoords.x + (actualFigure.directions.get(j).x * AppManager.canvasScale), canvasCoords.y + (actualFigure.directions.get(j).y * AppManager.canvasScale));
 				p5.rotate(directionAngle);
-				
+
 				//p5.fill(255,0,0);
 				p5.line(0, 0, -5, -5);
 				p5.line(0, 0, -5, 5);
 
 				//p5.rect(0, 0, 50, 10);
-				
+
 				p5.popMatrix();
-				
+
 				p5.strokeWeight(1);
-				
 
 				// IF FIGURE IS SELECTED, DRAW SOMETHING ELSE OVER THE POINTS
 				if (isSelected) {
@@ -550,7 +572,7 @@ public class EditorManager {
 		for (int i = 0; i < canvas.points.size(); i++) {
 			Point actualPoint = canvas.points.get(i);
 			PVector viewCoords = AppManager.canvasToViewTransform(actualPoint.position);
-			
+
 			// YEAH OPTIMIZATION --> ONLY DRAW CIRCLES IF THE ARE INSIDE THE VIEWPORT
 			if (viewCoords.x < p5.width && viewCoords.x > 0 && viewCoords.y < p5.height && viewCoords.y > 0) {
 				p5.ellipse(viewCoords.x, viewCoords.y, canvas.pointSize * AppManager.canvasScale, canvas.pointSize * AppManager.canvasScale);
@@ -688,13 +710,47 @@ public class EditorManager {
 		canvas.play();
 		logFooterText = "PLAYING  -->";
 	}
-	
-	public void deleteFigure(){
+
+	public void deleteFigure() {
 		canvas.figures.remove(selectedFigure);
 	}
-	
-	public void deleteAllFigures(){
+
+	public void deleteAllFigures() {
 		canvas.figures.clear();
+	}
+
+	public void selectImageInput() {
+
+		File newFile = new File("dummyString");
+		p5.selectInput("SELECCIONAME LA IMAGEN, MAPACHE: ", "fileSelector", newFile, this);
+
+		// SelectInput RUNS ON A SEPARATE THREAD. THIS MEANS THAT ALL THE OTHER
+		// CODE THAT DEPENDS ON IT , STILLS RUNS IN THE BACKGROUND.
+		// THUS GetImagePath RUNS FASTER THAN THE USER CAN SELECT A FILE.
+		// SOMEHOW, I HAVE TO RUN SelectInput, AND THEN CHECK IT'S FINISHED TO
+		// ASK FOR IMAGE-PATH
+
+	}
+
+	public void fileSelector(File selection) {
+		if (selection == null) {
+			p5.println("No seleccionaste nada, maestrulis..!");
+
+		} else {
+			String inputImagePath = selection.getAbsolutePath();
+
+			p5.println("Seleccionaste: " + inputImagePath);
+			
+			// SET BACK IMAGE
+			backImage = p5.loadImage(inputImagePath);
+			showBackImage = true;
+			
+			// UPDATE THE CONTROL WINDOW CONTROLLER
+			Toggle backImageToggle = (Toggle)controlFrame.cp5.get("gui_showBackImage");
+			backImageToggle.setValue(true);
+			// delay(1000);
+
+		}
 	}
 
 	protected Main getP5() {

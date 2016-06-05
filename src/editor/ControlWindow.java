@@ -10,7 +10,7 @@ import processing.core.PApplet;
 //new frame with a controlP5 object loaded
 public class ControlWindow extends PApplet {
 
-	ControlP5 cp5;
+	public ControlP5 cp5;
 
 	EditorManager parent;
 
@@ -42,6 +42,10 @@ public class ControlWindow extends PApplet {
 		
 		cp5.addButton("gui_delete").plugTo(parent, "gui_delete").setPosition(10, 300).setLabel("DELETE");
 		cp5.addButton("gui_deleteAll").plugTo(parent, "gui_deleteAll").setPosition(100, 300).setLabel("DELETE ALL");
+		
+		cp5.addToggle("gui_showBackImage").plugTo(parent, "gui_showBackImage").setValue(false).setMode(cp5.SWITCH).setPosition(10, 350).setLabel("SHOW BACKGROUND IMAGE");
+		cp5.addSlider("gui_backImageScale").plugTo(parent, "gui_backImageScale").setRange(0.1f, 2).setPosition(10, 390).setValue(1f).setLabel("BACK IMAGE SCALE");
+		cp5.addSlider("gui_backImageOpacity").plugTo(parent, "gui_backImageOpacity").setRange(0, 1).setPosition(10, 410).setValue(1f).setLabel("BACK IMAGE opacity");
 
 
 
@@ -103,6 +107,16 @@ public class ControlWindow extends PApplet {
 	
 	public void gui_deleteAll(){
 		parent.deleteAllFigures();
+	}
+	
+	public void gui_showBackImage(boolean state){
+		parent.showBackImage = state;
+	}
+	public void gui_backImageScale(float value){
+		parent.backImageScale = value;
+	}
+	public void gui_backImageOpacity(float value){
+		parent.backImageOpacity = value;
 	}
 
 }
