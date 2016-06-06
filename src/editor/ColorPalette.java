@@ -1,5 +1,8 @@
 package editor;
 
+import java.util.ArrayList;
+
+import processing.core.PVector;
 import globals.Main;
 import globals.PAppletSingleton;
 
@@ -8,38 +11,103 @@ public class ColorPalette {
 	Main p5;
 
 	String name;
+	PVector pos;
+	PVector size;
+	int selectedSwatch;
 
-	int[] colors;
+	ArrayList<Integer> colors;
 
 	public ColorPalette(String _name) {
 		p5 = getP5();
 
 		name = _name;
-
+		
+		colors = new ArrayList<Integer>();
+		
+		pos = new PVector();
+		size = new PVector();
+		selectedSwatch = 0;
 		//generateColors(p5.floor(p5.random(3.99f)));
-		generateColors(2);
+		//generateColors(2);
+	}
+	
+	public void render(){
+		p5.pushStyle();
+		
+		float swatchWidth = ColorPaletteManager.paletteStripSize.x / getColorCount();
 
+		for (int i = 0; i < colors.size(); i++) {
+
+			float posX = pos.x + (swatchWidth * i);
+			
+			p5.noStroke();
+			p5.fill(getColor(i));
+			p5.rect(posX, pos.y, swatchWidth, size.y);
+			
+			if(i == selectedSwatch){
+				p5.strokeWeight(4);
+				p5.noFill();
+				p5.stroke(255,127,0);
+				p5.rect(posX, pos.y, swatchWidth, size.y);
+			}
+		}
+		
+		p5.popStyle();
+	}
+	
+	public void setPosition(float x, float y){
+		pos.set(x,y);
+	}
+	
+	public void setSize(float w, float h){
+		size.set(w, h);
+	}
+	
+	public void addColors(int[] newColors){
+		for (int i = 0; i < newColors.length; i++) {
+			colors.add(newColors[i]);
+		}
+	}
+	
+	public int selectSwatch() {
+		int selectedColor = -1;
+		
+		float swatchWidth = ColorPaletteManager.paletteStripSize.x / getColorCount();
+
+		for (int i = 0; i < colors.size(); i++) {
+			float posX = pos.x + (swatchWidth * i);
+			
+			if(p5.mouseX > posX && p5.mouseX < (posX + swatchWidth)){
+				selectedColor =  selectedSwatch = i;
+				
+			}				
+		}
+		
+		return selectedColor;
 	}
 
 	public int getColor(int index) {
-		return colors[index];
+		return colors.get(index);
 	}
 
 	public String getName() {
 		return name;
 	}
+	
+	public ArrayList<Integer> getColors() {
+		return colors;
+	}
 
 	public int getColorCount() {
-		return colors.length;
+		return colors.size();
 	}
 
 	public void eraseAllColors() {
-
-		for (int i = 0; i < colors.length; i++) {
-			colors[i] = p5.color(50);
-		}
+		colors.clear();
 	}
-
+	
+	/*
+	@Deprecated
 	public void generateColors(int selector) {
 		// TODO THIS IS TOTALLY TEMPORARY, UNTIL CODING SOMETHING SERIOUS..!!!
 		p5.println("Chosen Palette: " + selector);
@@ -112,9 +180,12 @@ public class ColorPalette {
 		}
 
 	}
+	*/
 
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}
+
+
 
 }

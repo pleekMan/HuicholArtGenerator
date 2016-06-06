@@ -11,7 +11,7 @@ public class Main extends PApplet {
 	AppManager appManager;
 
 	public void setup() {
-		size(1024, 1024, P2D);
+		size(1300, 800, P2D);
 		frameRate(30);
 		//noSmooth();
 		

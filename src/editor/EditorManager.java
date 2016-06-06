@@ -27,6 +27,7 @@ public class EditorManager {
 	Main p5;
 
 	CanvasManager canvas;
+	ColorPaletteManager colorManager;
 	//ControlP5 controlGui;
 	ControlWindow controlFrame;
 
@@ -39,7 +40,7 @@ public class EditorManager {
 
 	int lastVertexGridIdDirection;
 
-	ArrayList<ColorPalette> colorPalettes;
+	//ArrayList<ColorPalette> colorPalettes;
 
 	ArrayList<PVector> figureVertices;
 	ArrayList<PVector> figureDirectionVectors;
@@ -63,11 +64,16 @@ public class EditorManager {
 	float backImageScale;
 	float backImageOpacity;
 	boolean showBackImage;
+	
+	public static int menuBorderX;
 
 	public EditorManager(CanvasManager _canvas) {
 		p5 = getP5();
 
+		menuBorderX = 1000;
+
 		canvas = _canvas;
+		colorManager = new ColorPaletteManager();
 		//controlGui = new ControlP5(p5);
 		controlFrame = addControlFrame("Editor Options", 300, 500);
 
@@ -77,7 +83,6 @@ public class EditorManager {
 		movePointMode = false;
 		showGridPoints = true;
 
-		colorPalettes = new ArrayList<ColorPalette>();
 
 		figureVertices = new ArrayList<PVector>();
 		figureDirectionVectors = new ArrayList<PVector>();
@@ -108,6 +113,7 @@ public class EditorManager {
 		backImageScale = 1f;
 		backImageOpacity = 1f;
 		showBackImage = false;
+		
 
 	}
 
@@ -141,6 +147,8 @@ public class EditorManager {
 		if (showRoi) {
 			drawRoi();
 		}
+		
+		colorManager.render();
 
 		drawLogFooter();
 
@@ -184,6 +192,10 @@ public class EditorManager {
 			createNewFigureProcedure();
 		} else {
 			select();
+		}
+		
+		if(p5.mouseX > menuBorderX){
+			colorManager.mousePressed(button);
 		}
 
 	}
@@ -422,16 +434,26 @@ public class EditorManager {
 		gridDirectionVectors[4] = PVector.mult(gridDirectionVectors[1], -1);
 		gridDirectionVectors[5] = PVector.mult(gridDirectionVectors[2], -1);
 
-		p5.println("||- GRID DIRECTION VECTORS:");
+		p5.print("||- GRID DIRECTION VECTORS:");
 		p5.println(gridDirectionVectors);
 	}
 
 	private void createDefaultPalette() {
-		ColorPalette defaultPalette = new ColorPalette("EMPTY");
-		defaultPalette.eraseAllColors();
-		colorPalettes.add(defaultPalette);
+		int[] defaultColors = {p5.color(255), p5.color(200), p5.color(150), p5.color(100), p5.color(50), p5.color(0)};
+		String name = "DefaultPalette";
+		colorManager.createNewPalette(defaultColors, name);
+		
+		// CREATE A SECOND PALETTE, TO TEST STUFF
+		int[] defaultColors2 = {p5.color(10), p5.color(127), p5.color(255)};
+		String name2 = "DefaultPalette2";
+		colorManager.createNewPalette(defaultColors2, name2);
+		
+		//ColorPalette defaultPalette = new ColorPalette("EMPTY");
+		//defaultPalette.eraseAllColors();
+		//colorPalettes.add(defaultPalette);
 	}
-
+	
+	/*
 	public ColorPalette getColorPaletteByName(String _name) {
 		ColorPalette selectedPalette = null;
 
@@ -450,6 +472,7 @@ public class EditorManager {
 		return selectedPalette;
 
 	}
+	*/
 
 	public ControlWindow addControlFrame(String theName, int theWidth, int theHeight) {
 		Frame f = new Frame(theName);
@@ -654,13 +677,14 @@ public class EditorManager {
 
 		// ---  INSERT A NEW FIGURE, BASED ON A COLOR PALETTE
 
-		ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
-		colorPalettes.add(newPalette);
+		//ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
+		//colorPalettes.add(newPalette);
 
 		PVector[] directions = getRandomDirections(figureVertices.size());
 		int figureCycles = 3;
 		Figure newFigure = new Figure(canvas.figuresLayer);
-		newFigure.initialize(figurePointsLink, directions, colorPalettes.get(colorPalettes.size() - 1), figureCycles);
+		ColorPalette figureColors = colorManager.getSelectedPalette();
+		newFigure.initialize(figurePointsLink, directions, figureColors, figureCycles);
 		canvas.addFigure(newFigure);
 
 		selectedFigure = newFigure;

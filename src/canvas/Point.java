@@ -22,7 +22,7 @@ public class Point {
 		
 		position = _pos;
 		color = _color;
-
+		
 	}
 
 	public void update() {
