@@ -28,7 +28,7 @@ public class EditorManager {
 
 	CanvasManager canvas;
 	ColorPaletteManager colorManager;
-	//ControlP5 controlGui;
+	//ControlWindow controlGui;
 	ControlWindow controlFrame;
 
 	public int testColorControl;
@@ -74,7 +74,7 @@ public class EditorManager {
 
 		canvas = _canvas;
 		colorManager = new ColorPaletteManager();
-		//controlGui = new ControlP5(p5);
+		//controlGui = new ControlWindow(this);
 		controlFrame = addControlFrame("Editor Options", 300, 500);
 
 		createFigureMode = false;
@@ -474,6 +474,7 @@ public class EditorManager {
 	}
 	*/
 
+	
 	public ControlWindow addControlFrame(String theName, int theWidth, int theHeight) {
 		Frame f = new Frame(theName);
 		ControlWindow p = new ControlWindow(this, theWidth, theHeight);
@@ -486,6 +487,7 @@ public class EditorManager {
 		f.setVisible(true);
 		return p;
 	}
+	
 
 	private void setDirectionsProcedure() {
 		PVector pointTransformed = AppManager.canvasToViewTransform(new PVector(selectedFigurePoint.position.x, selectedFigurePoint.position.y));
