@@ -2,14 +2,19 @@ package globals;
 
 import processing.core.PImage;
 import processing.core.PVector;
+import processing.data.XML;
 import canvas.CanvasManager;
+import editor.ColorPaletteManager;
 import editor.EditorManager;
 
 public class AppManager {
 	Main p5;
 
+	static public XML settings;
+
 	CanvasManager canvas;
 	EditorManager editor;
+	
 
 	PVector canvasSize;
 	//PVector viewSize; // NOT USED ??
@@ -28,6 +33,8 @@ public class AppManager {
 	public AppManager() {
 		p5 = getP5();
 
+		loadSettings();
+		
 		canvasSize = new PVector(4096, 4096);
 		//viewSize = new PVector(1024, 1024);
 		canvasTranslation = new PVector(0, 0);
@@ -44,6 +51,11 @@ public class AppManager {
 		renderBuffer = p5.createImage(100, 100, p5.RGB);
 		frameSaveCount = 0;
 
+	}
+
+	private void loadSettings() {
+		settings = p5.loadXML("settings.xml");		
+		
 	}
 
 	public void update() {

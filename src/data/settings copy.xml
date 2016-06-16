@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<settings>
+	<colorPalettes>
+		<palette name="Paleta 1">
+			<color r="255" g="0" b="0"></color>
+			<color r="0" g="255" b="0"></color>
+			<color r="0" g="0" b="255"></color>
+		</palette>
+		<palette name="Paleta 2">
+			<color r="255" g="255" b="0"></color>
+			<color r="0" g="255" b="255"></color>
+			<color r="255" g="0" b="255"></color>
+		</palette>
+	</colorPalettes>
+</settings>

@@ -51,9 +51,15 @@ public class Main extends PApplet {
 	}
 
 	public void keyPressed() {
-
+		
+		
 		appManager.keyPressed(key);
 
+		
+		// AFTER FORWARDING ALL KEYS, OVERRIDE ESCAPE (USED TO CANCEL SOME PROCEDURES) TO NOT EXIT DE APP
+		if(key == ESC){
+			key = 0;
+		}
 	}
 
 	public void mousePressed() {

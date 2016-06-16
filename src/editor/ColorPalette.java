@@ -43,6 +43,7 @@ public class ColorPalette {
 			p5.noStroke();
 			p5.fill(getColor(i));
 			p5.rect(posX, pos.y, swatchWidth, size.y);
+			//p5.ellipse(posX, pos.y, 20, 20);
 			
 			if(i == selectedSwatch){
 				p5.strokeWeight(4);
@@ -67,6 +68,10 @@ public class ColorPalette {
 		for (int i = 0; i < newColors.length; i++) {
 			colors.add(newColors[i]);
 		}
+	}
+	
+	public void addColor(int newColor){
+			colors.add(newColor);
 	}
 	
 	public int selectSwatch() {

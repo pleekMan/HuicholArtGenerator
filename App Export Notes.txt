@@ -1,0 +1,4 @@
+
+When exporting/building the .app, the data folder does no exist. Unless we manually copy it in the same folder as App.app, with all of the contents.
+
+While in processing/Eclipse, all load and save commands can find the data folder. But when exported, the same command load/save to the root/same folder as the App.app, unless stated otherwise ( saveXML(“data/settings.xml”) )

@@ -48,7 +48,8 @@ public class ControlWindow extends PApplet {
 		cp5.addSlider("gui_backImageOpacity").plugTo(parent, "gui_backImageOpacity").setRange(0, 1).setPosition(10, 410).setValue(1f).setLabel("BACK IMAGE opacity");
 		cp5.addButton("gui_backImageSelect").plugTo(parent, "gui_backImageSelect").setPosition(10, 430).setLabel("BUSCAR IMAGEN");
 
-
+		cp5.addButton("gui_newPalette").plugTo(parent, "gui_newPalette").setPosition(10, 500).setSize(100,20).setLabel("NEW COLOR PALETTE");
+		cp5.addButton("gui_deletePalette").plugTo(parent, "gui_deletePalette").setPosition(10, 530).setSize(100,20).setLabel("DELETE COLOR PALETTE");
 
 
 
@@ -110,6 +111,8 @@ public class ControlWindow extends PApplet {
 		parent.deleteAllFigures();
 	}
 	
+	// BACKGROUND / REFERENCE IMAGE -------------
+	
 	public void gui_showBackImage(boolean state){
 		parent.showBackImage = state;
 	}
@@ -123,5 +126,14 @@ public class ControlWindow extends PApplet {
 	public void gui_backImageSelect(){
 		parent.selectImageInput();
 	}
+	
+	// COLOR PALETTE COMMANDS -------------
+	
+	public void gui_newPalette(){
+		parent.createPalette();
+	}
 
+	public void gui_deletePalette(){
+		parent.deletePalette();
+	}
 }

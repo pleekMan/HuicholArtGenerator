@@ -75,7 +75,7 @@ public class EditorManager {
 		canvas = _canvas;
 		colorManager = new ColorPaletteManager();
 		//controlGui = new ControlWindow(this);
-		controlFrame = addControlFrame("Editor Options", 300, 500);
+		controlFrame = addControlFrame("Editor Options", 300, p5.height);
 
 		createFigureMode = false;
 		showFigureGizmos = true;
@@ -116,6 +116,7 @@ public class EditorManager {
 		
 
 	}
+	
 
 	public void update() {
 
@@ -180,10 +181,12 @@ public class EditorManager {
 
 	}
 
-	public void keyPressed(int key) {
+	public void keyPressed(char key) {
 		if (key == 'i') {
 			selectImageInput();
 		}
+		
+		colorManager.keyPressed(key);
 	}
 
 	public void mousePressed(int button) {
@@ -194,9 +197,9 @@ public class EditorManager {
 			select();
 		}
 		
-		if(p5.mouseX > menuBorderX){
-			colorManager.mousePressed(button);
-		}
+		// IT CHECKS INSIDE IF THE USER IS CLICKING OVER THE MENU COLUMN OR NOT
+		colorManager.mousePressed(button);
+		
 
 	}
 
@@ -762,6 +765,14 @@ public class EditorManager {
 			// delay(1000);
 
 		}
+	}
+	
+	public void deletePalette(){
+		colorManager.deletePalette();
+	}
+	public void createPalette(){
+		String newName = "Palette " + p5.year() + "-" + p5.month()+ "-"  + p5.day() + "_"  + p5.hour() + ":" + p5.minute() + ":" + p5.second();
+		colorManager.createNewEmptyPalette(newName);
 	}
 
 	protected Main getP5() {
