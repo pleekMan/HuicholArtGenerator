@@ -27,7 +27,7 @@ public class ColorPaletteManager {
 		palettes = new ArrayList<ColorPalette>();
 		selectedPalette = selectedSwatchInPalette = 0;
 
-		pos = new PVector(EditorManager.menuBorderX, p5.height / 2);
+		pos = new PVector(EditorManager.menuBorderX, 22);
 		size = new PVector(300, 400);
 		paletteStripSize = new PVector(300, 20);
 
@@ -42,7 +42,13 @@ public class ColorPaletteManager {
 
 	public void render() {
 
-		p5.text("PALETAS DE COLOR", pos.x + 10, pos.y);
+		p5.fill(0, 127);
+		p5.rect(pos.x, 0, pos.x, p5.height);
+		p5.fill(255, 255, 0);
+		p5.stroke(255,255,0);
+		p5.rect(pos.x, 0, pos.x, 20);
+		p5.fill(0);
+		p5.text("|| PALETAS DE COLOR ||", pos.x + 10, 18);
 
 		p5.pushStyle();
 		p5.noStroke();
@@ -60,13 +66,16 @@ public class ColorPaletteManager {
 				p5.rect(posX, posY, swatchWidth, paletteStripSize.y);
 				*/
 			}
-
-			if (i == selectedPalette) {
-				p5.noFill();
-				p5.stroke(255, 255, 0);
-				p5.rect(thisPalette.pos.x, thisPalette.pos.y, paletteStripSize.x, paletteStripSize.y);
-			}
 		}
+
+		// HIGHLIGHT SELECTED PALETTE
+		p5.strokeWeight(3);
+		p5.stroke(0);
+		p5.noFill();
+		p5.rect(palettes.get(selectedPalette).pos.x, palettes.get(selectedPalette).pos.y, paletteStripSize.x, paletteStripSize.y);
+
+		p5.fill(255);
+		p5.rect(palettes.get(selectedPalette).pos.x, palettes.get(selectedPalette).pos.y, -20, paletteStripSize.y);
 
 		p5.popStyle();
 
@@ -77,6 +86,7 @@ public class ColorPaletteManager {
 			p5.noStroke();
 			p5.ellipse(p5.mouseX + 25, p5.mouseY - 25, 50, 50);
 
+			// PREVIEW STROKE
 			if (p5.brightness(pickerColor) > 127) {
 				p5.stroke(0);
 			} else {
@@ -91,23 +101,36 @@ public class ColorPaletteManager {
 
 	public void createNewPalette(int[] colors, String name) {
 
+		
 		ColorPalette newPalette = new ColorPalette(name);
 		newPalette.addColors(colors);
 		palettes.add(newPalette);
+		
 		selectedPalette = palettes.size() - 1;
 
-		palettes.get(selectedPalette).setPosition(pos.x, pos.y + ((paletteStripSize.y * (palettes.size() - 1)) + 20)); // TODO OFFSET IS WRONG
 		palettes.get(selectedPalette).setSize(paletteStripSize.x, paletteStripSize.y);
+		
+		if(palettes.size() == 1){
+			palettes.get(selectedPalette).setPosition(pos.x, pos.y + 20); // TODO OFFSET IS WRONG
+		} else {
+			palettes.get(selectedPalette).setPosition(pos.x, pos.y + (paletteStripSize.y * (palettes.size() - 1)));
+		}
 	}
 
 	public void createNewEmptyPalette(String name) {
 
 		ColorPalette newPalette = new ColorPalette(name);
 		palettes.add(newPalette);
+		
 		selectedPalette = palettes.size() - 1;
-
-		palettes.get(selectedPalette).setPosition(pos.x, pos.y + ((paletteStripSize.y * (palettes.size() - 1)) + 20));
+		
 		palettes.get(selectedPalette).setSize(paletteStripSize.x, paletteStripSize.y);
+		if(palettes.size() == 1){
+			palettes.get(selectedPalette).setPosition(pos.x, pos.y + 20); // TODO OFFSET IS WRONG
+		} else {
+			palettes.get(selectedPalette).setPosition(pos.x, pos.y + (paletteStripSize.y * (palettes.size() - 1)));
+		}
+
 
 		pickerMode = true;
 	}
@@ -178,7 +201,6 @@ public class ColorPaletteManager {
 			}
 		}
 
-		
 		// DELETE PALETTE FROM XML
 		XML[] allPalettes = AppManager.settings.getChildren("colorPalettes/palette");
 		for (int i = 0; i < allPalettes.length; i++) {
@@ -191,10 +213,9 @@ public class ColorPaletteManager {
 		}
 		p5.saveXML(AppManager.settings, "data/settings.xml");
 
-		
 		palettes.remove(selectedPalette);
-		selectedPalette-= 1;
-		selectedPalette = (int)p5.constrain(selectedPalette, 0, palettes.size());
+		selectedPalette -= 1;
+		selectedPalette = (int) p5.constrain(selectedPalette, 0, palettes.size());
 	}
 
 	public void keyPressed(char key) {

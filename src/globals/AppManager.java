@@ -54,7 +54,7 @@ public class AppManager {
 	}
 
 	private void loadSettings() {
-		settings = p5.loadXML("settings.xml");		
+		settings = p5.loadXML("data/settings.xml");		
 		
 	}
 

@@ -42,9 +42,9 @@ public class Figure {
 
 	}
 
-	public void initialize(ArrayList<Point> _pointsLink, PVector[] verticesDirection, ColorPalette palette, int _maxCycles) {
+	public void initialize(ArrayList<Point> _pointsLink, PVector[] verticesDirections, ColorPalette palette, int _maxCycles) {
 
-		directions = new ArrayList(Arrays.asList(verticesDirection));
+		directions = new ArrayList(Arrays.asList(verticesDirections));
 		colorPalette = palette;
 		maxColorStages = colorPalette.getColorCount();
 		atColorStage = -maxColorStages; // START AT NEGATIVE SHAPE COUNT, TO SHOOT THE SHAPES INCREMENTALLY
@@ -58,16 +58,16 @@ public class Figure {
 
 		for (int i = 0; i < maxColorStages; i++) {
 
-			Shape newShape = new Shape(drawLayer, startingPositions, verticesDirection);
+			Shape newShape = new Shape(drawLayer, startingPositions, verticesDirections);
 			//newShape.setOrder(i);
 			//newShape.setPosition(startPosition); // CENTER OF SOME GRID POINT
-			newShape.setColor(palette.getColor(i));
+			newShape.setColor(colorPalette.getColor(i));
 
 			shapes.add(newShape);
 			//newShape.setVelocity(_velocity);
 
 		}
-
+		
 	}
 
 	private PVector[] getPointsPosition() {
@@ -154,6 +154,21 @@ public class Figure {
 
 	public void setColorPalette(ColorPalette palette) {
 		colorPalette = palette;
+		maxColorStages = colorPalette.getColorCount();
+		
+		rewind();
+
+		// NEED TO RE-SIZE THE SHAPE LIST TO FIT NEW COLOR COUNT
+		// CLEAR SHAPE ARRAYLIST AND RECREATE
+		PVector[] startingPositions = shapes.get(0).getVerticesPos();
+		PVector[] verticesDirections = shapes.get(0).getVerticesVel();
+		shapes.clear();
+		for (int i = 0; i < maxColorStages; i++) {
+			Shape newShape = new Shape(drawLayer, startingPositions, verticesDirections);
+			newShape.setColor(colorPalette.getColor(i));
+			shapes.add(newShape);
+		}
+		
 	}
 
 	public boolean hasPoint(Point _point) {
@@ -187,10 +202,14 @@ public class Figure {
 			}
 		}
 	}
-
-	protected Main getP5() {
-		return PAppletSingleton.getInstance().getP5Applet();
+	
+	/*
+	public void setDrawAsPoints(boolean state){
+		for (int i = 0; i < shapes.size(); i++) {
+			shapes.get(i).setDrawAsPoints(state);
+		}
 	}
+	*/
 
 	public boolean isFinished() {
 		return shapes.size() <= 0;
@@ -206,5 +225,9 @@ public class Figure {
 			}
 		}
 		return pointDirection;
+	}
+	
+	protected Main getP5() {
+		return PAppletSingleton.getInstance().getP5Applet();
 	}
 }

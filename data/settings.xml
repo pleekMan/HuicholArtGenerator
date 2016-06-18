@@ -1,34 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings>
   <colorPalettes>
-    <palette name="Paleta 1">
-      <color b="0" g="0" r="255"/>
-      <color b="0" g="255" r="0"/>
-      <color b="255" g="0" r="0"/>
-    </palette>
     <palette name="Paleta 2">
       <color b="0" g="255" r="255"/>
       <color b="255" g="255" r="0"/>
       <color b="255" g="0" r="255"/>
     </palette>
-    <palette name="Palette 2016-6-16_0:2:46">
-      <color b="0" g="0" r="0"/>
-      <color b="175" g="175" r="175"/>
-      <color b="0" g="0" r="0"/>
-      <color b="175" g="175" r="175"/>
+    <palette name="Palette 2016-6-17_15:19:6">
+      <color b="224" g="122" r="224"/>
+      <color b="124" g="82" r="99"/>
+      <color b="55" g="37" r="108"/>
+      <color b="255" g="179" r="184"/>
+      <color b="254" g="165" r="113"/>
     </palette>
-    <palette name="Palette 2016-6-16_0:13:14">
-      <color b="0" g="0" r="0"/>
-      <color b="0" g="0" r="0"/>
-      <color b="87" g="87" r="87"/>
+    <palette name="Palette 2016-6-17_15:20:48">
+      <color b="226" g="252" r="254"/>
+      <color b="33" g="245" r="255"/>
+      <color b="6" g="193" r="255"/>
+      <color b="1" g="118" r="255"/>
+      <color b="22" g="58" r="249"/>
+      <color b="14" g="40" r="174"/>
+      <color b="20" g="31" r="86"/>
+      <color b="48" g="246" r="255"/>
+      <color b="15" g="212" r="254"/>
+      <color b="8" g="146" r="251"/>
+      <color b="33" g="41" r="226"/>
+      <color b="27" g="33" r="179"/>
+      <color b="45" g="49" r="186"/>
+      <color b="37" g="36" r="73"/>
     </palette>
-    <palette name="Palette 2016-6-16_0:48:12">
-      <color b="209" g="35" r="5"/>
-      <color b="41" g="16" r="20"/>
-      <color b="119" g="35" r="140"/>
-      <color b="166" g="85" r="218"/>
-      <color b="130" g="57" r="160"/>
-      <color b="142" g="99" r="210"/>
+    <palette name="Palette 2016-6-18_15:5:28">
+      <color b="235" g="249" r="234"/>
+      <color b="168" g="217" r="184"/>
+      <color b="220" g="230" r="222"/>
+      <color b="93" g="107" r="54"/>
+      <color b="242" g="238" r="237"/>
+      <color b="39" g="46" r="243"/>
     </palette>
   </colorPalettes>
 </settings>

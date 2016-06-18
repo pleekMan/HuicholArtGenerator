@@ -46,10 +46,9 @@ public class ColorPalette {
 			//p5.ellipse(posX, pos.y, 20, 20);
 			
 			if(i == selectedSwatch){
-				p5.strokeWeight(4);
-				p5.noFill();
-				p5.stroke(255,127,0);
-				p5.rect(posX, pos.y, swatchWidth, size.y);
+				p5.fill(0);
+				p5.noStroke();
+				p5.ellipse(posX + swatchWidth * 0.5f, pos.y + (size.y * 0.5f), 10,10);
 			}
 		}
 		
@@ -109,6 +108,10 @@ public class ColorPalette {
 
 	public void eraseAllColors() {
 		colors.clear();
+	}
+	
+	public PVector getPosition(){
+		return pos;
 	}
 	
 	/*

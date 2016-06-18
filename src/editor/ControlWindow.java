@@ -27,11 +27,12 @@ public class ControlWindow extends PApplet {
 		cp5.setColorActive(color(200,127,0));
 		cp5.setColorCaptionLabel(color(255,255,0));
 		
-		cp5.addSlider("abc").setRange(0, 255).setPosition(10, 10).setValue(0);;
 		cp5.addSlider("testColorControl").plugTo(parent, "testColorControl").setRange(0, 255).setPosition(10, 30);
 		cp5.addButton("gui_newFigure").plugTo(parent, "gui_newFigure").setPosition(10, 50).setLabel("NEW FIGURE");
-		cp5.addSlider("gui_viewPortScale").plugTo(parent, "gui_viewPortScale").setRange(0.1f, 1).setPosition(10, 80).setValue(1f).setLabel("VIEWPORT SCALE");
+		cp5.addSlider("gui_newFigureCycles").plugTo(parent, "gui_newFigureCycles").setLabel("NEW FIGURE CYCLES").setRange(1, 10).setPosition(10, 10).setValue(3).showTickMarks(true).setNumberOfTickMarks(10);
+
 		
+		cp5.addSlider("gui_viewPortScale").plugTo(parent, "gui_viewPortScale").setRange(0.1f, 1).setPosition(10, 80).setValue(1f).setLabel("VIEWPORT SCALE");
 		cp5.addToggle("gui_showFigureGizmos").plugTo(parent, "gui_showFigureGizmos").setValue(true).setMode(cp5.SWITCH).setPosition(10, 100).setLabel("SHOW FIGURE GIZMOS");
 		cp5.addToggle("gui_showGridLayer").plugTo(parent, "gui_showGridLayer").setValue(true).setMode(cp5.SWITCH).setPosition(10, 140).setLabel("SHOW GRID");
 		cp5.addToggle("gui_showRoi").plugTo(parent, "gui_showRoi").setValue(false).setMode(cp5.SWITCH).setPosition(10, 180).setLabel("SHOW ROI");
@@ -50,7 +51,9 @@ public class ControlWindow extends PApplet {
 
 		cp5.addButton("gui_newPalette").plugTo(parent, "gui_newPalette").setPosition(10, 500).setSize(100,20).setLabel("NEW COLOR PALETTE");
 		cp5.addButton("gui_deletePalette").plugTo(parent, "gui_deletePalette").setPosition(10, 530).setSize(100,20).setLabel("DELETE COLOR PALETTE");
+		cp5.addButton("gui_assignToFigure").plugTo(parent, "gui_assignToFigure").setPosition(10, 560).setSize(100,20).setLabel("ASIGNAR A FIGURA");
 
+		cp5.addToggle("gui_shapePointInterpolation").plugTo(parent, "gui_shapePointInterpolation").setPosition(10, 590).setSize(100,20).setLabel("PUNTOS SOLOS");
 
 
 	}
@@ -75,6 +78,10 @@ public class ControlWindow extends PApplet {
 	public void gui_newFigure(int theValue) {
 		//println("a button event from buttonA: " + theValue);
 		parent.prepareNewFigure();
+	}
+	
+	public void gui_newFigureCycles(float value){
+		parent.newFigureCycles = (int)value;
 	}
 	
 	public void gui_viewPortScale(float value){
@@ -136,4 +143,13 @@ public class ControlWindow extends PApplet {
 	public void gui_deletePalette(){
 		parent.deletePalette();
 	}
+	
+	public void gui_assignToFigure(){
+		parent.assignPaletteToFigure();
+	}
+	
+	public void gui_shapePointInterpolation(boolean state){
+		parent.setShapePointInterpolation(state);
+	}
+
 }

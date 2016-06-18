@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import editor.ColorPalette;
+import editor.EditorManager;
 import processing.core.PGraphics;
 import processing.core.PVector;
 import globals.Main;
@@ -61,16 +62,23 @@ public class Shape {
 
 		//drawLayer.fill(color);
 		if (isDrawn) {
-			drawLayer.noFill();
-			drawLayer.stroke(color);
+			if (EditorManager.shapePointInterpolation) {
+				drawLayer.noFill();
+				drawLayer.stroke(color);
 
-			drawLayer.beginShape();
+				drawLayer.beginShape();
 
-			for (int i = 0; i < verticesPos.length; i++) {
-				drawLayer.vertex(verticesPos[i].x, verticesPos[i].y);
-
-			}
-			drawLayer.endShape(p5.CLOSE);
+				for (int i = 0; i < verticesPos.length; i++) {
+					drawLayer.vertex(verticesPos[i].x, verticesPos[i].y);
+				}
+				drawLayer.endShape(p5.CLOSE);
+			} else {
+				drawLayer.fill(color);
+				drawLayer.noStroke();
+				for (int i = 0; i < verticesPos.length; i++) {
+					drawLayer.ellipse(verticesPos[i].x, verticesPos[i].y, 3, 3);
+				}
+			}	
 		}
 	}
 
@@ -79,6 +87,7 @@ public class Shape {
 			verticesPos[i] = _positions[i];
 		}
 	}
+	
 
 	/*
 	public void resetShape(PVector startPos){
@@ -122,6 +131,9 @@ public class Shape {
 
 	public PVector[] getVerticesPos() {
 		return verticesPos;
+	}
+	public PVector[] getVerticesVel() {
+		return verticesVel;
 	}
 
 	protected Main getP5() {

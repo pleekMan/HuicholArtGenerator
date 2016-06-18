@@ -50,6 +50,7 @@ public class EditorManager {
 	Figure selectedFigure;
 	Point selectedFigurePoint;
 	PVector selectedPointDirection;
+	public int newFigureCycles;
 
 	PVector lastMousePosition;
 
@@ -64,6 +65,8 @@ public class EditorManager {
 	float backImageScale;
 	float backImageOpacity;
 	boolean showBackImage;
+	
+	public static boolean shapePointInterpolation;
 	
 	public static int menuBorderX;
 
@@ -94,6 +97,7 @@ public class EditorManager {
 		selectedFigure = null;
 		selectedFigurePoint = null;
 		selectedPointDirection = null;
+		newFigureCycles = 3;
 
 		lastMousePosition = new PVector();
 
@@ -114,6 +118,7 @@ public class EditorManager {
 		backImageOpacity = 1f;
 		showBackImage = false;
 		
+		shapePointInterpolation = true;
 
 	}
 	
@@ -682,14 +687,10 @@ public class EditorManager {
 
 		// ---  INSERT A NEW FIGURE, BASED ON A COLOR PALETTE
 
-		//ColorPalette newPalette = new ColorPalette("PALETA " + colorPalettes.size());
-		//colorPalettes.add(newPalette);
-
 		PVector[] directions = getRandomDirections(figureVertices.size());
-		int figureCycles = 3;
 		Figure newFigure = new Figure(canvas.figuresLayer);
 		ColorPalette figureColors = colorManager.getSelectedPalette();
-		newFigure.initialize(figurePointsLink, directions, figureColors, figureCycles);
+		newFigure.initialize(figurePointsLink, directions, figureColors, newFigureCycles);
 		canvas.addFigure(newFigure);
 
 		selectedFigure = newFigure;
@@ -773,6 +774,16 @@ public class EditorManager {
 	public void createPalette(){
 		String newName = "Palette " + p5.year() + "-" + p5.month()+ "-"  + p5.day() + "_"  + p5.hour() + ":" + p5.minute() + ":" + p5.second();
 		colorManager.createNewEmptyPalette(newName);
+	}
+	
+	public void assignPaletteToFigure(){
+		if (selectedFigure != null) {
+			selectedFigure.setColorPalette(colorManager.getSelectedPalette());
+		}
+	}
+	
+	public void setShapePointInterpolation(boolean state){
+		shapePointInterpolation = state;
 	}
 
 	protected Main getP5() {
