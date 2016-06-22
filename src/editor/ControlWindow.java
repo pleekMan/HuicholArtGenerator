@@ -35,11 +35,10 @@ public class ControlWindow extends PApplet {
 		cp5.addSlider("gui_viewPortScale").plugTo(parent, "gui_viewPortScale").setRange(0.1f, 1).setPosition(10, 80).setValue(1f).setLabel("VIEWPORT SCALE");
 		cp5.addToggle("gui_showFigureGizmos").plugTo(parent, "gui_showFigureGizmos").setValue(true).setMode(cp5.SWITCH).setPosition(10, 100).setLabel("SHOW FIGURE GIZMOS");
 		cp5.addToggle("gui_showGridLayer").plugTo(parent, "gui_showGridLayer").setValue(true).setMode(cp5.SWITCH).setPosition(10, 140).setLabel("SHOW GRID");
-		cp5.addToggle("gui_showRoi").plugTo(parent, "gui_showRoi").setValue(false).setMode(cp5.SWITCH).setPosition(10, 180).setLabel("SHOW ROI");
 		
-		cp5.addButton("gui_rewind").plugTo(parent, "gui_rewind").setPosition(10, 240).setLabel("|<").setWidth(30);
-		cp5.addButton("gui_pause").plugTo(parent, "gui_pause").setPosition(50, 240).setLabel("||").setWidth(30);
-		cp5.addButton("gui_play").plugTo(parent, "gui_play").setPosition(90, 240).setLabel(">").setWidth(30);
+		cp5.addButton("gui_rewind").plugTo(parent, "gui_rewind").setPosition(10, 265).setLabel("|<").setWidth(30);
+		cp5.addButton("gui_pause").plugTo(parent, "gui_pause").setPosition(50, 265).setLabel("||").setWidth(30);
+		cp5.addButton("gui_play").plugTo(parent, "gui_play").setPosition(90, 265).setLabel(">").setWidth(30);
 		
 		cp5.addButton("gui_delete").plugTo(parent, "gui_delete").setPosition(10, 300).setLabel("DELETE");
 		cp5.addButton("gui_deleteAll").plugTo(parent, "gui_deleteAll").setPosition(100, 300).setLabel("DELETE ALL");
@@ -53,8 +52,11 @@ public class ControlWindow extends PApplet {
 		cp5.addButton("gui_deletePalette").plugTo(parent, "gui_deletePalette").setPosition(10, 530).setSize(100,20).setLabel("DELETE COLOR PALETTE");
 		cp5.addButton("gui_assignToFigure").plugTo(parent, "gui_assignToFigure").setPosition(10, 560).setSize(100,20).setLabel("ASIGNAR A FIGURA");
 
-		cp5.addToggle("gui_shapePointInterpolation").plugTo(parent, "gui_shapePointInterpolation").setPosition(10, 590).setSize(100,20).setLabel("PUNTOS SOLOS");
+		cp5.addToggle("gui_shapePointInterpolation").plugTo(parent, "gui_shapePointInterpolation").setMode(cp5.SWITCH).setPosition(10, 590).setSize(100,20).setLabel("PUNTOS SOLOS");
 
+		cp5.addToggle("gui_showRoi").plugTo(parent, "gui_showRoi").setValue(false).setMode(cp5.SWITCH).setPosition(10, 180).setLabel("SHOW ROI");
+		cp5.addTextfield("gui_renderOutFolder").plugTo(parent,"gui_renderOutFolder").setPosition(10, 225).setSize(180,20).setLabel("Nombre de la Carpeta de Render:");
+		cp5.addToggle("gui_enableRenderToFile").plugTo(parent, "gui_enableRenderToFile").setMode(cp5.SWITCH).setPosition(200, 225).setSize(80,20).setLabel("GUARDAR ANIMACION");
 
 	}
 
@@ -150,6 +152,14 @@ public class ControlWindow extends PApplet {
 	
 	public void gui_shapePointInterpolation(boolean state){
 		parent.setShapePointInterpolation(state);
+	}
+	
+	public void gui_renderOutFolder(String text){
+		parent.checkRenderFolder(text);
+	}
+	
+	public void gui_enableRenderToFile(boolean state){
+		parent.prepareRender(state);
 	}
 
 }

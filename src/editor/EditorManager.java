@@ -58,16 +58,23 @@ public class EditorManager {
 
 	String logFooterText;
 
+	// RENDERING
 	PVector[] roiCorners;
 	boolean showRoi;
+	String rendersPath;
+	String renderOutFolderPath;
+	String renderName;
+	PImage renderBuffer;
+	int frameSaveCount;
+	public boolean enableRender;
 
 	PImage backImage;
 	float backImageScale;
 	float backImageOpacity;
 	boolean showBackImage;
-	
+
 	public static boolean shapePointInterpolation;
-	
+
 	public static int menuBorderX;
 
 	public EditorManager(CanvasManager _canvas) {
@@ -86,7 +93,6 @@ public class EditorManager {
 		movePointMode = false;
 		showGridPoints = true;
 
-
 		figureVertices = new ArrayList<PVector>();
 		figureDirectionVectors = new ArrayList<PVector>();
 		figurePointsLink = new ArrayList<Point>();
@@ -103,28 +109,40 @@ public class EditorManager {
 
 		logFooterText = "";
 
-		createDefaultPalette();
+		//createDefaultPalette();
 		createHexagonalDirectionVectors();
 
+		// RENDERING
 		roiCorners = new PVector[4];
 		roiCorners[0] = new PVector(200, 200);
 		roiCorners[1] = new PVector(400, 200);
 		roiCorners[2] = new PVector(400, 400);
 		roiCorners[3] = new PVector(200, 400);
 		showRoi = false;
+		renderBuffer = p5.createImage(100, 100, p5.RGB);
+		frameSaveCount = 0;
+		renderOutFolderPath = "/temp";
+		enableRender = false;
+
+		rendersPath = p5.sketchPath + "/renders";
+		renderName = "render";
+		p5.println(p5.sketchPath);
+		File renderFolder = new File(rendersPath);
+		if (renderFolder.isDirectory()) {
+			String[] files = renderFolder.list();
+			p5.println(files);
+		}
 
 		backImage = p5.createImage(100, 100, p5.RGB);
 		backImageScale = 1f;
 		backImageOpacity = 1f;
 		showBackImage = false;
-		
+
 		shapePointInterpolation = true;
 
 	}
-	
 
 	public void update() {
-
 	}
 
 	public void render() {
@@ -153,36 +171,21 @@ public class EditorManager {
 		if (showRoi) {
 			drawRoi();
 		}
-		
+
 		colorManager.render();
 
-		drawLogFooter();
-
+		// TEMP - REMOVE
 		/*
-		p5.stroke(0,255,255);
-		if (drawDirectionsTurn) {
-			PVector lastVertex = newFigureVertices.get(newFigureVertices.size() - 1);
-			PVector mouseVector = new PVector(p5.mouseX - lastVertex.x, p5.mouseY - lastVertex.y);
-			
-			float angle = PVector.angleBetween(mouseVector, gridDirectionVectors[0]);
-			
-			// RETURNED ANGLE GOES FROM 0 TO PI, TWICE AROUND THE CIRCLE
-			if (mouseVector.y > 0) {
-				lastVertexGridIdDirection = p5.floor(p5.map(angle, 0, p5.PI, 0, 3));
-			} else {
-				lastVertexGridIdDirection = p5.floor(p5.map(angle, p5.PI, 0, 3, 6));
-			}
-			
-			// DRAW THIS DIRECTION LINE (KINDA CHOTO: DRAWING FROM MOUSE AND NOT FROM POINT CENTER)
-			p5.pushMatrix();
-			p5.translate(lastMousePosition.x, lastMousePosition.y);
-			p5.rotate((p5.TWO_PI / 6) * lastVertexGridIdDirection);
-			p5.line(0,0,40,0);
-			
-			p5.popMatrix();
-			p5.text(angle + " : " + lastVertexGridIdDirection, p5.mouseX, p5.mouseY - 20);
+		if (canvas.figuresAllFinished()) {
+			logFooterText = "FIGURES FINISHED PLAYING";
+		} else {
+			logFooterText = "FIGURES STILL PLAYING";
 		}
 		*/
+		
+		drawLogFooter();
+
+
 
 	}
 
@@ -190,7 +193,7 @@ public class EditorManager {
 		if (key == 'i') {
 			selectImageInput();
 		}
-		
+
 		colorManager.keyPressed(key);
 	}
 
@@ -201,10 +204,9 @@ public class EditorManager {
 		} else {
 			select();
 		}
-		
+
 		// IT CHECKS INSIDE IF THE USER IS CLICKING OVER THE MENU COLUMN OR NOT
 		colorManager.mousePressed(button);
-		
 
 	}
 
@@ -402,6 +404,8 @@ public class EditorManager {
 			p5.line(0, 0, 0, p5.height);
 			p5.strokeWeight(1);
 
+		} else if(enableRender){
+			p5.fill(255, 0, 0);
 		} else {
 			p5.fill(255, 255, 0);
 		}
@@ -447,20 +451,20 @@ public class EditorManager {
 	}
 
 	private void createDefaultPalette() {
-		int[] defaultColors = {p5.color(255), p5.color(200), p5.color(150), p5.color(100), p5.color(50), p5.color(0)};
+		int[] defaultColors = { p5.color(255), p5.color(200), p5.color(150), p5.color(100), p5.color(50), p5.color(0) };
 		String name = "DefaultPalette";
 		colorManager.createNewPalette(defaultColors, name);
-		
+
 		// CREATE A SECOND PALETTE, TO TEST STUFF
-		int[] defaultColors2 = {p5.color(10), p5.color(127), p5.color(255)};
+		int[] defaultColors2 = { p5.color(10), p5.color(127), p5.color(255) };
 		String name2 = "DefaultPalette2";
 		colorManager.createNewPalette(defaultColors2, name2);
-		
+
 		//ColorPalette defaultPalette = new ColorPalette("EMPTY");
 		//defaultPalette.eraseAllColors();
 		//colorPalettes.add(defaultPalette);
 	}
-	
+
 	/*
 	public ColorPalette getColorPaletteByName(String _name) {
 		ColorPalette selectedPalette = null;
@@ -482,7 +486,6 @@ public class EditorManager {
 	}
 	*/
 
-	
 	public ControlWindow addControlFrame(String theName, int theWidth, int theHeight) {
 		Frame f = new Frame(theName);
 		ControlWindow p = new ControlWindow(this, theWidth, theHeight);
@@ -495,7 +498,6 @@ public class EditorManager {
 		f.setVisible(true);
 		return p;
 	}
-	
 
 	private void setDirectionsProcedure() {
 		PVector pointTransformed = AppManager.canvasToViewTransform(new PVector(selectedFigurePoint.position.x, selectedFigurePoint.position.y));
@@ -633,55 +635,7 @@ public class EditorManager {
 
 	}
 
-	public void calibrateRoi() {
-		PVector[] transformedRoiCorners = new PVector[roiCorners.length];
-		for (int i = 0; i < transformedRoiCorners.length; i++) {
-			transformedRoiCorners[i] = new PVector();
-			transformedRoiCorners[i].set(AppManager.canvasToViewTransform(roiCorners[i]));
-		}
-
-		int detectionArea = 30;
-		float newValue = 0;
-
-		p5.pushStyle();
-		p5.strokeWeight(3);
-		p5.stroke(0, 255, 255);
-		// LEFT
-		if (p5.mouseX > (transformedRoiCorners[0].x - detectionArea) && p5.mouseX < (transformedRoiCorners[0].x + detectionArea)) {
-			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).x;
-			roiCorners[0].x = roiCorners[3].x = newValue;
-			p5.line(transformedRoiCorners[0].x, transformedRoiCorners[0].y, transformedRoiCorners[3].x, transformedRoiCorners[3].y);
-		} else
-		// RIGHT
-		if (p5.mouseX > (transformedRoiCorners[1].x - detectionArea) && p5.mouseX < (transformedRoiCorners[1].x + detectionArea)) {
-			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).x;
-			roiCorners[1].x = roiCorners[2].x = newValue;
-			p5.line(transformedRoiCorners[1].x, transformedRoiCorners[1].y, transformedRoiCorners[2].x, transformedRoiCorners[2].y);
-		} else
-		// TOP
-		if (p5.mouseY > (transformedRoiCorners[0].y - detectionArea) && p5.mouseY < (transformedRoiCorners[0].y + detectionArea)) {
-			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).y;
-			roiCorners[0].y = roiCorners[1].y = newValue;
-			p5.line(transformedRoiCorners[0].x, transformedRoiCorners[0].y, transformedRoiCorners[1].x, transformedRoiCorners[1].y);
-		} else
-		// BOTTOM
-		if (p5.mouseY > (transformedRoiCorners[2].y - detectionArea) && p5.mouseY < (transformedRoiCorners[2].y + detectionArea)) {
-			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).y;
-			roiCorners[2].y = roiCorners[3].y = newValue;
-			p5.line(transformedRoiCorners[2].x, transformedRoiCorners[2].y, transformedRoiCorners[3].x, transformedRoiCorners[3].y);
-		} /*else
-			// DRAG FROM CENTER
-			if(p5.mouseX > transformedRoiCorners[0].x && p5.mouseX < transformedRoiCorners[1].x && p5.mouseY > transformedRoiCorners[0].y && p5.mouseY < transformedRoiCorners[3].y){
-			// HAVE TO CALCULATE A DELTA POS.... MAYBE LATER....
-			}
-			*/
-
-		p5.popStyle();
-	}
-
-	public PVector[] getRoi() {
-		return roiCorners;
-	}
+	
 
 	private void spawnNewFigure() {
 
@@ -755,39 +709,155 @@ public class EditorManager {
 			String inputImagePath = selection.getAbsolutePath();
 
 			p5.println("Seleccionaste: " + inputImagePath);
-			
+
 			// SET BACK IMAGE
 			backImage = p5.loadImage(inputImagePath);
 			showBackImage = true;
-			
+
 			// UPDATE THE CONTROL WINDOW CONTROLLER
-			Toggle backImageToggle = (Toggle)controlFrame.cp5.get("gui_showBackImage");
+			Toggle backImageToggle = (Toggle) controlFrame.cp5.get("gui_showBackImage");
 			backImageToggle.setValue(true);
 			// delay(1000);
 
 		}
 	}
-	
-	public void deletePalette(){
+
+	public void deletePalette() {
 		colorManager.deletePalette();
 	}
-	public void createPalette(){
-		String newName = "Palette " + p5.year() + "-" + p5.month()+ "-"  + p5.day() + "_"  + p5.hour() + ":" + p5.minute() + ":" + p5.second();
+
+	public void createPalette() {
+		String newName = "Palette " + p5.year() + "-" + p5.month() + "-" + p5.day() + "_" + p5.hour() + ":" + p5.minute() + ":" + p5.second();
 		colorManager.createNewEmptyPalette(newName);
 	}
-	
-	public void assignPaletteToFigure(){
+
+	public void assignPaletteToFigure() {
 		if (selectedFigure != null) {
 			selectedFigure.setColorPalette(colorManager.getSelectedPalette());
 		}
 	}
-	
-	public void setShapePointInterpolation(boolean state){
+
+	public void setShapePointInterpolation(boolean state) {
 		shapePointInterpolation = state;
 	}
+
+	// -------------- RENDER -----------------
+	
+	public void calibrateRoi() {
+		PVector[] transformedRoiCorners = new PVector[roiCorners.length];
+		for (int i = 0; i < transformedRoiCorners.length; i++) {
+			transformedRoiCorners[i] = new PVector();
+			transformedRoiCorners[i].set(AppManager.canvasToViewTransform(roiCorners[i]));
+		}
+
+		int detectionArea = 30;
+		float newValue = 0;
+
+		p5.pushStyle();
+		p5.strokeWeight(3);
+		p5.stroke(0, 255, 255);
+		// LEFT
+		if (p5.mouseX > (transformedRoiCorners[0].x - detectionArea) && p5.mouseX < (transformedRoiCorners[0].x + detectionArea)) {
+			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).x;
+			roiCorners[0].x = roiCorners[3].x = newValue;
+			p5.line(transformedRoiCorners[0].x, transformedRoiCorners[0].y, transformedRoiCorners[3].x, transformedRoiCorners[3].y);
+		} else
+		// RIGHT
+		if (p5.mouseX > (transformedRoiCorners[1].x - detectionArea) && p5.mouseX < (transformedRoiCorners[1].x + detectionArea)) {
+			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).x;
+			roiCorners[1].x = roiCorners[2].x = newValue;
+			p5.line(transformedRoiCorners[1].x, transformedRoiCorners[1].y, transformedRoiCorners[2].x, transformedRoiCorners[2].y);
+		} else
+		// TOP
+		if (p5.mouseY > (transformedRoiCorners[0].y - detectionArea) && p5.mouseY < (transformedRoiCorners[0].y + detectionArea)) {
+			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).y;
+			roiCorners[0].y = roiCorners[1].y = newValue;
+			p5.line(transformedRoiCorners[0].x, transformedRoiCorners[0].y, transformedRoiCorners[1].x, transformedRoiCorners[1].y);
+		} else
+		// BOTTOM
+		if (p5.mouseY > (transformedRoiCorners[2].y - detectionArea) && p5.mouseY < (transformedRoiCorners[2].y + detectionArea)) {
+			newValue = AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)).y;
+			roiCorners[2].y = roiCorners[3].y = newValue;
+			p5.line(transformedRoiCorners[2].x, transformedRoiCorners[2].y, transformedRoiCorners[3].x, transformedRoiCorners[3].y);
+		} /*else
+			// DRAG FROM CENTER
+			if(p5.mouseX > transformedRoiCorners[0].x && p5.mouseX < transformedRoiCorners[1].x && p5.mouseY > transformedRoiCorners[0].y && p5.mouseY < transformedRoiCorners[3].y){
+			// HAVE TO CALCULATE A DELTA POS.... MAYBE LATER....
+			}
+			*/
+
+		p5.popStyle();
+		
+		// RESET ENABLE RENDER, TO FORCE prepareRender() TO BE CALLED AGAIN AND RISIZE RENDER BUFFER AGAIN
+		enableRender = false;
+		controlFrame.cp5.getController("gui_enableRenderToFile").setValue(0);
+	}
+
+	public PVector[] getRoi() {
+		return roiCorners;
+	}
+	
+	public void prepareRender(boolean _enableRender){
+		enableRender = _enableRender;
+		renderBuffer.resize((int) (roiCorners[1].x - roiCorners[0].x), (int) (roiCorners[3].y - roiCorners[0].y));
+	}
+
+	public void checkRenderFolder(String inputFolderPath){
+		
+		// SET UP RENDER NAMES AND FOLDER PATHS
+		// CHECK EXISTENCE: NON-EXISTANT FOLDER -> CREATE  ||| EXISTANT -> DO NOTHING AND WARN OVERWRITE!! 
+		renderName = inputFolderPath;
+		renderOutFolderPath = rendersPath + "/" + inputFolderPath;
+		logFooterText = "Save Image Sequence to: " + renderOutFolderPath;
+
+		File renderFolder = new File(renderOutFolderPath);
+		p5.println("Render Path: " + renderFolder.getPath());
+		if(renderFolder.exists()){
+			logFooterText = "WARNING!! WARNING!! - FOLDER EXISTS..!! OVERWRITE ?";
+			p5.println("WARNING!! WARNING!! - FOLDER EXISTS..!! OVERWRITE ?");
+		} else {
+			logFooterText = "CREATING A NEW FOLDER";
+			p5.println("CREATING A NEW FOLDER");
+			renderFolder.mkdir();
+		}
+		
+		/*
+		rendersPath = p5.sketchPath + "/renders";
+		File renderFolder = new File(rendersPath);
+		if (renderFolder.isDirectory()) {
+			String[] files = renderFolder.list();
+			p5.println(files);
+		}
+		*/
+		
+		
+	}
+	
+	
+	public void renderToFile(PVector[] roi) {
+		
+		// CALLED FROM AppManager
+		
+		String frameNumber = p5.nf(frameSaveCount, 4);
+		
+		// MOVE resize SOMEWHERE ELSE (DO NOT RESIZE ON EVERY SINGLE FRAME)
+		//renderBuffer.resize((int) (roi[1].x - roi[0].x), (int) (roi[3].y - roi[0].y));
+		renderBuffer = canvas.pointsLayer.get((int) roi[0].x, (int) roi[0].y, (int) (roi[1].x - roi[0].x), (int) (roi[3].y - roi[0].y));
+		renderBuffer.save(renderOutFolderPath + "/" + renderName + "_" + frameNumber + ".png");
+
+		frameSaveCount++;
+		
+		// CHECK IF ALL FIGURES FINISHED ANIMATING TO STOP RENDERING OUT TO FILES
+		if (canvas.figuresAllFinished()) {
+			enableRender = false;
+		}
+
+	}
+	
 
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}
+	
 
 }

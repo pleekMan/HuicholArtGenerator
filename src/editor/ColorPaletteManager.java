@@ -113,8 +113,9 @@ public class ColorPaletteManager {
 		if(palettes.size() == 1){
 			palettes.get(selectedPalette).setPosition(pos.x, pos.y + 20); // TODO OFFSET IS WRONG
 		} else {
-			palettes.get(selectedPalette).setPosition(pos.x, pos.y + (paletteStripSize.y * (palettes.size() - 1)));
+			palettes.get(selectedPalette).setPosition(pos.x, palettes.get(palettes.size() - 2).pos.y + paletteStripSize.y);
 		}
+		//p5.println("Y: " + palettes.get(selectedPalette).name + " : " + palettes.get(selectedPalette).pos.y);
 	}
 
 	public void createNewEmptyPalette(String name) {
@@ -128,7 +129,7 @@ public class ColorPaletteManager {
 		if(palettes.size() == 1){
 			palettes.get(selectedPalette).setPosition(pos.x, pos.y + 20); // TODO OFFSET IS WRONG
 		} else {
-			palettes.get(selectedPalette).setPosition(pos.x, pos.y + (paletteStripSize.y * (palettes.size() - 1)));
+			palettes.get(selectedPalette).setPosition(pos.x, palettes.get(palettes.size() - 2).pos.y + paletteStripSize.y);
 		}
 
 

@@ -26,7 +26,7 @@ public class AppManager {
 
 	PVector transformedCoords;
 	
-	PImage renderBuffer;
+	//PImage renderBuffer;
 	int frameSaveCount;
 
 
@@ -48,18 +48,22 @@ public class AppManager {
 
 		transformedCoords = new PVector();
 
-		renderBuffer = p5.createImage(100, 100, p5.RGB);
+		//renderBuffer = p5.createImage(100, 100, p5.RGB);
 		frameSaveCount = 0;
 
 	}
 
 	private void loadSettings() {
-		settings = p5.loadXML("data/settings.xml");		
-		
+		settings = p5.loadXML("data/settings.xml");
 	}
 
 	public void update() {
 		canvas.update();
+		
+		// MAYBE THIS SHOULD BE INSIDE EditorManager... DON'T KNOW WHY I PUT IT HERE
+		if(editor.enableRender && canvas.isPlaying){
+			editor.renderToFile(editor.getRoi());
+		}
 
 	}
 
@@ -123,11 +127,12 @@ public class AppManager {
 		}
 		
 		if(key == 'r'){
-			renderFrame(editor.getRoi());
+			//renderFrame(editor.getRoi());
 		}
 		
 	}
 	
+	/*
 	private void renderFrame(PVector[] roi){
 		String frameNumber = p5.nf(frameSaveCount, 3);
 		
@@ -137,6 +142,7 @@ public class AppManager {
 		
 		frameSaveCount++;
 	}
+	*/
 
 	public void mousePressed(int button) {
 		canvas.mousePressed(transformedCoords);

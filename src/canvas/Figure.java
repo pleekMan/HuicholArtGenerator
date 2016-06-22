@@ -67,7 +67,7 @@ public class Figure {
 			//newShape.setVelocity(_velocity);
 
 		}
-		
+
 	}
 
 	private PVector[] getPointsPosition() {
@@ -107,8 +107,10 @@ public class Figure {
 		if (atColorStage < maxColorStages) {
 			atColorStage++;
 		} else {
-			atColorStage = 0;
-			cycle++;
+			if (cycle <= maxCycles) {
+				atColorStage = 0;
+				cycle++;
+			}
 		}
 
 		// MAKE THE SHAPE LOOP IT IT'S FINISHED
@@ -144,18 +146,18 @@ public class Figure {
 		atColorStage = -maxColorStages; // START AT NEGATIVE SHAPE COUNT, TO SHOOT THE SHAPES INCREMENTALLY
 		cycle = 2; // STARTS AT 2 CUZ IT NEEDS TO FINISH ALONG WITH atStage, WHICH STARTS AT NEGATIVE maxColorStage (FOR SHAPE SHOOTING REASONS)
 		maxCycles = maxCyclesInit;
-		
+
 		for (int i = 0; i < shapes.size(); i++) {
 			shapes.get(i).setIsDrawn(true);
 			shapes.get(i).restart();
 		}
-		
+
 	}
 
 	public void setColorPalette(ColorPalette palette) {
 		colorPalette = palette;
 		maxColorStages = colorPalette.getColorCount();
-		
+
 		rewind();
 
 		// NEED TO RE-SIZE THE SHAPE LIST TO FIT NEW COLOR COUNT
@@ -168,7 +170,7 @@ public class Figure {
 			newShape.setColor(colorPalette.getColor(i));
 			shapes.add(newShape);
 		}
-		
+
 	}
 
 	public boolean hasPoint(Point _point) {
@@ -202,7 +204,7 @@ public class Figure {
 			}
 		}
 	}
-	
+
 	/*
 	public void setDrawAsPoints(boolean state){
 		for (int i = 0; i < shapes.size(); i++) {
@@ -212,7 +214,8 @@ public class Figure {
 	*/
 
 	public boolean isFinished() {
-		return shapes.size() <= 0;
+		//p5.println("At Cycle : " + cycle + " / Max Cycles: " + maxCycles);
+		return cycle > maxCycles;
 	}
 
 	public PVector getPointDirectionVector(Point _point) {
@@ -226,7 +229,7 @@ public class Figure {
 		}
 		return pointDirection;
 	}
-	
+
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}

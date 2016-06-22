@@ -148,7 +148,7 @@ public class CanvasManager {
 			//actualPoint.update();
 
 			PVector pointViewCoords = AppManager.canvasToViewTransform(actualPoint.position);
-			
+
 			// ONLY SAMPLE/REFRESH THE POINTS INSIDE THE VIEWPORT
 			if (pointViewCoords.x < p5.width && pointViewCoords.x > 0 && pointViewCoords.y < p5.height && pointViewCoords.y > 0) {
 				actualPoint.setColor(getColorAtPoint(figuresLayer.pixels, (int) actualPoint.position.x, (int) actualPoint.position.y));
@@ -166,12 +166,14 @@ public class CanvasManager {
 		//------- DRAW POINTS LAYER - END
 
 		// REWIND FIGURES WHEN DONE ANIMATING
+		/*
 		for (int i = 0; i < figures.size(); i++) {
 			if (figures.get(i).isFinished()) {
 				//figures.remove(i);
 				figures.get(i).rewind();
 			}
 		}
+		*/
 		//p5.println("Figure Count: " + figures.size());
 
 	}
@@ -206,6 +208,17 @@ public class CanvasManager {
 
 	public void play() {
 		isPlaying = true;
+	}
+
+	public boolean figuresAllFinished() {
+		boolean allFinished = true;
+		for (int i = 0; i < figures.size(); i++) {
+			if (!figures.get(i).isFinished()) {
+				allFinished = false;
+				break;
+			}
+		}
+		return allFinished;
 	}
 
 	/*

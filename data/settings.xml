@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings>
   <colorPalettes>
-    <palette name="Paleta 2">
-      <color b="0" g="255" r="255"/>
-      <color b="255" g="255" r="0"/>
-      <color b="255" g="0" r="255"/>
-    </palette>
     <palette name="Palette 2016-6-17_15:19:6">
       <color b="224" g="122" r="224"/>
       <color b="124" g="82" r="99"/>
@@ -36,6 +31,38 @@
       <color b="93" g="107" r="54"/>
       <color b="242" g="238" r="237"/>
       <color b="39" g="46" r="243"/>
+    </palette>
+    <palette name="Palette 2016-6-18_20:49:42">
+      <color b="173" g="184" r="212"/>
+      <color b="126" g="55" r="154"/>
+      <color b="151" g="47" r="56"/>
+      <color b="69" g="36" r="64"/>
+      <color b="204" g="137" r="17"/>
+      <color b="210" g="181" r="72"/>
+      <color b="170" g="187" r="125"/>
+      <color b="158" g="217" r="238"/>
+      <color b="55" g="195" r="203"/>
+      <color b="6" g="160" r="230"/>
+      <color b="16" g="82" r="249"/>
+      <color b="57" g="34" r="221"/>
+      <color b="30" g="17" r="135"/>
+    </palette>
+    <palette name="Palette 2016-6-21_11:27:59">
+      <color b="41" g="244" r="253"/>
+      <color b="33" g="42" r="236"/>
+      <color b="106" g="188" r="129"/>
+    </palette>
+    <palette name="Palette 2016-6-21_20:46:43">
+      <color b="253" g="233" r="146"/>
+      <color b="235" g="180" r="89"/>
+      <color b="172" g="47" r="66"/>
+      <color b="128" g="113" r="157"/>
+      <color b="185" g="174" r="212"/>
+      <color b="190" g="201" r="255"/>
+      <color b="247" g="250" r="248"/>
+      <color b="248" g="251" r="229"/>
+      <color b="255" g="213" r="176"/>
+      <color b="255" g="206" r="181"/>
     </palette>
   </colorPalettes>
 </settings>
