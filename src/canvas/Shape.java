@@ -63,6 +63,13 @@ public class Shape {
 		//drawLayer.fill(color);
 		if (isDrawn) {
 			if (EditorManager.shapePointInterpolation) {
+				
+				drawLayer.fill(color);
+				drawLayer.noStroke();
+				for (int i = 0; i < verticesPos.length; i++) {
+					drawLayer.ellipse(verticesPos[i].x, verticesPos[i].y, 3, 3);
+				}	
+			} else {
 				drawLayer.noFill();
 				drawLayer.stroke(color);
 
@@ -72,12 +79,6 @@ public class Shape {
 					drawLayer.vertex(verticesPos[i].x, verticesPos[i].y);
 				}
 				drawLayer.endShape(p5.CLOSE);
-			} else {
-				drawLayer.fill(color);
-				drawLayer.noStroke();
-				for (int i = 0; i < verticesPos.length; i++) {
-					drawLayer.ellipse(verticesPos[i].x, verticesPos[i].y, 3, 3);
-				}
 			}	
 		}
 	}

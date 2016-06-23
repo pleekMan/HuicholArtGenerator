@@ -138,11 +138,21 @@ public class EditorManager {
 		backImageOpacity = 1f;
 		showBackImage = false;
 
-		shapePointInterpolation = true;
-
+		shapePointInterpolation = false;
+		//controlFrame.cp5.getController("gui_shapePointInterpolation").setValue(0);
 	}
 
 	public void update() {
+
+		// STOP IF FIGURES FINISHED
+		if (canvas.figuresAllFinished()) {
+			canvas.isPlaying = false;
+		}
+
+		// RENDER OUT TO FILE
+		if (enableRender && canvas.isPlaying) {
+			renderToFile(getRoi());
+		}
 	}
 
 	public void render() {
@@ -182,10 +192,8 @@ public class EditorManager {
 			logFooterText = "FIGURES STILL PLAYING";
 		}
 		*/
-		
+
 		drawLogFooter();
-
-
 
 	}
 
@@ -199,10 +207,16 @@ public class EditorManager {
 
 	public void mousePressed(int button) {
 		//p5.println("--| Mouse button: " + button + " pressed");
-		if (createFigureMode && button == p5.LEFT) {
-			createNewFigureProcedure();
+		
+		// CHECK IF IT OVER THE GRID OR OVER THE COLOR PALETTE
+		if (p5.mouseX < menuBorderX) {
+			if (createFigureMode && button == p5.LEFT) {
+				createNewFigureProcedure();
+			} else {
+				select();
+			}
 		} else {
-			select();
+			
 		}
 
 		// IT CHECKS INSIDE IF THE USER IS CLICKING OVER THE MENU COLUMN OR NOT
@@ -404,7 +418,7 @@ public class EditorManager {
 			p5.line(0, 0, 0, p5.height);
 			p5.strokeWeight(1);
 
-		} else if(enableRender){
+		} else if (enableRender) {
 			p5.fill(255, 0, 0);
 		} else {
 			p5.fill(255, 255, 0);
@@ -635,8 +649,6 @@ public class EditorManager {
 
 	}
 
-	
-
 	private void spawnNewFigure() {
 
 		// ---  INSERT A NEW FIGURE, BASED ON A COLOR PALETTE
@@ -742,7 +754,7 @@ public class EditorManager {
 	}
 
 	// -------------- RENDER -----------------
-	
+
 	public void calibrateRoi() {
 		PVector[] transformedRoiCorners = new PVector[roiCorners.length];
 		for (int i = 0; i < transformedRoiCorners.length; i++) {
@@ -787,7 +799,7 @@ public class EditorManager {
 			*/
 
 		p5.popStyle();
-		
+
 		// RESET ENABLE RENDER, TO FORCE prepareRender() TO BE CALLED AGAIN AND RISIZE RENDER BUFFER AGAIN
 		enableRender = false;
 		controlFrame.cp5.getController("gui_enableRenderToFile").setValue(0);
@@ -796,14 +808,15 @@ public class EditorManager {
 	public PVector[] getRoi() {
 		return roiCorners;
 	}
-	
-	public void prepareRender(boolean _enableRender){
+
+	public void prepareRender(boolean _enableRender) {
 		enableRender = _enableRender;
 		renderBuffer.resize((int) (roiCorners[1].x - roiCorners[0].x), (int) (roiCorners[3].y - roiCorners[0].y));
+		frameSaveCount = 0;
 	}
 
-	public void checkRenderFolder(String inputFolderPath){
-		
+	public void checkRenderFolder(String inputFolderPath) {
+
 		// SET UP RENDER NAMES AND FOLDER PATHS
 		// CHECK EXISTENCE: NON-EXISTANT FOLDER -> CREATE  ||| EXISTANT -> DO NOTHING AND WARN OVERWRITE!! 
 		renderName = inputFolderPath;
@@ -812,7 +825,7 @@ public class EditorManager {
 
 		File renderFolder = new File(renderOutFolderPath);
 		p5.println("Render Path: " + renderFolder.getPath());
-		if(renderFolder.exists()){
+		if (renderFolder.exists()) {
 			logFooterText = "WARNING!! WARNING!! - FOLDER EXISTS..!! OVERWRITE ?";
 			p5.println("WARNING!! WARNING!! - FOLDER EXISTS..!! OVERWRITE ?");
 		} else {
@@ -820,7 +833,7 @@ public class EditorManager {
 			p5.println("CREATING A NEW FOLDER");
 			renderFolder.mkdir();
 		}
-		
+
 		/*
 		rendersPath = p5.sketchPath + "/renders";
 		File renderFolder = new File(rendersPath);
@@ -829,35 +842,34 @@ public class EditorManager {
 			p5.println(files);
 		}
 		*/
-		
-		
+
 	}
-	
-	
+
 	public void renderToFile(PVector[] roi) {
-		
+
 		// CALLED FROM AppManager
-		
+
 		String frameNumber = p5.nf(frameSaveCount, 4);
-		
+		p5.println("File Frame: " + frameNumber + " | App Frame: " + p5.frameCount);
+
 		// MOVE resize SOMEWHERE ELSE (DO NOT RESIZE ON EVERY SINGLE FRAME)
 		//renderBuffer.resize((int) (roi[1].x - roi[0].x), (int) (roi[3].y - roi[0].y));
 		renderBuffer = canvas.pointsLayer.get((int) roi[0].x, (int) roi[0].y, (int) (roi[1].x - roi[0].x), (int) (roi[3].y - roi[0].y));
 		renderBuffer.save(renderOutFolderPath + "/" + renderName + "_" + frameNumber + ".png");
 
 		frameSaveCount++;
-		
+
 		// CHECK IF ALL FIGURES FINISHED ANIMATING TO STOP RENDERING OUT TO FILES
 		if (canvas.figuresAllFinished()) {
 			enableRender = false;
+			canvas.isPlaying = false;
+			controlFrame.cp5.getController("gui_enableRenderToFile").setValue(0);
 		}
 
 	}
-	
 
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}
-	
 
 }

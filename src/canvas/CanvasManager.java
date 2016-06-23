@@ -28,11 +28,14 @@ public class CanvasManager {
 	public ArrayList<Point> points;
 	public ArrayList<Figure> figures;
 
-	static public int timeStep;
+	//static public int timeStep;
 
 	public boolean isPlaying;
 
 	PImage backImage;
+
+	int stepCount;
+	boolean clearLayer;
 
 	//ArrayList<ColorPalette> colorPalettes;
 
@@ -58,11 +61,14 @@ public class CanvasManager {
 
 		//backGrid = p5.loadImage("grid.jpg");
 
-		timeStep = 2; // IT DOESN'T REALLY REFRESH THIS FAST (FRAMERATE DROPS CONSIDERABLY)
+		//timeStep = 1; // IT DOESN'T REALLY REFRESH THIS FAST (FRAMERATE DROPS CONSIDERABLY)
 		isPlaying = false;
+		clearLayer = false;
 
 		createGrid();
 		step();
+
+		stepCount = 0;
 	}
 
 	private void createGrid() {
@@ -110,17 +116,26 @@ public class CanvasManager {
 
 		//------  DRAW SHAPES LAYER - BEGIN -----------------------------------------
 
-		figuresLayer.beginDraw();
+ 		figuresLayer.beginDraw();
 		figuresLayer.background(0);
 		//figuresLayer.noStroke();
 
 		if (backImage != null) {
 			figuresLayer.image(backImage, 0, 0, figuresLayer.width, figuresLayer.height);
 		}
-
-		for (Figure actualFigure : figures) {
-			actualFigure.update();
-			actualFigure.render();
+		
+		// DRAW NORMALLY OR CLEAR LAYER (CLEARING LAYER ON A SEPARATE FUNCTION THROWS ERROR... ¿¿¿???)
+		// TODO I THINK ACCESSING figuresLayer THROUGH HERE AND INSIDE figure (PASSED OVER IN IT'S CONSTRUCTOR) IS
+		// MAKING IT FREAK OUT
+		if (!clearLayer) {
+			for (Figure actualFigure : figures) {
+				actualFigure.update();
+				actualFigure.render();
+			}
+		} else {
+			figuresLayer.fill(0);
+			figuresLayer.rect(0, 0, figuresLayer.width, figuresLayer.height);
+			clearLayer = false;
 		}
 
 		figuresLayer.endDraw();
@@ -129,7 +144,7 @@ public class CanvasManager {
 
 		//------  DRAW POINTS LAYER - BEGIN -----------------------------------------
 
-		// FIRST LOAD figuresLayer PIXELS, BEFORE BEING INSIDE pointsLayer. OTHERWISE, IT FUCKS pointsLayer INNER TRANSFORMS
+		// FIRST LOAD figuresLayer PIXELS, BEFORE BEING INSIDE pointsLayer. OTHERWISE, IT FUCKS pointsLayer INNER TRANSFORMS ¿¿??
 		figuresLayer.loadPixels();
 
 		pointsLayer.beginDraw();
@@ -159,6 +174,7 @@ public class CanvasManager {
 		//figuresLayer.updatePixels();
 
 		pointsLayer.popMatrix();
+		
 		pointsLayer.endDraw();
 
 		//figuresLayer.updatePixels(); // INFO CANNOT DRAW FIGURES (AT THIS CLASS' render() METHOD) IF updatingPixels IS ON
@@ -180,9 +196,11 @@ public class CanvasManager {
 
 	public void update() {
 		if (isPlaying) {
-			if (p5.frameCount % timeStep == 0) {
-				step();
-			}
+			//if (p5.frameCount % timeStep == 0) {
+			step();
+			p5.println("Canvas Steps: " + stepCount);
+			stepCount++;
+			//}
 		}
 	}
 
@@ -196,6 +214,11 @@ public class CanvasManager {
 	}
 
 	public void rewind() {
+		
+		clearLayer = true;
+		//step(); // TODO ERROR (CHECK AT update() )
+		stepCount = 0;
+		
 		for (int i = 0; i < figures.size(); i++) {
 			figures.get(i).rewind();
 		}

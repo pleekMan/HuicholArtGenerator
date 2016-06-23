@@ -60,10 +60,11 @@ public class AppManager {
 	public void update() {
 		canvas.update();
 		
+		editor.update();
 		// MAYBE THIS SHOULD BE INSIDE EditorManager... DON'T KNOW WHY I PUT IT HERE
-		if(editor.enableRender && canvas.isPlaying){
+		/*if(editor.enableRender && canvas.isPlaying){
 			editor.renderToFile(editor.getRoi());
-		}
+		}*/
 
 	}
 

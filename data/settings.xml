@@ -64,5 +64,17 @@
       <color b="255" g="213" r="176"/>
       <color b="255" g="206" r="181"/>
     </palette>
+    <palette name="Palette 2016-6-22_0:54:5">
+      <color b="173" g="147" r="255"/>
+      <color b="241" g="147" r="255"/>
+      <color b="255" g="147" r="175"/>
+      <color b="255" g="157" r="148"/>
+      <color b="255" g="226" r="149"/>
+      <color b="239" g="255" r="152"/>
+      <color b="188" g="255" r="147"/>
+      <color b="147" g="255" r="165"/>
+      <color b="147" g="255" r="237"/>
+      <color b="144" g="198" r="255"/>
+    </palette>
   </colorPalettes>
 </settings>

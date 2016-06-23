@@ -2,6 +2,7 @@ package editor;
 
 import java.util.ArrayList;
 
+import processing.core.PImage;
 import processing.core.PVector;
 import processing.data.XML;
 import globals.AppManager;
@@ -20,6 +21,8 @@ public class ColorPaletteManager {
 	public static PVector paletteStripSize; // SIZE OF THE COLOR GRADIENT DISPLAY
 
 	public boolean pickerMode;
+	
+	PImage spectrumPicker;
 
 	public ColorPaletteManager() {
 		p5 = getP5();
@@ -34,6 +37,8 @@ public class ColorPaletteManager {
 		loadColorPalettes();
 
 		pickerMode = false;
+		
+		spectrumPicker = p5.loadImage("colorSpectrum.png");
 	}
 
 	public void update() {
@@ -81,6 +86,11 @@ public class ColorPaletteManager {
 
 		// DRAW PICKING COLORS
 		if (pickerMode) {
+			
+			// DRAW COLOR SPECTRUM
+			p5.image(spectrumPicker, pos.x - spectrumPicker.width, 0);
+			
+			// PICK
 			int pickerColor = p5.get(p5.mouseX, p5.mouseY);
 			p5.fill(pickerColor);
 			p5.noStroke();
@@ -164,7 +174,7 @@ public class ColorPaletteManager {
 		return paletteAndColor;
 	}
 
-	private boolean isOverPaletteStrip(int paletteNumber) {
+	public boolean isOverPaletteStrip(int paletteNumber) {
 		PVector stripPos = palettes.get(paletteNumber).pos;
 
 		if (p5.mouseX > stripPos.x && p5.mouseX < (stripPos.x + paletteStripSize.x) && p5.mouseY > stripPos.y && p5.mouseY < (stripPos.y + paletteStripSize.y)) {
