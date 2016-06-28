@@ -35,7 +35,6 @@ public class CanvasManager {
 	PImage backImage;
 
 	int stepCount;
-	boolean clearLayer;
 
 	//ArrayList<ColorPalette> colorPalettes;
 
@@ -63,7 +62,6 @@ public class CanvasManager {
 
 		//timeStep = 1; // IT DOESN'T REALLY REFRESH THIS FAST (FRAMERATE DROPS CONSIDERABLY)
 		isPlaying = false;
-		clearLayer = false;
 
 		createGrid();
 		step();
@@ -116,26 +114,17 @@ public class CanvasManager {
 
 		//------  DRAW SHAPES LAYER - BEGIN -----------------------------------------
 
- 		figuresLayer.beginDraw();
+		figuresLayer.beginDraw();
 		figuresLayer.background(0);
 		//figuresLayer.noStroke();
 
 		if (backImage != null) {
 			figuresLayer.image(backImage, 0, 0, figuresLayer.width, figuresLayer.height);
 		}
-		
-		// DRAW NORMALLY OR CLEAR LAYER (CLEARING LAYER ON A SEPARATE FUNCTION THROWS ERROR... ¿¿¿???)
-		// TODO I THINK ACCESSING figuresLayer THROUGH HERE AND INSIDE figure (PASSED OVER IN IT'S CONSTRUCTOR) IS
-		// MAKING IT FREAK OUT
-		if (!clearLayer) {
-			for (Figure actualFigure : figures) {
-				actualFigure.update();
-				actualFigure.render();
-			}
-		} else {
-			figuresLayer.fill(0);
-			figuresLayer.rect(0, 0, figuresLayer.width, figuresLayer.height);
-			clearLayer = false;
+
+		for (Figure actualFigure : figures) {
+			actualFigure.update();
+			actualFigure.render();
 		}
 
 		figuresLayer.endDraw();
@@ -150,7 +139,8 @@ public class CanvasManager {
 		pointsLayer.beginDraw();
 		pointsLayer.pushMatrix();
 
-		pointsLayer.background(0);
+		//pointsLayer.background(0);
+		pointsLayer.clear();
 		pointsLayer.noStroke();
 
 		//pointsLayer.image(backGrid, 0,0);
@@ -174,7 +164,7 @@ public class CanvasManager {
 		//figuresLayer.updatePixels();
 
 		pointsLayer.popMatrix();
-		
+
 		pointsLayer.endDraw();
 
 		//figuresLayer.updatePixels(); // INFO CANNOT DRAW FIGURES (AT THIS CLASS' render() METHOD) IF updatingPixels IS ON
@@ -214,14 +204,16 @@ public class CanvasManager {
 	}
 
 	public void rewind() {
-		
-		clearLayer = true;
-		//step(); // TODO ERROR (CHECK AT update() )
+
 		stepCount = 0;
-		
+
 		for (int i = 0; i < figures.size(); i++) {
 			figures.get(i).rewind();
 		}
+
+		pointsLayer.beginDraw();
+		pointsLayer.clear();
+		pointsLayer.endDraw();
 
 	}
 
@@ -292,7 +284,7 @@ public class CanvasManager {
 	}
 
 	private int getColorAtPoint(int pix[], int x, int y) {
-		// ACCESING PIXEL ARRAY TO SAMPLE (PGraphics.get() WAS FUCKING SLOW !!!) 
+		// ACCESING PIXEL ARRAY TO SAMPLE (PGraphics.get()) WAS FUCKING SLOW !!! 
 		return pix[(y * figuresLayer.width) + x];
 	}
 
@@ -557,6 +549,10 @@ public class CanvasManager {
 		if (key == ' ') {
 			step();
 			//saveFrame();
+		}
+
+		if (key == 'r') {
+			rewind();
 		}
 
 		if (key == 'j') {

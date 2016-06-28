@@ -13,7 +13,6 @@ public class Main extends PApplet {
 	public void setup() {
 		size(1300, 800, P2D);
 		frameRate(30);
-		//noSmooth();
 		
 		setPAppletSingleton();
 		

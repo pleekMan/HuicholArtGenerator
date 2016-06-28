@@ -8,7 +8,7 @@ import processing.core.PVector;
 public class Point {
 
 	Main p5;
-	
+
 	PGraphics drawLayer;
 
 	public PVector position;
@@ -19,10 +19,10 @@ public class Point {
 		p5 = getP5();
 
 		drawLayer = _drawLayer;
-		
+
 		position = _pos;
 		color = _color;
-		
+
 	}
 
 	public void update() {
@@ -30,14 +30,14 @@ public class Point {
 	}
 
 	public void render() {
-		
+
 		//drawLayer.noFill();
 
 		drawLayer.fill(color);
 		drawLayer.ellipse(position.x, position.y, CanvasManager.pointSize, CanvasManager.pointSize);
 		//drawLayer.fill(225,255,0);
 		//drawLayer.text(id, position.x, position.y);
-		
+
 		/*
 		if (isInside(p5.mouseX, p5.mouseY)) {
 			drawLayer.fill(225,255,0);
@@ -45,11 +45,16 @@ public class Point {
 		}
 		*/
 	}
-	
-	public void setColor(int _color){
-		color = _color;
+
+	public void setColor(int _color) {
+		// IF SAMPLED COLOR IS BLACK, POINT COLOR IS TRANSPARENT
+		if (_color != p5.color(0)) {
+			color = _color;
+		} else {
+			color = p5.color(255,0,0,0);
+		}
 	}
-	
+
 	public void setId(int _id) {
 		id = _id;
 	}
@@ -64,14 +69,13 @@ public class Point {
 		}
 
 	}
-	
-	public int getId(){
+
+	public int getId() {
 		return id;
 	}
 
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}
-
 
 }

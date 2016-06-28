@@ -31,6 +31,8 @@ public class EditorManager {
 	//ControlWindow controlGui;
 	ControlWindow controlFrame;
 
+	public boolean enableCanvasClear;
+
 	public int testColorControl;
 	boolean createFigureMode;
 	boolean setDirectionsMode;
@@ -86,6 +88,8 @@ public class EditorManager {
 		colorManager = new ColorPaletteManager();
 		//controlGui = new ControlWindow(this);
 		controlFrame = addControlFrame("Editor Options", 300, p5.height);
+
+		enableCanvasClear = false;
 
 		createFigureMode = false;
 		showFigureGizmos = true;
@@ -149,6 +153,14 @@ public class EditorManager {
 			canvas.isPlaying = false;
 		}
 
+		// FIRES OFF REWIND THE CANVAS (CLEARING THE FIGURES LAYER)
+		// IT'S IS DONE HERE AS A WORKAROUND: IF REWIND IS CALLED DIRECTLY FROM ANOTHER WINDOW (ControlWindow Class) THEN
+		// OPENGL THROWS ERROR
+		if (enableCanvasClear) {
+			rewind();
+			enableCanvasClear = false;
+		}
+
 		// RENDER OUT TO FILE
 		if (enableRender && canvas.isPlaying) {
 			renderToFile(getRoi());
@@ -207,7 +219,7 @@ public class EditorManager {
 
 	public void mousePressed(int button) {
 		//p5.println("--| Mouse button: " + button + " pressed");
-		
+
 		// CHECK IF IT OVER THE GRID OR OVER THE COLOR PALETTE
 		if (p5.mouseX < menuBorderX) {
 			if (createFigureMode && button == p5.LEFT) {
@@ -216,10 +228,10 @@ public class EditorManager {
 				select();
 			}
 		} else {
-			
+
 		}
 
-		// IT CHECKS INSIDE IF THE USER IS CLICKING OVER THE MENU COLUMN OR NOT
+		// IT CHECKS IF THE USER IS CLICKING OVER THE MENU COLUMN OR NOT
 		colorManager.mousePressed(button);
 
 	}
@@ -419,6 +431,13 @@ public class EditorManager {
 			p5.strokeWeight(1);
 
 		} else if (enableRender) {
+			p5.stroke(255, 0, 0);
+			p5.strokeWeight(10);
+			p5.line(0, 0, p5.width, 0);
+			p5.line(p5.width, 0, p5.width, p5.height);
+			p5.line(0, 0, 0, p5.height);
+			p5.strokeWeight(1);
+
 			p5.fill(255, 0, 0);
 		} else {
 			p5.fill(255, 255, 0);
@@ -427,7 +446,11 @@ public class EditorManager {
 		p5.stroke(0);
 		p5.rect(-1, p5.height - 22, p5.width + 1, 22);
 
-		p5.fill(0);
+		if (enableRender) {
+			p5.fill(255);
+		} else {
+			p5.fill(0);
+		}
 		p5.text("--| " + logFooterText, 10, p5.height - 7);
 
 	}
@@ -851,8 +874,9 @@ public class EditorManager {
 
 		String frameNumber = p5.nf(frameSaveCount, 4);
 		p5.println("File Frame: " + frameNumber + " | App Frame: " + p5.frameCount);
+		logFooterText = "Rendering Frame: " + frameNumber + " for " + renderName;
 
-		// MOVE resize SOMEWHERE ELSE (DO NOT RESIZE ON EVERY SINGLE FRAME)
+		// MOVE resize SOMEWHERE ELSE (DO NOT RESIZE ON EVERY SINGLE FRAME) // DONE
 		//renderBuffer.resize((int) (roi[1].x - roi[0].x), (int) (roi[3].y - roi[0].y));
 		renderBuffer = canvas.pointsLayer.get((int) roi[0].x, (int) roi[0].y, (int) (roi[1].x - roi[0].x), (int) (roi[3].y - roi[0].y));
 		renderBuffer.save(renderOutFolderPath + "/" + renderName + "_" + frameNumber + ".png");

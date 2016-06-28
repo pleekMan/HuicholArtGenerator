@@ -76,5 +76,20 @@
       <color b="147" g="255" r="237"/>
       <color b="144" g="198" r="255"/>
     </palette>
+    <palette name="Palette 2016-6-25_19:10:15">
+      <color b="42" g="248" r="255"/>
+      <color b="21" g="203" r="255"/>
+      <color b="0" g="101" r="236"/>
+      <color b="21" g="28" r="239"/>
+      <color b="31" g="45" r="251"/>
+      <color b="18" g="28" r="82"/>
+      <color b="202" g="204" r="204"/>
+      <color b="121" g="126" r="195"/>
+      <color b="90" g="74" r="122"/>
+      <color b="214" g="59" r="68"/>
+      <color b="222" g="153" r="120"/>
+      <color b="255" g="224" r="193"/>
+      <color b="219" g="227" r="156"/>
+    </palette>
   </colorPalettes>
 </settings>

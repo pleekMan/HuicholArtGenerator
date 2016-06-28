@@ -103,7 +103,7 @@ public class ControlWindow extends PApplet {
 	}
 	
 	public void gui_rewind(){
-		parent.rewind();
+		parent.enableCanvasClear = true;
 	}
 	public void gui_pause(){
 		parent.pause();
