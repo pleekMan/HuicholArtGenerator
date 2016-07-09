@@ -50,6 +50,8 @@ public class AppManager {
 
 		//renderBuffer = p5.createImage(100, 100, p5.RGB);
 		frameSaveCount = 0;
+		
+		canvasTranslation.add(0, 30, 0);
 
 	}
 
@@ -119,6 +121,7 @@ public class AppManager {
 		canvas.keyPressed(key);
 		editor.keyPressed(key);
 
+		/*
 		if (key == '1') {
 			PVector canvasCoords = canvas.points.get(0).position;
 			PVector canvasToView = canvasToViewTransform(canvasCoords, canvasTranslation, canvasScale);
@@ -126,10 +129,7 @@ public class AppManager {
 			p5.println("CanvasCoord: " + canvasCoords + " || CanvasToView: " + canvasToView);
 			
 		}
-		
-		if(key == 'r'){
-			//renderFrame(editor.getRoi());
-		}
+		*/
 		
 	}
 	

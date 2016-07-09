@@ -20,16 +20,18 @@ public class Main extends PApplet {
 
 		//canvas = new CanvasManager();
 		appManager = new AppManager();
+		
+		frame.setLocation(50, 50);
 	}
 
 	public void draw() {
 		background(0);
-		drawBackLines();
+		//drawBackLines();
 
 		appManager.update();
 		appManager.render();
 		
-		drawMouseCoordinates();
+		//drawMouseCoordinates();
 
 	}
 

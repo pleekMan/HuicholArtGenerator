@@ -33,7 +33,7 @@ public class EditorManager {
 
 	public boolean enableCanvasClear;
 
-	public int testColorControl;
+	//public int testColorControl;
 	boolean createFigureMode;
 	boolean setDirectionsMode;
 	boolean movePointMode;
@@ -77,17 +77,35 @@ public class EditorManager {
 
 	public static boolean shapePointInterpolation;
 
+	// GUI
 	public static int menuBorderX;
+
+	public final static int BLUEDARK = 0;
+	public final static int BLUEGRAY = 1;
+	public final static int GREEN = 2;
+	public final static int RED = 3;
+	public static int[] guiColors;
+
+	PImage titleColorPalette;
+	PImage titleMainTitle;
 
 	public EditorManager(CanvasManager _canvas) {
 		p5 = getP5();
 
+		// GUI
 		menuBorderX = 1000;
+		guiColors = new int[4];
+		guiColors[0] = p5.color(40, 65, 80);
+		guiColors[1] = p5.color(90, 115, 131);
+		guiColors[2] = p5.color(95, 170, 120);
+		guiColors[3] = p5.color(255, 70, 80);
+		titleColorPalette = p5.loadImage("titleBar_ColorPalette.png");
+		titleMainTitle = p5.loadImage("titleBar_MainTitle.png");
 
 		canvas = _canvas;
 		colorManager = new ColorPaletteManager();
 		//controlGui = new ControlWindow(this);
-		controlFrame = addControlFrame("Editor Options", 300, p5.height);
+		controlFrame = addControlFrame("Editor Options", 300, p5.height); // height = 800
 
 		enableCanvasClear = false;
 
@@ -194,7 +212,11 @@ public class EditorManager {
 			drawRoi();
 		}
 
+		// GUI RENDER
 		colorManager.render();
+
+		p5.image(titleMainTitle, 0, 0);
+		p5.image(titleColorPalette, menuBorderX, 0);
 
 		// TEMP - REMOVE
 		/*
@@ -212,6 +234,14 @@ public class EditorManager {
 	public void keyPressed(char key) {
 		if (key == 'i') {
 			selectImageInput();
+		}
+		
+		if(key == p5.ESC){
+			if (createFigureMode) {
+				resetNewFigureData();
+				createFigureMode = false;
+				logFooterText = "FIGURE CANCELLED";
+			}
 		}
 
 		colorManager.keyPressed(key);
@@ -238,14 +268,18 @@ public class EditorManager {
 
 	public void mouseDragged(int button) {
 
-		if (button == p5.LEFT) {
-			if (selectedFigurePoint != null) {
+		if (p5.mouseX < menuBorderX) {
 
-				movePointMode = true;
+			if (button == p5.LEFT) {
 
-				p5.ellipse(p5.mouseX, p5.mouseY, 20, 20);
-				PVector viewCoords = AppManager.canvasToViewTransform(selectedFigurePoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
-				p5.line(viewCoords.x, viewCoords.y, p5.mouseX, p5.mouseY);
+				if (selectedFigurePoint != null) {
+
+					//movePointMode = true;
+
+					p5.ellipse(p5.mouseX, p5.mouseY, 20, 20);
+					PVector viewCoords = AppManager.canvasToViewTransform(selectedFigurePoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
+					p5.line(viewCoords.x, viewCoords.y, p5.mouseX, p5.mouseY);
+				}
 			}
 
 			if (showRoi) {
@@ -255,6 +289,8 @@ public class EditorManager {
 	}
 
 	public void mouseReleased(int button) {
+
+		setDirectionsMode = false;
 
 		if (movePointMode) {
 
@@ -282,6 +318,7 @@ public class EditorManager {
 
 		// WHICH POINT IS BEING CLICKED ON
 		Point selectedPoint = null;
+		//selectedFigurePoint = null;
 		for (int i = 0; i < canvas.points.size(); i++) {
 			Point actualPoint = canvas.points.get(i);
 
@@ -328,13 +365,13 @@ public class EditorManager {
 			boolean isSelected = actualFigure == selectedFigure && selectedFigure != null ? true : false;
 
 			// DRAW OVER SELECTED POINTS by BACKTRANSFORMING THE LINKED POINTS
-			p5.fill(0, 255, 255);
-			p5.stroke(0, 255, 255);
+			p5.fill(guiColors[GREEN]);
+			p5.stroke(guiColors[GREEN]);
 			for (int j = 0; j < actualFigure.points.size(); j++) {
 				PVector canvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j).position);
 
 				// DRAW THE LINES CONNECTING THE POINTS
-				p5.stroke(0, 255, 255);
+				p5.stroke(guiColors[GREEN]);
 				if (j > 0) {
 					PVector prevCanvasCoords = AppManager.canvasToViewTransform(actualFigure.points.get(j - 1).position);
 					p5.line(prevCanvasCoords.x, prevCanvasCoords.y, canvasCoords.x, canvasCoords.y);
@@ -346,9 +383,10 @@ public class EditorManager {
 					}
 				}
 				// DRAW THE DOTS
-				p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.25f, CanvasManager.pointSize * AppManager.canvasScale * 0.25f);
+				p5.fill(guiColors[GREEN]);
+				p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.3f, CanvasManager.pointSize * AppManager.canvasScale * 0.3f);
 
-				// DRAW DIRECTION LINES
+				// DRAW DIRECTION LINES (ARROW BODIES)
 				p5.strokeWeight(2);
 				p5.stroke(255);
 				p5.line(canvasCoords.x, canvasCoords.y, canvasCoords.x + (actualFigure.directions.get(j).x * AppManager.canvasScale), canvasCoords.y + (actualFigure.directions.get(j).y * AppManager.canvasScale));
@@ -373,7 +411,7 @@ public class EditorManager {
 
 				// IF FIGURE IS SELECTED, DRAW SOMETHING ELSE OVER THE POINTS
 				if (isSelected) {
-					p5.fill(0, 255, 255);
+					p5.fill(guiColors[GREEN]);
 					p5.noStroke();
 					p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.8f, CanvasManager.pointSize * AppManager.canvasScale * 0.8f);
 				}
@@ -385,7 +423,7 @@ public class EditorManager {
 		if (selectedFigurePoint != null && selectedFigure != null) {
 			PVector selectedPointCoord = AppManager.canvasToViewTransform(selectedFigurePoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
 			p5.noFill();
-			p5.stroke(255, 255, 0);
+			p5.stroke(guiColors[GREEN]);
 			p5.ellipse(selectedPointCoord.x, selectedPointCoord.y, CanvasManager.pointSize * AppManager.canvasScale * 1.2f, CanvasManager.pointSize * AppManager.canvasScale * 1.2f);
 
 		}
@@ -394,8 +432,8 @@ public class EditorManager {
 		if (figureVertices.size() > 0) {
 
 			// DRAW OVER SELECTED POINTS by BACKTRANSFORMING THE LINKED POINTS
-			p5.fill(0, 255, 255);
-			p5.stroke(0, 255, 255);
+			p5.fill(guiColors[GREEN]);
+			p5.stroke(guiColors[GREEN]);
 			for (int i = 0; i < figurePointsLink.size(); i++) {
 				PVector canvasCoords = AppManager.canvasToViewTransform(figurePointsLink.get(i).position, AppManager.canvasTranslation, AppManager.canvasScale);
 
@@ -405,7 +443,7 @@ public class EditorManager {
 					p5.line(prevCanvasCoords.x, prevCanvasCoords.y, canvasCoords.x, canvasCoords.y);
 				}
 				// DRAW THE DOTS
-				p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.25f, CanvasManager.pointSize * AppManager.canvasScale * 0.25f);
+				p5.ellipse(canvasCoords.x, canvasCoords.y, CanvasManager.pointSize * AppManager.canvasScale * 0.5f, CanvasManager.pointSize * AppManager.canvasScale * 0.5f);
 
 			}
 
@@ -421,36 +459,39 @@ public class EditorManager {
 	public void drawLogFooter() {
 
 		if (createFigureMode) {
-			p5.fill(0, 255, 255);
-			p5.stroke(0, 255, 255);
+			p5.stroke(guiColors[GREEN]);
 
-			p5.strokeWeight(10);
-			p5.line(0, 0, p5.width, 0);
-			p5.line(p5.width, 0, p5.width, p5.height);
-			p5.line(0, 0, 0, p5.height);
+			p5.strokeWeight(5);
+			p5.line(0, 30, menuBorderX, 30);
+			p5.line(menuBorderX, 30, menuBorderX, p5.height);
+			p5.line(0, 30, 0, p5.height);
 			p5.strokeWeight(1);
+			
+			p5.fill(guiColors[GREEN]);
 
 		} else if (enableRender) {
-			p5.stroke(255, 0, 0);
-			p5.strokeWeight(10);
-			p5.line(0, 0, p5.width, 0);
-			p5.line(p5.width, 0, p5.width, p5.height);
-			p5.line(0, 0, 0, p5.height);
+			p5.stroke(guiColors[RED]);
+			p5.strokeWeight(5);
+			p5.line(0, 30, menuBorderX, 30);
+			p5.line(menuBorderX, 30, menuBorderX, p5.height);
+			p5.line(0, 30, 0, p5.height);
 			p5.strokeWeight(1);
 
-			p5.fill(255, 0, 0);
+			p5.fill(guiColors[RED]);
 		} else {
-			p5.fill(255, 255, 0);
+			p5.fill(guiColors[BLUEGRAY]);
 		}
 
 		p5.stroke(0);
 		p5.rect(-1, p5.height - 22, p5.width + 1, 22);
-
+		
+		
 		if (enableRender) {
-			p5.fill(255);
+			p5.fill(guiColors[BLUEDARK]);
 		} else {
-			p5.fill(0);
+			p5.fill(255);
 		}
+		
 		p5.text("--| " + logFooterText, 10, p5.height - 7);
 
 	}
@@ -466,6 +507,7 @@ public class EditorManager {
 		figureVertices.clear();
 		figureDirectionVectors.clear();
 		figurePointsLink.clear();
+		//createFigureMode = false;
 	}
 
 	private void createHexagonalDirectionVectors() {
@@ -624,7 +666,7 @@ public class EditorManager {
 
 	public void showGridPoints() {
 		p5.noFill();
-		p5.stroke(175);
+		p5.stroke(guiColors[BLUEGRAY]);
 
 		for (int i = 0; i < canvas.points.size(); i++) {
 			Point actualPoint = canvas.points.get(i);

@@ -47,9 +47,9 @@ public class Figure {
 		directions = new ArrayList(Arrays.asList(verticesDirections));
 		colorPalette = palette;
 		maxColorStages = colorPalette.getColorCount();
-		atColorStage = -maxColorStages; // START AT NEGATIVE SHAPE COUNT, TO SHOOT THE SHAPES INCREMENTALLY
+		atColorStage = -maxColorStages - 1; // START AT NEGATIVE SHAPE COUNT, TO SHOOT THE SHAPES INCREMENTALLY
 
-		cycle = 2; // STARTS AT 2 CUZ IT NEEDS TO FINISH ALONG WITH atStage, WHICH STARTS AT NEGATIVE maxColorStage (FOR SHAPE SHOOTING REASONS)
+		cycle = 1; // STARTS AT 1 CUZ IT NEEDS TO FINISH ALONG WITH atStage, WHICH STARTS AT NEGATIVE maxColorStage (FOR SHAPE SHOOTING REASONS)
 		maxCycles = _maxCycles;
 		maxCyclesInit = maxCycles;
 
@@ -98,13 +98,11 @@ public class Figure {
 					shapes.get(i).setIsDrawn(false);
 				}
 			}
-			/*if (cycle >= maxCycles && shapes.get(0).isFinished(maxColorStages)) {
-				shapes.remove(0);
-			}*/
+
 		}
 
 		// UPDATE FIGURE COLOR STAGE AND CYCLES
-		if (atColorStage < maxColorStages) {
+		if (atColorStage < maxColorStages - 1) {
 			atColorStage++;
 		} else {
 			if (cycle <= maxCycles) {
@@ -113,7 +111,9 @@ public class Figure {
 			}
 		}
 
-		// MAKE THE SHAPE LOOP IT IT'S FINISHED
+		p5.println("Cycle : " + cycle + "\tColorStage: " + atColorStage + "\tMaxColorStages: " + maxColorStages);
+
+		// MAKE THE SHAPE LOOP IF IT'S FINISHED
 		for (int i = 0; i < shapes.size(); i++) {
 			if (shapes.get(i).isFinished(maxColorStages)) {
 				shapes.get(i).restart();
@@ -143,8 +143,8 @@ public class Figure {
 
 	public void rewind() {
 
-		atColorStage = -maxColorStages; // START AT NEGATIVE SHAPE COUNT, TO SHOOT THE SHAPES INCREMENTALLY
-		cycle = 2; // STARTS AT 2 CUZ IT NEEDS TO FINISH ALONG WITH atStage, WHICH STARTS AT NEGATIVE maxColorStage (FOR SHAPE SHOOTING REASONS)
+		atColorStage = -maxColorStages - 1; // START AT NEGATIVE SHAPE COUNT, TO SHOOT THE SHAPES INCREMENTALLY
+		cycle = 1; // STARTS AT 2 CUZ IT NEEDS TO FINISH ALONG WITH atStage, WHICH STARTS AT NEGATIVE maxColorStage (FOR SHAPE SHOOTING REASONS)
 		maxCycles = maxCyclesInit;
 
 		for (int i = 0; i < shapes.size(); i++) {

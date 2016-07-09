@@ -36,6 +36,10 @@ public class ColorPalette {
 		
 		float swatchWidth = ColorPaletteManager.paletteStripSize.x / getColorCount();
 
+		p5.stroke(0);;
+		p5.strokeWeight(3);
+		p5.line(pos.x, pos.y, p5.width, pos.y);
+		
 		for (int i = 0; i < colors.size(); i++) {
 
 			float posX = pos.x + (swatchWidth * i);

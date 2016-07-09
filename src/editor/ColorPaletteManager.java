@@ -30,7 +30,7 @@ public class ColorPaletteManager {
 		palettes = new ArrayList<ColorPalette>();
 		selectedPalette = selectedSwatchInPalette = 0;
 
-		pos = new PVector(EditorManager.menuBorderX, 22);
+		pos = new PVector(EditorManager.menuBorderX, 10);
 		size = new PVector(300, 400);
 		paletteStripSize = new PVector(300, 20);
 
@@ -49,11 +49,8 @@ public class ColorPaletteManager {
 
 		p5.fill(0, 127);
 		p5.rect(pos.x, 0, pos.x, p5.height);
-		p5.fill(255, 255, 0);
-		p5.stroke(255,255,0);
-		p5.rect(pos.x, 0, pos.x, 20);
-		p5.fill(0);
-		p5.text("|| PALETAS DE COLOR ||", pos.x + 10, 18);
+
+
 
 		p5.pushStyle();
 		p5.noStroke();
@@ -75,12 +72,17 @@ public class ColorPaletteManager {
 
 		// HIGHLIGHT SELECTED PALETTE
 		p5.strokeWeight(3);
-		p5.stroke(0);
+		p5.stroke(EditorManager.guiColors[EditorManager.RED]);
 		p5.noFill();
 		p5.rect(palettes.get(selectedPalette).pos.x, palettes.get(selectedPalette).pos.y, paletteStripSize.x, paletteStripSize.y);
-
-		p5.fill(255);
+		
+		// SHOW PALETTE COLOR COUNT
+		p5.fill(EditorManager.guiColors[EditorManager.BLUEGRAY]);
+		p5.noStroke();
 		p5.rect(palettes.get(selectedPalette).pos.x, palettes.get(selectedPalette).pos.y, -20, paletteStripSize.y);
+		p5.fill(255);
+		p5.text(palettes.get(selectedPalette).getColorCount(), palettes.get(selectedPalette).pos.x - 18, palettes.get(selectedPalette).pos.y + 15);
+		
 
 		p5.popStyle();
 

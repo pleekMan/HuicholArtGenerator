@@ -49,7 +49,7 @@ public class CanvasManager {
 		figuresLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 		pointsLayer = p5.createGraphics(canvasWidth, canvasHeight, processing.core.PGraphics.P2D);
 
-		pointSize = 20; // 20 IS "THE ONE THAT GOES"
+		pointSize = 10; // 10 IS "THE ONE THAT GOES"
 
 		points = new ArrayList<Point>();
 		//colorPalettes = new ArrayList<ColorPalette>();
