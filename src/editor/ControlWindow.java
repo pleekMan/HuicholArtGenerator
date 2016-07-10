@@ -18,7 +18,7 @@ public class ControlWindow extends PApplet {
 
 	EditorManager parent;
 	
-	PImage imageRef;
+	PImage backImage;
 
 	int w = 1;
 	int h = 1;
@@ -29,7 +29,7 @@ public class ControlWindow extends PApplet {
 		size(w, h);
 		frameRate(10);
 		
-		imageRef = loadImage("data/ControlPanel_backg.png");
+		//backImage = loadImage("data/ControlPanel_backg.png");
 		
 		cp5 = new ControlP5(this);
 		cp5.setColorBackground(parent.guiColors[parent.BLUEDARK]);
@@ -79,13 +79,19 @@ public class ControlWindow extends PApplet {
 		
 		
 	}
+	
+	public void setBackgroundImage(PImage image){
+		backImage = image;
+	}
 
 	public void draw() {
 		
 
 		background(0);
-		image(imageRef,0,0);
+		image(backImage,0,0);
 		
+		fill(EditorManager.guiColors[EditorManager.RED]);
+		text("SAVE TO: renders/" + EditorManager.renderName + "/",20,707);
 		//fill(255, 255, 0);
 		//text("FR: " + frameRate, 20, 20);
 		//text("X: " + mouseX + " / Y: " + mouseY, mouseX, mouseY);

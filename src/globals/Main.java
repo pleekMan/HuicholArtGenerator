@@ -21,7 +21,8 @@ public class Main extends PApplet {
 		//canvas = new CanvasManager();
 		appManager = new AppManager();
 		
-		frame.setLocation(50, 50);
+		frame.setLocation(400, 100);
+		frame.setTitle("Huichol Pattern Generator v0.9");
 	}
 
 	public void draw() {

@@ -111,7 +111,7 @@ public class Figure {
 			}
 		}
 
-		p5.println("Cycle : " + cycle + "\tColorStage: " + atColorStage + "\tMaxColorStages: " + maxColorStages);
+		//p5.println("Cycle : " + cycle + "\tColorStage: " + atColorStage + "\tMaxColorStages: " + maxColorStages);
 
 		// MAKE THE SHAPE LOOP IF IT'S FINISHED
 		for (int i = 0; i < shapes.size(); i++) {

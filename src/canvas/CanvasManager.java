@@ -99,7 +99,7 @@ public class CanvasManager {
 			if (posX > pointsLayer.width) {
 				offset = !offset;
 				posX = offset ? startX + (separation * 0.5f) : startX;
-				posY += separation;
+				posY += separation * 0.866; // LA ALTURA DE LOS TRIANGULOS EQUILATEROS QUE CONFORMAN EL HEXAGONO ES 0.866 LA LONGITUD DE UN LADO (sqrt((lado * 3)) / 2);
 
 				gridWidthCounterDone = true;
 			}
@@ -188,7 +188,7 @@ public class CanvasManager {
 		if (isPlaying) {
 			//if (p5.frameCount % timeStep == 0) {
 			step();
-			p5.println("Canvas Steps: " + stepCount);
+			//p5.println("Canvas Steps: " + stepCount);
 			stepCount++;
 			//}
 		}

@@ -65,7 +65,7 @@ public class EditorManager {
 	boolean showRoi;
 	String rendersPath;
 	String renderOutFolderPath;
-	String renderName;
+	public static String renderName;
 	PImage renderBuffer;
 	int frameSaveCount;
 	public boolean enableRender;
@@ -106,6 +106,9 @@ public class EditorManager {
 		colorManager = new ColorPaletteManager();
 		//controlGui = new ControlWindow(this);
 		controlFrame = addControlFrame("Editor Options", 300, p5.height); // height = 800
+		PImage controlFrameBack;
+		controlFrameBack = p5.loadImage("data/ControlPanel_backg.png");
+		controlFrame.setBackgroundImage(controlFrameBack);
 
 		enableCanvasClear = false;
 
@@ -150,10 +153,12 @@ public class EditorManager {
 		renderName = "render";
 		p5.println(p5.sketchPath);
 		File renderFolder = new File(rendersPath);
+		/* PRINT OUT RENDER FOLDERS
 		if (renderFolder.isDirectory()) {
 			String[] files = renderFolder.list();
 			p5.println(files);
 		}
+		*/
 
 		backImage = p5.createImage(100, 100, p5.RGB);
 		backImageScale = 1f;
@@ -892,10 +897,10 @@ public class EditorManager {
 		p5.println("Render Path: " + renderFolder.getPath());
 		if (renderFolder.exists()) {
 			logFooterText = "WARNING!! WARNING!! - FOLDER EXISTS..!! OVERWRITE ?";
-			p5.println("WARNING!! WARNING!! - FOLDER EXISTS..!! OVERWRITE ?");
+			//p5.println("WARNING!! WARNING!! - FOLDER EXISTS..!! OVERWRITE ?");
 		} else {
 			logFooterText = "CREATING A NEW FOLDER";
-			p5.println("CREATING A NEW FOLDER");
+			//p5.println("CREATING A NEW FOLDER");
 			renderFolder.mkdir();
 		}
 
@@ -915,7 +920,7 @@ public class EditorManager {
 		// CALLED FROM AppManager
 
 		String frameNumber = p5.nf(frameSaveCount, 4);
-		p5.println("File Frame: " + frameNumber + " | App Frame: " + p5.frameCount);
+		//p5.println("File Frame: " + frameNumber + " | App Frame: " + p5.frameCount);
 		logFooterText = "Rendering Frame: " + frameNumber + " for " + renderName;
 
 		// MOVE resize SOMEWHERE ELSE (DO NOT RESIZE ON EVERY SINGLE FRAME) // DONE
@@ -930,6 +935,7 @@ public class EditorManager {
 			enableRender = false;
 			canvas.isPlaying = false;
 			controlFrame.cp5.getController("gui_enableRenderToFile").setValue(0);
+			p5.println("Animation Finished");
 		}
 
 	}
