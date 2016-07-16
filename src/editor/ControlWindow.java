@@ -189,9 +189,9 @@ public class ControlWindow extends PApplet {
 	public void gui_shapePointInterpolation(boolean state) {
 		parent.setShapePointInterpolation(state);
 	}
-	
+
 	public void gui_setDirectionsMode(boolean state) {
-		parent.setDirectionsMode = state;
+			parent.toggleSetDirections();
 	}
 
 	public void gui_renderOutFolder(String text) {

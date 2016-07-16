@@ -250,9 +250,7 @@ public class EditorManager {
 		}
 
 		if (key == 'd') {
-			setDirectionsMode = !setDirectionsMode;
-			Toggle backImageToggle = (Toggle) controlFrame.cp5.get("gui_setDirectionsProcedure");
-			backImageToggle.setValue(setDirectionsMode);
+			toggleSetDirections();
 		}
 
 		colorManager.keyPressed(key);
@@ -268,7 +266,7 @@ public class EditorManager {
 			} else {
 				select();
 			}
-		} 
+		}
 
 		// IT CHECKS IF THE USER IS CLICKING OVER THE MENU COLUMN OR NOT
 		colorManager.mousePressed(button);
@@ -290,8 +288,10 @@ public class EditorManager {
 						logFooterText = "MOVING POINT";
 						movePointMode = true;
 
+						p5.fill(guiColors[RED], 127);
+						p5.stroke(guiColors[RED]);
 						p5.ellipse(p5.mouseX, p5.mouseY, 20, 20);
-						PVector viewCoords = AppManager.canvasToViewTransform(canvas.points.get(selectedFigurePoint).position);
+						PVector viewCoords = AppManager.canvasToViewTransform(canvas.figures.get(selectedFigure).points.get(selectedFigurePoint).position);
 						p5.line(viewCoords.x, viewCoords.y, p5.mouseX, p5.mouseY);
 					}
 				}
@@ -566,6 +566,16 @@ public class EditorManager {
 			p5.strokeWeight(1);
 
 			p5.fill(guiColors[RED]);
+		} else if (setDirectionsMode) {
+			p5.stroke(guiColors[GREEN]);
+
+			p5.strokeWeight(5);
+			p5.line(0, 30, menuBorderX, 30);
+			p5.line(menuBorderX, 30, menuBorderX, p5.height);
+			p5.line(0, 30, 0, p5.height);
+			p5.strokeWeight(1);
+
+			p5.fill(guiColors[GREEN]);
 		} else {
 			p5.fill(guiColors[BLUEGRAY]);
 		}
@@ -665,6 +675,16 @@ public class EditorManager {
 		return p;
 	}
 
+	public void toggleSetDirections(){
+		if (canvas.figures.size() > 0) {
+			setDirectionsMode = !setDirectionsMode;
+			logFooterText = "SET DIRECTIONS MODE";
+			Toggle backImageToggle = (Toggle) controlFrame.cp5.get("gui_setDirectionsMode");
+			backImageToggle.setValue(setDirectionsMode);
+		}
+	
+	}
+	
 	private void setDirectionsProcedure() {
 		if (selectedFigurePoint >= 0) {
 			Point actualSelectedPoint = canvas.figures.get(selectedFigure).points.get(selectedFigurePoint);
