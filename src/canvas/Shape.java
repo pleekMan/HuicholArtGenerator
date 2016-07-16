@@ -129,6 +129,11 @@ public class Shape {
 		order = _order;
 	}
 	*/
+	
+	public void setVertexInitialPosition(int vertexIndex, PVector newInitialPos){
+		startingVerticesPos[vertexIndex].set(newInitialPos);
+		//restart();
+	}
 
 	public PVector[] getVerticesPos() {
 		return verticesPos;

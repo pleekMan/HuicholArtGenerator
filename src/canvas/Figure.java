@@ -2,6 +2,7 @@ package canvas;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import com.jogamp.common.util.IntIntHashMap;
 
@@ -53,7 +54,19 @@ public class Figure {
 		maxCycles = _maxCycles;
 		maxCyclesInit = maxCycles;
 
-		points = new ArrayList<Point>(_pointsLink); // COPY THE ARRAYLIST (NOT THE REFERENCES/POINTERS)
+		points = new ArrayList<Point>();
+		//points = new ArrayList<Point>(_pointsLink); // COPY THE ARRAYLIST (NOT THE REFERENCES/POINTERS)
+		//Collections.copy(points, _pointsLink);
+		
+		// MAKE A COPY OF THE POINTS GIVEN, SPECIALLY THE POSITION, SINCE POINTS CAN BE MOVED AROUND AFTERWARDS
+		for (int i = 0; i < _pointsLink.size(); i++) {
+			PVector copiedPosition = new PVector();
+			copiedPosition.set(_pointsLink.get(i).position);
+			
+			Point newFigurePoint = new Point(copiedPosition, _pointsLink.get(i).color, _pointsLink.get(i).drawLayer);
+			points.add(newFigurePoint);
+		}
+		
 		PVector[] startingPositions = getPointsPosition();
 
 		for (int i = 0; i < maxColorStages; i++) {
@@ -131,8 +144,9 @@ public class Figure {
 			//if (atColorStage + (maxColorStages - i) >= 0) {
 			shapes.get(i).render();
 
-			drawLayer.fill(255, 255, 0);
-			drawLayer.text(i, shapes.get(i).verticesPos[0].x, shapes.get(i).verticesPos[0].y);
+			// DRAW SHAPE INDEX
+			//drawLayer.fill(255, 255, 0);
+			//drawLayer.text(i, shapes.get(i).verticesPos[0].x, shapes.get(i).verticesPos[0].y);
 
 			//}
 
@@ -229,8 +243,23 @@ public class Figure {
 		}
 		return pointDirection;
 	}
+	
+	public void updateShapePointDirection(int pointIndex, PVector newDirection){
+		directions.get(pointIndex).set(newDirection);
+	}
+	
+	public void updateShapePointPosition(int pointIndex, PVector newPos) {
+		points.get(pointIndex).position.set(newPos);
+		
+		for (int i = 0; i < shapes.size(); i++) {
+			shapes.get(i).setVertexInitialPosition(pointIndex, newPos);
+		}
+		
+	}
 
 	protected Main getP5() {
 		return PAppletSingleton.getInstance().getP5Applet();
 	}
+
+
 }

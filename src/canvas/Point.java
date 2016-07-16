@@ -9,11 +9,11 @@ public class Point {
 
 	Main p5;
 
-	PGraphics drawLayer;
+	public PGraphics drawLayer;
 
 	public PVector position;
-	int color;
-	int id;
+	public int color;
+	public int id;
 
 	public Point(PVector _pos, int _color, PGraphics _drawLayer) {
 		p5 = getP5();
@@ -68,6 +68,14 @@ public class Point {
 			return false;
 		}
 
+	}
+	
+	public void setPosition(PVector _pos){
+		position.set(_pos);
+	}
+	
+	public PVector getPosition(){
+		return position;
 	}
 
 	public int getId() {

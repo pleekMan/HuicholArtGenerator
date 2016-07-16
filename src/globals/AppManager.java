@@ -157,7 +157,7 @@ public class AppManager {
 
 	public void mouseReleased(int button) {
 		//canvas.mouseReleased();
-		//editor.mouseReleased(button);
+		editor.mouseReleased(button);
 	}
 
 	public void mouseDragged(int button) {

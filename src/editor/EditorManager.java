@@ -49,8 +49,8 @@ public class EditorManager {
 	ArrayList<Point> figurePointsLink;
 	PVector[] gridDirectionVectors; // THE SIX POSIBLE DIRECTION VECTORS THAT A POINT CAN HAVE
 
-	Figure selectedFigure;
-	Point selectedFigurePoint;
+	int selectedFigure;
+	int selectedFigurePoint;
 	PVector selectedPointDirection;
 	public int newFigureCycles;
 
@@ -125,8 +125,8 @@ public class EditorManager {
 		initialVertex = -1;
 		lastVertexGridIdDirection = 0;
 
-		selectedFigure = null;
-		selectedFigurePoint = null;
+		selectedFigure = -1;
+		selectedFigurePoint = -1;
 		selectedPointDirection = null;
 		newFigureCycles = 3;
 
@@ -206,7 +206,7 @@ public class EditorManager {
 		}
 
 		if (setDirectionsMode) {
-			setDirectionsProcedure();
+			//setDirectionsProcedure();
 		}
 
 		if (showGridPoints) {
@@ -240,13 +240,19 @@ public class EditorManager {
 		if (key == 'i') {
 			selectImageInput();
 		}
-		
-		if(key == p5.ESC){
+
+		if (key == p5.ESC) {
 			if (createFigureMode) {
 				resetNewFigureData();
 				createFigureMode = false;
 				logFooterText = "FIGURE CANCELLED";
 			}
+		}
+
+		if (key == 'd') {
+			setDirectionsMode = !setDirectionsMode;
+			Toggle backImageToggle = (Toggle) controlFrame.cp5.get("gui_setDirectionsProcedure");
+			backImageToggle.setValue(setDirectionsMode);
 		}
 
 		colorManager.keyPressed(key);
@@ -262,9 +268,7 @@ public class EditorManager {
 			} else {
 				select();
 			}
-		} else {
-
-		}
+		} 
 
 		// IT CHECKS IF THE USER IS CLICKING OVER THE MENU COLUMN OR NOT
 		colorManager.mousePressed(button);
@@ -277,13 +281,19 @@ public class EditorManager {
 
 			if (button == p5.LEFT) {
 
-				if (selectedFigurePoint != null) {
+				if (setDirectionsMode) {
+					// SET DIRECTIONS MODE
+					setDirectionsProcedure();
+				} else {
+					// MOVING POINTS MODE
+					if (selectedFigure >= 0 || selectedFigurePoint >= 0) {
+						logFooterText = "MOVING POINT";
+						movePointMode = true;
 
-					//movePointMode = true;
-
-					p5.ellipse(p5.mouseX, p5.mouseY, 20, 20);
-					PVector viewCoords = AppManager.canvasToViewTransform(selectedFigurePoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
-					p5.line(viewCoords.x, viewCoords.y, p5.mouseX, p5.mouseY);
+						p5.ellipse(p5.mouseX, p5.mouseY, 20, 20);
+						PVector viewCoords = AppManager.canvasToViewTransform(canvas.points.get(selectedFigurePoint).position);
+						p5.line(viewCoords.x, viewCoords.y, p5.mouseX, p5.mouseY);
+					}
 				}
 			}
 
@@ -295,32 +305,108 @@ public class EditorManager {
 
 	public void mouseReleased(int button) {
 
-		setDirectionsMode = false;
-
 		if (movePointMode) {
 
-			Point selectedPoint = null;
+			PVector canvasCoords = new PVector();
+			canvasCoords.set(AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY), AppManager.canvasTranslation, AppManager.canvasScale));
+
 			for (int i = 0; i < canvas.points.size(); i++) {
-				Point actualPoint = canvas.points.get(i);
+				Point actualCanvasPoint = canvas.points.get(i);
 
-				PVector canvasCoords = new PVector();
-				canvasCoords.set(AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY), AppManager.canvasTranslation, AppManager.canvasScale));
+				if (actualCanvasPoint.isInside(canvasCoords.x, canvasCoords.y)) {
 
-				if (actualPoint.isInside(canvasCoords.x, canvasCoords.y)) {
-					//selectedPoint = actualPoint;
-					//selectedFigurePoint = selectedPoint;
-					selectedFigure.reAssignPoint(selectedFigurePoint, actualPoint);
+					//selectedFigurePoint.setPosition(actualCanvasPoint.getPosition());
+					canvas.figures.get(selectedFigure).updateShapePointPosition(selectedFigurePoint, actualCanvasPoint.getPosition());
+					logFooterText = "NEW POINT POSITION";
+					//selectedFigure.reAssignPoint(selectedFigurePoint, actualPoint);
 					break;
 				}
 			}
 
 		}
+
+		movePointMode = false;
+		//setDirectionsMode = false;
+		if (setDirectionsMode) {
+			selectedFigurePoint = -1;
+		}
+
 	}
 
-	public void select() {
+	@Deprecated
+	public void oldSelect() {
 
 		// SELECT FIGURE BY CHECKING WHICH POINTS IS CLICKED, AND THEN THE FIRST FIGURE THAT CONTAINS THAT POINT
 
+		// WHICH POINT IS BEING CLICKED ON
+		Point selectedPoint = null;
+		//selectedFigurePoint = null;
+		for (int i = 0; i < canvas.points.size(); i++) {
+			Point actualPoint = canvas.points.get(i);
+
+			PVector canvasCoords = new PVector();
+			canvasCoords.set(AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY), AppManager.canvasTranslation, AppManager.canvasScale));
+
+			if (actualPoint.isInside(canvasCoords.x, canvasCoords.y)) {
+				selectedPoint = actualPoint;
+				selectedFigurePoint = i;
+				break;
+			}
+		}
+
+		// SELECT FIRST FIGURE TO HOLD THE SELECTED POINT
+		for (int i = 0; i < canvas.figures.size(); i++) {
+			Figure actualFigure = canvas.figures.get(i);
+
+			if (actualFigure.hasPoint(selectedPoint)) {
+				selectedFigure = i;
+				selectedPointDirection = actualFigure.getPointDirectionVector(selectedPoint);
+				setDirectionsMode = true;
+				logFooterText = "FIGURE SELECTED --> " + i;
+				break;
+			} else {
+				if (!setDirectionsMode) {
+					selectedFigure = -1;
+					logFooterText = "NO FIGURE SELECTED";
+				} else {
+					setDirectionsMode = false;
+					break;
+				}
+			}
+
+		}
+
+	}
+
+	public void select() {
+		// SELECT FIGURE BY CHECKING WHICH POINTS IS CLICKED, AND THEN THE FIRST FIGURE THAT CONTAINS THAT POINT
+
+		// FIRST, TRANSFORM MOUSE COORDINATES
+		PVector canvasCoords = new PVector();
+		canvasCoords.set(AppManager.viewToCanvasTransform(new PVector(p5.mouseX, p5.mouseY)));
+
+		selectedFigure = -1;
+		selectedFigurePoint = -1;
+
+		selectionLoop: // IT'S LIKE A "GO TO" WHEN CALLING INSIDE THE LOOPS "BREAK" (SO AS TO BREAK BOTH LOOPS)
+		for (int i = 0; i < canvas.figures.size(); i++) {
+			Figure actualFigure = canvas.figures.get(i);
+
+			for (int j = 0; j < actualFigure.points.size(); j++) {
+				Point actualPoint = actualFigure.points.get(j);
+
+				if (actualPoint.isInside(canvasCoords.x, canvasCoords.y)) {
+					selectedFigure = i;
+					selectedFigurePoint = j;
+					p5.println("Selected Figure: " + i + " | Point: " + j);
+					break selectionLoop;
+				}
+
+			}
+
+		}
+
+		/*
 		// WHICH POINT IS BEING CLICKED ON
 		Point selectedPoint = null;
 		//selectedFigurePoint = null;
@@ -343,22 +429,15 @@ public class EditorManager {
 
 			if (actualFigure.hasPoint(selectedPoint)) {
 				selectedFigure = actualFigure;
-				selectedPointDirection = actualFigure.getPointDirectionVector(selectedPoint);
-				setDirectionsMode = true;
 				logFooterText = "FIGURE SELECTED --> " + i;
 				break;
 			} else {
-				if (!setDirectionsMode) {
-					selectedFigure = null;
-					logFooterText = "NO FIGURE SELECTED";
-				} else {
-					setDirectionsMode = false;
-					break;
-				}
+				selectedFigure = null;
+				logFooterText = "NO FIGURE SELECTED";
 			}
 
 		}
-
+		*/
 	}
 
 	private void showFigureGizmos() {
@@ -367,7 +446,7 @@ public class EditorManager {
 		for (int i = 0; i < canvas.figures.size(); i++) {
 			Figure actualFigure = canvas.figures.get(i);
 
-			boolean isSelected = actualFigure == selectedFigure && selectedFigure != null ? true : false;
+			boolean isSelected = i == selectedFigure && selectedFigure >= 0 ? true : false;
 
 			// DRAW OVER SELECTED POINTS by BACKTRANSFORMING THE LINKED POINTS
 			p5.fill(guiColors[GREEN]);
@@ -393,7 +472,11 @@ public class EditorManager {
 
 				// DRAW DIRECTION LINES (ARROW BODIES)
 				p5.strokeWeight(2);
-				p5.stroke(255);
+				if (setDirectionsMode) {
+					p5.stroke(guiColors[RED]);
+				} else {
+					p5.stroke(255);
+				}
 				p5.line(canvasCoords.x, canvasCoords.y, canvasCoords.x + (actualFigure.directions.get(j).x * AppManager.canvasScale), canvasCoords.y + (actualFigure.directions.get(j).y * AppManager.canvasScale));
 
 				// ARROW HEADS
@@ -425,10 +508,10 @@ public class EditorManager {
 		}
 
 		// DRAW SELECTED POINT GIZMO
-		if (selectedFigurePoint != null && selectedFigure != null) {
-			PVector selectedPointCoord = AppManager.canvasToViewTransform(selectedFigurePoint.position, AppManager.canvasTranslation, AppManager.canvasScale);
+		if (selectedFigurePoint >= 0 && selectedFigure >= 0) {
+			PVector selectedPointCoord = AppManager.canvasToViewTransform(canvas.figures.get(selectedFigure).points.get(selectedFigurePoint).position, AppManager.canvasTranslation, AppManager.canvasScale);
 			p5.noFill();
-			p5.stroke(guiColors[GREEN]);
+			p5.stroke(guiColors[RED]);
 			p5.ellipse(selectedPointCoord.x, selectedPointCoord.y, CanvasManager.pointSize * AppManager.canvasScale * 1.2f, CanvasManager.pointSize * AppManager.canvasScale * 1.2f);
 
 		}
@@ -471,7 +554,7 @@ public class EditorManager {
 			p5.line(menuBorderX, 30, menuBorderX, p5.height);
 			p5.line(0, 30, 0, p5.height);
 			p5.strokeWeight(1);
-			
+
 			p5.fill(guiColors[GREEN]);
 
 		} else if (enableRender) {
@@ -489,14 +572,13 @@ public class EditorManager {
 
 		p5.stroke(0);
 		p5.rect(-1, p5.height - 22, p5.width + 1, 22);
-		
-		
+
 		if (enableRender) {
 			p5.fill(guiColors[BLUEDARK]);
 		} else {
 			p5.fill(255);
 		}
-		
+
 		p5.text("--| " + logFooterText, 10, p5.height - 7);
 
 	}
@@ -584,19 +666,26 @@ public class EditorManager {
 	}
 
 	private void setDirectionsProcedure() {
-		PVector pointTransformed = AppManager.canvasToViewTransform(new PVector(selectedFigurePoint.position.x, selectedFigurePoint.position.y));
-		PVector mouseVector = new PVector(p5.mouseX - pointTransformed.x, p5.mouseY - pointTransformed.y);
-		float angle = PVector.angleBetween(mouseVector, gridDirectionVectors[0]);
+		if (selectedFigurePoint >= 0) {
+			Point actualSelectedPoint = canvas.figures.get(selectedFigure).points.get(selectedFigurePoint);
 
-		// RETURNED ANGLE GOES FROM 0 TO PI, TWICE AROUND THE CIRCLE
-		if (mouseVector.y > 0) {
-			lastVertexGridIdDirection = p5.floor(p5.map(angle, 0, p5.PI, 0, 3));
-		} else {
-			lastVertexGridIdDirection = p5.floor(p5.map(angle, p5.PI, 0, 3, 5.99f));
+			PVector pointTransformed = AppManager.canvasToViewTransform(new PVector(actualSelectedPoint.position.x, actualSelectedPoint.position.y));
+			PVector mouseVector = new PVector(p5.mouseX - pointTransformed.x, p5.mouseY - pointTransformed.y);
+			float angle = PVector.angleBetween(mouseVector, gridDirectionVectors[0]);
+
+			// RETURNED ANGLE GOES FROM 0 TO PI, TWICE AROUND THE CIRCLE
+			if (mouseVector.y > 0) {
+				lastVertexGridIdDirection = p5.floor(p5.map(angle, 0, p5.PI, 0, 3));
+			} else {
+				lastVertexGridIdDirection = p5.floor(p5.map(angle, p5.PI, 0, 3, 5.99f));
+			}
+
+			// ASSIGN THE NEW DIRECTION TO THE SELECTED PVector AT THE SELECTED POINT AT THE SELECTED FIGURE
+			//actualSelectedPoint.set
+			canvas.figures.get(selectedFigure).updateShapePointDirection(selectedFigurePoint, gridDirectionVectors[lastVertexGridIdDirection]);
+			//selectedPointDirection.set(gridDirectionVectors[lastVertexGridIdDirection]);
+
 		}
-
-		// ASSIGN THE NEW DIRECTION TO THE SELECTED PVector AT THE SELECTED POINT AT THE SELECTED FIGURE 
-		selectedPointDirection.set(gridDirectionVectors[lastVertexGridIdDirection]);
 
 		// DRAW THIS DIRECTION LINEs
 		/*
@@ -729,7 +818,7 @@ public class EditorManager {
 		newFigure.initialize(figurePointsLink, directions, figureColors, newFigureCycles);
 		canvas.addFigure(newFigure);
 
-		selectedFigure = newFigure;
+		selectedFigure = canvas.figures.size() - 1;
 
 		createFigureMode = false;
 	}
@@ -814,8 +903,8 @@ public class EditorManager {
 	}
 
 	public void assignPaletteToFigure() {
-		if (selectedFigure != null) {
-			selectedFigure.setColorPalette(colorManager.getSelectedPalette());
+		if (selectedFigure >= 0) {
+			canvas.figures.get(selectedFigure).setColorPalette(colorManager.getSelectedPalette());
 		}
 	}
 
