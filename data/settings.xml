@@ -97,5 +97,14 @@
       <color b="16" g="254" r="9"/>
       <color b="229" g="4" r="10"/>
     </palette>
+    <palette name="Palette 2016-7-27_10:54:59">
+      <color b="47" g="60" r="76"/>
+      <color b="30" g="194" r="250"/>
+      <color b="58" g="132" r="244"/>
+      <color b="150" g="61" r="49"/>
+      <color b="12" g="20" r="108"/>
+      <color b="42" g="35" r="54"/>
+      <color b="255" g="255" r="255"/>
+    </palette>
   </colorPalettes>
 </settings>

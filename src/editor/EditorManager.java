@@ -74,6 +74,7 @@ public class EditorManager {
 	float backImageScale;
 	float backImageOpacity;
 	boolean showBackImage;
+	boolean lockBackImageScaleToCanvasScale;
 
 	public static boolean shapePointInterpolation;
 
@@ -164,6 +165,7 @@ public class EditorManager {
 		backImageScale = 1f;
 		backImageOpacity = 1f;
 		showBackImage = false;
+		lockBackImageScaleToCanvasScale = false;
 
 		shapePointInterpolation = false;
 		//controlFrame.cp5.getController("gui_shapePointInterpolation").setValue(0);
@@ -252,6 +254,10 @@ public class EditorManager {
 		if (key == 'd') {
 			toggleSetDirections();
 		}
+		
+		if (key == 'l') {
+			lockBackImageScaleToCanvasScale = !lockBackImageScaleToCanvasScale;
+		}
 
 		colorManager.keyPressed(key);
 	}
@@ -280,11 +286,10 @@ public class EditorManager {
 			if (button == p5.LEFT) {
 
 				if (setDirectionsMode) {
-					// SET DIRECTIONS MODE
 					setDirectionsProcedure();
 				} else {
 					// MOVING POINTS MODE
-					if (selectedFigure >= 0 || selectedFigurePoint >= 0) {
+					if (selectedFigure >= 0 && selectedFigurePoint >= 0) {
 						logFooterText = "MOVING POINT";
 						movePointMode = true;
 
@@ -679,8 +684,8 @@ public class EditorManager {
 		if (canvas.figures.size() > 0) {
 			setDirectionsMode = !setDirectionsMode;
 			logFooterText = "SET DIRECTIONS MODE";
-			Toggle backImageToggle = (Toggle) controlFrame.cp5.get("gui_setDirectionsMode");
-			backImageToggle.setValue(setDirectionsMode);
+			//Toggle backImageToggle = (Toggle) controlFrame.cp5.get("gui_setDirectionsMode");
+			//backImageToggle.setValue(setDirectionsMode);
 		}
 	
 	}
@@ -839,6 +844,7 @@ public class EditorManager {
 		canvas.addFigure(newFigure);
 
 		selectedFigure = canvas.figures.size() - 1;
+		selectedFigurePoint = 0;
 
 		createFigureMode = false;
 	}
@@ -873,6 +879,8 @@ public class EditorManager {
 
 	public void deleteFigure() {
 		canvas.figures.remove(selectedFigure);
+		selectedFigurePoint = -1;
+		selectedFigure = -1;
 	}
 
 	public void deleteAllFigures() {
@@ -911,6 +919,16 @@ public class EditorManager {
 			// delay(1000);
 
 		}
+	}
+	
+	public void setBackImageScale(float scale){
+		
+		if(lockBackImageScaleToCanvasScale){
+			backImageScale = scale * AppManager.canvasScale;
+		} else {
+			backImageScale = scale;
+		}
+		
 	}
 
 	public void deletePalette() {
@@ -1005,10 +1023,10 @@ public class EditorManager {
 		File renderFolder = new File(renderOutFolderPath);
 		p5.println("Render Path: " + renderFolder.getPath());
 		if (renderFolder.exists()) {
-			logFooterText = "WARNING!! WARNING!! - FOLDER EXISTS..!! OVERWRITE ?";
+			logFooterText = "WARNING!! WARNING!! - FOLDER EXISTS..!! OVERWRITE SEQUENCE?";
 			//p5.println("WARNING!! WARNING!! - FOLDER EXISTS..!! OVERWRITE ?");
 		} else {
-			logFooterText = "CREATING A NEW FOLDER";
+			logFooterText = "SAVE IMAGE SEQUENCE TO: " + renderOutFolderPath + "    (CREATING NEW FOLDER)";
 			//p5.println("CREATING A NEW FOLDER");
 			renderFolder.mkdir();
 		}

@@ -526,11 +526,11 @@ public class CanvasManager {
 		// return null;
 	}
 
-	private boolean isEvenRow(int i) {
-		// CALCULATES IF ROW IS EVEN/ODD BASED ON INDEX OF FIRST POINT IN ROW
-		// (CALCULATED PREVIOUSLY AS THE PARAMETER)
-		return (i / gridWidth) % 2 == 0 ? true : false;
-	}
+		private boolean isEvenRow(int i) {
+			// CALCULATES IF ROW IS EVEN/ODD BASED ON INDEX OF FIRST POINT IN ROW
+			// (CALCULATED PREVIOUSLY AS THE PARAMETER)
+			return (i / gridWidth) % 2 == 0 ? true : false;
+		}
 
 	public void setBackgroundImage(PImage _image) {
 		backImage = _image;
@@ -553,12 +553,6 @@ public class CanvasManager {
 
 		if (key == 'r') {
 			rewind();
-		}
-
-		if (key == 'j') {
-			for (int i = 0; i < figures.size(); i++) {
-				figures.get(i).rewind();
-			}
 		}
 	}
 

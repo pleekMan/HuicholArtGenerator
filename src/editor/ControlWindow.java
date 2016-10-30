@@ -42,7 +42,7 @@ public class ControlWindow extends PApplet {
 		sldr.getCaptionLabel().alignX(0);
 		sldr.getCaptionLabel().getStyle().marginTop = -15;
 
-		Toggle tgl1 = cp5.addToggle("gui_shapePointInterpolation").plugTo(parent, "gui_shapePointInterpolation").setPosition(135, 180).setSize(40, 23).setLabel("NO INTERPOLATION");
+		Toggle tgl1 = cp5.addToggle("gui_shapePointInterpolation").plugTo(parent, "gui_shapePointInterpolation").setPosition(135, 180).setSize(40, 23).setLabel("SPAWNER LINES ONLY");
 		tgl1.getCaptionLabel().getStyle().marginTop = -40;
 		Toggle tgl2 = cp5.addToggle("gui_setDirectionsMode").plugTo(parent, "gui_setDirectionsMode").setPosition(230, 180).setSize(40, 23).setLabel("SET DIRECTIONS");
 		tgl2.getCaptionLabel().getStyle().marginTop = -40;
@@ -55,6 +55,7 @@ public class ControlWindow extends PApplet {
 		sldr1.getCaptionLabel().getStyle().marginTop = -15;
 		cp5.addToggle("gui_showFigureGizmos").plugTo(parent, "gui_showFigureGizmos").setValue(true).setPosition(130, 335).setLabel("SHOW FIGURE GIZMOS");
 		cp5.addToggle("gui_showGridLayer").plugTo(parent, "gui_showGridLayer").setValue(true).setPosition(20, 335).setLabel("SHOW GRID");
+		cp5.addButton("gui_viewPortScaleReset").plugTo(parent, "gui_viewPortScaleReset").setPosition(130, 305).setSize(15,15).setLabel("R");
 
 		cp5.addButton("gui_rewind").plugTo(parent, "gui_rewind").setPosition(95, 70).setLabel("|<").setWidth(30);
 		cp5.addButton("gui_pause").plugTo(parent, "gui_pause").setPosition(137, 70).setLabel("||").setWidth(30);
@@ -68,13 +69,15 @@ public class ControlWindow extends PApplet {
 		Slider sldr3 = cp5.addSlider("gui_backImageOpacity").plugTo(parent, "gui_backImageOpacity").setRange(0, 1).setPosition(135, 495).setSize(100, 15).setValue(1f).setLabel("BACK IMAGE OPACITY");
 		sldr3.getCaptionLabel().alignX(0);
 		sldr3.getCaptionLabel().getStyle().marginTop = -15;
+		cp5.addToggle("gui_lockToViewportScale").plugTo(parent, "gui_lockToViewportScale").setValue(false).setPosition(130, 435).setLabel("LOCK TO VIEWPORT SCALE");
+
 
 		cp5.addButton("gui_newPalette").plugTo(parent, "gui_newPalette").setPosition(20, 565).setSize(80, 20).setLabel("NEW PALETTE");
 		cp5.addButton("gui_deletePalette").plugTo(parent, "gui_deletePalette").setPosition(120, 565).setSize(80, 20).setLabel("DELETE PALETTE");
 		cp5.addButton("gui_assignToFigure").plugTo(parent, "gui_assignToFigure").setPosition(20, 591).setSize(80, 20).setLabel("ASSIGN TO FIGURE");
 
 		cp5.addTextfield("gui_renderOutFolder").plugTo(parent, "gui_renderOutFolder").setPosition(20, 660).setSize(180, 20).setLabel("RENDER NAME:");
-		cp5.addToggle("gui_enableRenderToFile").plugTo(parent, "gui_enableRenderToFile").setPosition(20, 718).setSize(40, 20).setLabel("GUARDAR ANIMACION");
+		cp5.addToggle("gui_enableRenderToFile").plugTo(parent, "gui_enableRenderToFile").setPosition(20, 718).setSize(40, 20).setLabel("SAVE ANIMATION");
 		cp5.addToggle("gui_showRoi").plugTo(parent, "gui_showRoi").setValue(false).setPosition(20, 755).setLabel("SHOW ROI");
 
 	}
@@ -120,6 +123,12 @@ public class ControlWindow extends PApplet {
 
 	public void gui_viewPortScale(float value) {
 		AppManager.canvasScale = value;
+		parent.setBackImageScale(cp5.getController("gui_backImageScale").getValue());
+	}
+	
+	public void gui_viewPortScaleReset() {
+		gui_viewPortScale(1.0f);
+		cp5.getController("gui_viewPortScale").setValue(1.0f);
 	}
 
 	public void gui_showFigureGizmos(boolean state) {
@@ -161,7 +170,7 @@ public class ControlWindow extends PApplet {
 	}
 
 	public void gui_backImageScale(float value) {
-		parent.backImageScale = value;
+		parent.setBackImageScale(value);
 	}
 
 	public void gui_backImageOpacity(float value) {
@@ -170,6 +179,10 @@ public class ControlWindow extends PApplet {
 
 	public void gui_backImageSelect() {
 		parent.selectImageInput();
+	}
+	
+	public void gui_lockToViewportScale(boolean state){
+		parent.lockBackImageScaleToCanvasScale = state;
 	}
 
 	// COLOR PALETTE COMMANDS -------------
