@@ -107,6 +107,7 @@ public class CanvasManager {
 
 		gridWidth = gridWidthCounter;
 		p5.println("||- Grid Width: " + gridWidthCounter);
+		p5.println("||- TOTAL POINTS IN GRID " + points.size());
 
 	}
 

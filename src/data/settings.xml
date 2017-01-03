@@ -1,5 +1,17 @@
 <?xml version="1.0"?>
 <settings>
+	<figures>
+	    <figure name="Figure A" cycles="3" colorPalette="Palette 2016-6-17_15:19:6">
+	      <point atPoint="0" direction="3"/>
+	      <point atPoint="1" direction="0"/>
+	      <point atPoint="273" direction="0"/>
+	    </figure>
+	    <figure name="Figure B" cycles="3" colorPalette="Palette 2016-6-17_15:19:6">
+	      <point atPoint="0" direction="3"/>
+	      <point atPoint="1" direction="0"/>
+	      <point atPoint="273" direction="0"/>
+		</figure>
+	</figures>
 	<colorPalettes>
 		<palette name="Paleta 1">
 			<color r="255" g="0" b="0"></color>

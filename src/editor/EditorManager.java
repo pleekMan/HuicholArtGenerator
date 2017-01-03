@@ -15,6 +15,7 @@ import canvas.Figure;
 import canvas.Point;
 import processing.core.PImage;
 import processing.core.PVector;
+import processing.data.XML;
 import controlP5.*;
 
 /*
@@ -137,6 +138,7 @@ public class EditorManager {
 
 		//createDefaultPalette();
 		createHexagonalDirectionVectors();
+		loadFigures();
 
 		// RENDERING
 		roiCorners = new PVector[4];
@@ -206,10 +208,12 @@ public class EditorManager {
 		if (showFigureGizmos) {
 			showFigureGizmos();
 		}
-
+		
+		/*
 		if (setDirectionsMode) {
 			//setDirectionsProcedure();
 		}
+		*/
 
 		if (showGridPoints) {
 			showGridPoints();
@@ -254,7 +258,7 @@ public class EditorManager {
 		if (key == 'd') {
 			toggleSetDirections();
 		}
-		
+
 		if (key == 'l') {
 			lockBackImageScaleToCanvasScale = !lockBackImageScaleToCanvasScale;
 		}
@@ -627,8 +631,8 @@ public class EditorManager {
 		gridDirectionVectors[4] = PVector.mult(gridDirectionVectors[1], -1);
 		gridDirectionVectors[5] = PVector.mult(gridDirectionVectors[2], -1);
 
-		p5.print("||- GRID DIRECTION VECTORS:");
-		p5.println(gridDirectionVectors);
+		//p5.print("||- GRID DIRECTION VECTORS:");
+		//p5.println(gridDirectionVectors);
 	}
 
 	private void createDefaultPalette() {
@@ -680,16 +684,16 @@ public class EditorManager {
 		return p;
 	}
 
-	public void toggleSetDirections(){
+	public void toggleSetDirections() {
 		if (canvas.figures.size() > 0) {
 			setDirectionsMode = !setDirectionsMode;
 			logFooterText = "SET DIRECTIONS MODE";
 			//Toggle backImageToggle = (Toggle) controlFrame.cp5.get("gui_setDirectionsMode");
 			//backImageToggle.setValue(setDirectionsMode);
 		}
-	
+
 	}
-	
+
 	private void setDirectionsProcedure() {
 		if (selectedFigurePoint >= 0) {
 			Point actualSelectedPoint = canvas.figures.get(selectedFigure).points.get(selectedFigurePoint);
@@ -729,7 +733,45 @@ public class EditorManager {
 		p5.text(angle + " : " + lastVertexGridIdDirection, p5.mouseX, p5.mouseY - 20);
 		*/
 	}
+	
+	private void loadFigures() {
 
+		
+		XML[] figuresRootTag = AppManager.settings.getChildren("figures/figure");
+		for (int i = 0; i < figuresRootTag.length; i++) {
+			//p5.println("Figures Saved: " + figuresRootTag[i].getString("name"));
+			p5.print(figuresRootTag[i].getName()); // TAG NAME
+			p5.println(" | Childs: " + figuresRootTag.length);
+			
+			int figureCycle = figuresRootTag[i].getInt("cycles");
+			
+			XML[] figurePoints = figuresRootTag[i].getChildren("point");
+			p5.println(figurePoints[i].getName());
+			
+			//ArrayList<Point> newPoints = new ArrayList<Point>();
+			int[] figurePointsLink = new int[figurePoints.length];
+			int[] pointsDirection = new int[figurePoints.length];
+			for (int j = 0; j < figurePoints.length; j++) {
+				p5.print(" | " + figurePoints[j].getString("atPoint"));
+				figurePointsLink[j] = figurePoints[j].getInt("atPoint");
+				pointsDirection[j] = figurePoints[j].getInt("direction");
+			}
+			p5.println();
+			
+			createNewFigureFromPoints(figurePointsLink, pointsDirection, figureCycle);
+		}
+	}
+	
+	private void createNewFigureFromPoints(int[] points, int[] directions, int _cycles){
+		for (int i = 0; i < points.length; i++) {
+			figureVertices.add(canvas.points.get(points[i]).position);
+			figurePointsLink.add(canvas.points.get(points[i]));
+		}
+		spawnNewFigure(directions, _cycles);
+		resetNewFigureData();
+
+	}
+	
 	private void createNewFigureProcedure() {
 
 		// DETECT POINT CLICKED
@@ -786,7 +828,6 @@ public class EditorManager {
 	public void showGridPoints() {
 		p5.noFill();
 		p5.stroke(guiColors[BLUEGRAY]);
-
 		for (int i = 0; i < canvas.points.size(); i++) {
 			Point actualPoint = canvas.points.get(i);
 			PVector viewCoords = AppManager.canvasToViewTransform(actualPoint.position);
@@ -794,6 +835,10 @@ public class EditorManager {
 			// YEAH OPTIMIZATION --> ONLY DRAW CIRCLES IF THE ARE INSIDE THE VIEWPORT
 			if (viewCoords.x < p5.width && viewCoords.x > 0 && viewCoords.y < p5.height && viewCoords.y > 0) {
 				p5.ellipse(viewCoords.x, viewCoords.y, canvas.pointSize * AppManager.canvasScale, canvas.pointSize * AppManager.canvasScale);
+
+				//p5.fill(255,255,0);
+				//p5.text(i, viewCoords.x, viewCoords.y);
+				//p5.noFill();
 			}
 		}
 	}
@@ -838,9 +883,29 @@ public class EditorManager {
 		// ---  INSERT A NEW FIGURE, BASED ON A COLOR PALETTE
 
 		PVector[] directions = getRandomDirections(figureVertices.size());
-		Figure newFigure = new Figure(canvas.figuresLayer);
 		ColorPalette figureColors = colorManager.getSelectedPalette();
+		Figure newFigure = new Figure(canvas.figuresLayer);
 		newFigure.initialize(figurePointsLink, directions, figureColors, newFigureCycles);
+		canvas.addFigure(newFigure);
+
+		selectedFigure = canvas.figures.size() - 1;
+		selectedFigurePoint = 0;
+
+		createFigureMode = false;
+	}
+	
+	private void spawnNewFigure(int[] _directions, int _cycles) {
+
+		// ---  INSERT A SAVED FIGURE, FROM THE SETTINGS FILE
+
+		PVector[] directions = new PVector[_directions.length];
+		for (int i = 0; i < directions.length; i++) {
+			directions[i] = new PVector();
+			directions[i].set(gridDirectionVectors[_directions[i]]);
+		}
+		ColorPalette figureColors = colorManager.getSelectedPalette();
+		Figure newFigure = new Figure(canvas.figuresLayer);
+		newFigure.initialize(figurePointsLink, directions, figureColors, _cycles);
 		canvas.addFigure(newFigure);
 
 		selectedFigure = canvas.figures.size() - 1;
@@ -920,15 +985,15 @@ public class EditorManager {
 
 		}
 	}
-	
-	public void setBackImageScale(float scale){
-		
-		if(lockBackImageScaleToCanvasScale){
+
+	public void setBackImageScale(float scale) {
+
+		if (lockBackImageScaleToCanvasScale) {
 			backImageScale = scale * AppManager.canvasScale;
 		} else {
 			backImageScale = scale;
 		}
-		
+
 	}
 
 	public void deletePalette() {

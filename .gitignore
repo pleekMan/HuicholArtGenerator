@@ -5,3 +5,5 @@ data/ControlPanelRef.png
 /Huichol Pattern Generator App
 *.zip
 app*
+/bin
+/bin

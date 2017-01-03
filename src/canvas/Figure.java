@@ -29,6 +29,8 @@ public class Figure {
 	int cycle;
 	int maxCycles;
 	int maxCyclesInit;
+	
+	String name;
 
 	//PVector startPosition;
 
@@ -40,6 +42,8 @@ public class Figure {
 
 		atColorStage = 0;
 		maxColorStages = -1;
+		
+		name ="";
 
 	}
 
@@ -166,6 +170,10 @@ public class Figure {
 			shapes.get(i).restart();
 		}
 
+	}
+	
+	public void setName(String _name){
+		name = _name;
 	}
 
 	public void setColorPalette(ColorPalette palette) {

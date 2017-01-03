@@ -15,7 +15,6 @@ public class AppManager {
 	CanvasManager canvas;
 	EditorManager editor;
 	
-
 	PVector canvasSize;
 	//PVector viewSize; // NOT USED ??
 
