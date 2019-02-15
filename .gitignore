@@ -1,7 +1,7 @@
-/bin
-/renders
-/src_BKUP
+bin/
+renders/
+src_BKUP/
 data/ControlPanelRef.png
-/Huichol Pattern Generator App
+Huichol Pattern Generator App*/
 *.zip
 app*
