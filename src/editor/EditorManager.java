@@ -761,7 +761,7 @@ public class EditorManager {
 			createNewFigureFromPoints(figurePointsLink, pointsDirection, figureCycle);
 		}
 	}
-	
+	 
 	private void createNewFigureFromPoints(int[] points, int[] directions, int _cycles){
 		for (int i = 0; i < points.length; i++) {
 			figureVertices.add(canvas.points.get(points[i]).position);
@@ -865,6 +865,7 @@ public class EditorManager {
 		p5.vertex(canvasEnd.x, canvasOrigin.y);
 		p5.vertex(canvasEnd.x, canvasEnd.y);
 		p5.vertex(canvasOrigin.x, canvasEnd.y);
+		
 		// Interior part of shape, has to be counter-clockwise winding
 		p5.beginContour();
 		p5.vertex(transformedRoiCorners[0].x, transformedRoiCorners[0].y);

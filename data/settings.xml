@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<settings name ="Animation_00" canvasPointCount="85838">
+<settings canvasPointCount="85838" name="Animation_00">
   <figures>
-    <figure name="Figure A" cycles="3" colorPalette="Palette 2016-6-17_15:19:6">
+    <figure colorPalette="Palette 2016-6-17_15:19:6" cycles="3" name="Figure A">
       <point atPoint="0" direction="3"/>
       <point atPoint="1" direction="0"/>
       <point atPoint="273" direction="0"/>
     </figure>
-    <figure name="Figure B" cycles="5" colorPalette="Palette 2016-6-17_15:19:6">
+    <figure colorPalette="Palette 2016-6-17_15:19:6" cycles="5" name="Figure B">
       <point atPoint="0" direction="3"/>
       <point atPoint="1" direction="0"/>
       <point atPoint="273" direction="0"/>
+    </figure>
+    <figure colorPalette="Palette 2016-6-17_15:19:6" cycles="10" name="Figure C">
+      <point atPoint="10" direction="1"/>
+      <point atPoint="11" direction="1"/>
+      <point atPoint="12" direction="1"/>
     </figure>
   </figures>
   <colorPalettes>
@@ -117,6 +122,70 @@
       <color b="12" g="20" r="108"/>
       <color b="42" g="35" r="54"/>
       <color b="255" g="255" r="255"/>
+    </palette>
+    <palette name="Palette 2017-1-24_22:41:0">
+      <color b="56" g="27" r="158"/>
+      <color b="142" g="56" r="12"/>
+      <color b="53" g="21" r="66"/>
+      <color b="24" g="109" r="233"/>
+      <color b="64" g="31" r="80"/>
+      <color b="0" g="109" r="218"/>
+      <color b="47" g="109" r="233"/>
+      <color b="35" g="98" r="230"/>
+      <color b="27" g="62" r="196"/>
+      <color b="30" g="106" r="223"/>
+      <color b="85" g="111" r="165"/>
+      <color b="248" g="78" r="0"/>
+      <color b="188" g="255" r="82"/>
+      <color b="49" g="163" r="0"/>
+      <color b="252" g="224" r="5"/>
+    </palette>
+    <palette name="Palette 2017-4-5_20:23:48">
+      <color b="34" g="65" r="216"/>
+      <color b="132" g="52" r="0"/>
+      <color b="138" g="50" r="3"/>
+      <color b="255" g="41" r="13"/>
+      <color b="79" g="255" r="106"/>
+      <color b="90" g="189" r="255"/>
+      <color b="125" g="211" r="0"/>
+      <color b="132" g="50" r="9"/>
+      <color b="57" g="32" r="196"/>
+      <color b="131" g="47" r="0"/>
+      <color b="28" g="17" r="193"/>
+      <color b="116" g="83" r="134"/>
+      <color b="55" g="57" r="205"/>
+    </palette>
+    <palette name="Palette 2018-1-22_21:53:28">
+      <color b="0" g="199" r="191"/>
+      <color b="225" g="255" r="129"/>
+      <color b="238" g="0" r="44"/>
+      <color b="255" g="136" r="225"/>
+      <color b="118" g="255" r="108"/>
+      <color b="195" g="193" r="0"/>
+      <color b="169" g="11" r="2"/>
+    </palette>
+    <palette name="Palette 2018-1-22_21:54:48">
+      <color b="202" g="241" r="255"/>
+      <color b="36" g="104" r="230"/>
+      <color b="21" g="44" r="210"/>
+      <color b="47" g="31" r="169"/>
+      <color b="35" g="23" r="197"/>
+      <color b="49" g="27" r="195"/>
+      <color b="63" g="32" r="139"/>
+      <color b="71" g="24" r="136"/>
+      <color b="74" g="38" r="114"/>
+      <color b="71" g="19" r="79"/>
+      <color b="64" g="2" r="49"/>
+      <color b="98" g="32" r="67"/>
+      <color b="119" g="39" r="32"/>
+      <color b="228" g="161" r="105"/>
+    </palette>
+    <palette name="Palette 2018-1-23_17:31:4">
+      <color b="166" g="255" r="27"/>
+      <color b="218" g="255" r="129"/>
+      <color b="234" g="0" r="57"/>
+      <color b="53" g="25" r="192"/>
+      <color b="37" g="35" r="208"/>
     </palette>
   </colorPalettes>
 </settings>
